@@ -1,5 +1,5 @@
 # Environment
-<!-- Loaded in every session. Fill in the tables (or type /brain-sds:brain-setup and let Claude ask you). No passwords, keys or tokens. -->
+<!-- Loaded in every session. Fill in the tables (or type /brain-sds:brain-setup and let Claude ask you). Incident times in UTC. No passwords, keys or tokens: at most where a secret is kept. -->
 
 Reported for the whole fleet on 2026-11-09, not yet confirmed per cluster (replace with the tables below):
 - **Ceph**: Red Hat Ceph Storage, cephadm, containerized, with RGW. Releases in use: 7.1z7, 8.1z3, 8.1z6, 8.1z7, 8.1z8, 8.1z9.
@@ -10,14 +10,14 @@ Reported for the whole fleet on 2026-11-09, not yet confirmed per cluster (repla
 - **Objectify**: internal API; an account is an RGW user on Ceph and a tenant on StorageGRID.
 
 ## Ceph clusters
-| Cluster | FSID | RHCS release | Site | RGW endpoints / zones | Hosts (model) | Notes |
-|---|---|---|---|---|---|---|
-| | | | | | | |
+| Cluster | FSID | RHCS release | Daemon versions / image digest | Site | RGW realm / zones / endpoints | Hosts (model, RHEL, kernel) | Notes |
+|---|---|---|---|---|---|---|---|
+| | | | | | | | |
 
 ## StorageGRID grids
-| Grid | Version / build | Sites | S3 endpoints | Admin nodes | Notes |
-|---|---|---|---|---|---|
-| | | | | | |
+| Grid | Version / build / hotfix | Sites | S3 endpoints | Admin nodes | Management API version | Notes |
+|---|---|---|---|---|---|---|
+| | | | | | | |
 
 ## Servers
 | Model | Generation | iLO | Storage controller | Used for |
@@ -25,9 +25,11 @@ Reported for the whole fleet on 2026-11-09, not yet confirmed per cluster (repla
 | | | | | |
 
 ## Monitoring
-- Grafana: url, version; one datasource per cluster? (name -> cluster):
+- Grafana: url, version; datasource uids per cluster (uid -> cluster); dashboards that matter (uid):
+- Prometheus behind Grafana: yes / no:
 - Custom exporter: where it runs, what scrapes it, the metrics that matter (name, unit, labels):
-- Elasticsearch: what it holds (RGW logs, StorageGRID audit, object metadata?), index names, timestamp field, request-id field:
+- Elasticsearch: version; what it holds (RGW logs, StorageGRID audit, object metadata?); index names / aliases;
+  timestamp field; cluster field; request-id field:
 
 ## Objectify
 - Base url, how to authenticate (no secrets here), which backends it fronts:

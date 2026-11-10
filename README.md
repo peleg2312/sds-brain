@@ -10,8 +10,10 @@ The same structure as the storage team's brains: one team repository holding the
 ```
 .claude-plugin/marketplace.json   what makes this repository installable in Claude Code
 brain-sds/                        the plugin: skills/ (22), agents/, hooks/, .mcp.json, team.json, tools/
-rules/                            main.md (golden rules), persona.md, guard-allow.txt: the team's own, loaded every session
-knowledge/                        environment.md, notes.md, notes/, runbooks/, captures/, incidents/: what the team learns
+rules/                            main.md (golden rules), persona.md, storage.md (identity, versions, evidence, each
+                                  domain), guard-allow.txt: the team's own, loaded every session
+knowledge/                        environment.md, notes.md, tool-map.md (loaded every session), notes/, runbooks/,
+                                  captures/, incidents/, INDEX.md (generated): what the team learns
 docs/                             the vendor documentation the library is built from (LIBRARY.md)
 connections/                      Grafana (bundled, read-only), Objectify, Red Hat offline portal (okp)
 join.sh  vm-setup.py  check.py  test_brain.py

@@ -210,6 +210,8 @@ try:
     remote_log = lambda: sh("git", "log", "--format=%an %s", "main", cwd=bare)
     rc, out, _ = save(alice, "knowledge/notes/ceph.md", "# Ceph: clusters and quirks\n- 2026-11-10 · cluster prod-a nearfull ratio is 0.80 · verified · ceph osd dump\n")
     assert rc == 0 and out == "" and "alice brain: knowledge/notes/ceph.md" in remote_log(), (out, remote_log())
+    index = sh("git", "show", "main:knowledge/INDEX.md", cwd=bare)          # regenerated in the same commit
+    assert "[ceph.md](notes/ceph.md): Ceph: clusters and quirks (1 facts)" in index and "## Runbooks" in index, index
     # a secret: reported to Claude, nothing committed
     rc, out, _ = save(alice, "knowledge/captures/2026-11-10-keys.md", '# RGW user\n"secret_key": "wJalrXUtnFEMIK7MDENGbPxRfiCYEXAMPLEKEYab"\naccess AKIAIOSFODNN7EXAMPLE\n')
     msg = json.loads(out)["hookSpecificOutput"]["additionalContext"]
@@ -301,7 +303,21 @@ try:
     assert "storagegrid-118" in src and "storagegrid-120" in src and "squid" in src, src[:400]
     r = subprocess.run([sys.executable, PLUGIN + "/tools/search.py", "SignatureDoesNotMatch", "--limit", "2"], cwd=bob, capture_output=True, text=True, env=ENV)
     assert r.returncode == 0 and "aws/s3" in r.stdout, r.stdout[:300]
-    print("docs-local ok (no VM: the repository's docs/ and the team's knowledge)")
+    # the first SDS brain's library checks: each query's best hit comes from the right product (and release)
+    GOLDEN = [("BLUEFS_SPILLOVER db partitions metadata", "", "ceph/"), ("radosgw-admin sync status metadata caught up shards", "", "ceph/squid"),
+              ("HeadObject missing object ListBucket 403 404", "", "aws/s3"), ("SignatureDoesNotMatch SlowDown 503", "", "aws/s3"),
+              ("metadata allowed space smallest site 100%", "storagegrid-119", "netapp/storagegrid-119"),
+              ("ILM policy tags Default untagged buckets", "storagegrid-119", "netapp/storagegrid-119"),
+              ("TYPE before sample histogram le +Inf x_count", "", "prometheus/prometheus"),
+              ("Elasticsearch time field @timestamp Lucene", "", "grafana/grafana"),
+              ("ilorest parallel different cache directory", "", "hpe/ilo-redfish"),
+              ("podman container inspect Go template --latest", "", "podman/podman")] + [
+              ("ILM rule reference time ingest time", f"storagegrid-{v}", f"netapp/storagegrid-{v}") for v in ("118", "119", "120")]
+    o = mcp([PLUGIN + "/tools/docs_server.py"], [("search_docs", {"query": q, "product": p, "limit": 3}) for q, p, _ in GOLDEN], cwd=bob)
+    for i, (q, _, want) in enumerate(GOLDEN, 1):
+        top = text(o[i])["results"][0]
+        assert f"{top['vendor']}/{top['product']}".startswith(want), (q, top["vendor"], top["product"])
+    print(f"docs-local ok (no VM: the repository's docs/ and the team's knowledge; {len(GOLDEN)} library checks)")
 
     # ---- 4b. docs leads (each request) and docs hints (each result) on the local index
     def prompt_hook(text, sid, root=bob, env=None):

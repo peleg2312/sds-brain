@@ -147,7 +147,7 @@ def team_changes_line(days=14, most=6):
         if not lines or email == me:
             continue
         for f in lines[1:]:
-            if f.endswith(".md") and f not in seen and os.path.exists(os.path.join(b.ROOT, f)):
+            if f.endswith(".md") and f != "knowledge/INDEX.md" and f not in seen and os.path.exists(os.path.join(b.ROOT, f)):
                 seen[f] = who or email.split("@")[0]
     if not seen:
         return ""

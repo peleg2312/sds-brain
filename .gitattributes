@@ -1,4 +1,5 @@
 # two people adding notes at the same moment: keep both sides instead of a conflict
+# (knowledge/INDEX.md too: it is generated, and rewritten after every pull, so a merged copy never stays)
 knowledge/*.md merge=union
 knowledge/**/*.md merge=union
 # the vendored Grafana archives are binary

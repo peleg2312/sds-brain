@@ -20,7 +20,7 @@ import brainlib as b  # noqa: E402
 ROOT, PLUG = b.ROOT, os.path.join(HERE, b.NAME)
 bad = []
 RUNBOOK_SECTIONS = ("Pre-checks", "Procedure", "Verification", "Rollback")
-RULE_CAPS = {"main.md": 120, "persona.md": 30}
+RULE_CAPS = {"main.md": 120, "persona.md": 30, "storage.md": 150}
 
 
 def ok(label, cond, detail=""):
@@ -115,6 +115,10 @@ for imp in re.findall(r"^@(\S+)$", main_md, re.M):
 for f in b.knowledge_files():
     found = b.findings(f)
     ok("no secret in " + rel(f), not found, "; ".join(x.split(": ", 1)[-1] + " line " + x.split(":")[1] for x in found[:5]))
+tmap = os.path.join(b.KNOWLEDGE, "tool-map.md")
+if os.path.isfile(tmap):
+    n = len(open(tmap, encoding="utf-8").read().splitlines())
+    ok("knowledge/tool-map.md under 40 lines", n <= 40, f"{n} lines: it is loaded into every session")
 notes = os.path.join(b.KNOWLEDGE, "notes.md")
 if os.path.isfile(notes):
     n = len(open(notes, encoding="utf-8").read().splitlines())

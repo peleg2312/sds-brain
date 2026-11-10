@@ -29,10 +29,15 @@ already filled. Where a read-only command gives the answer, offer it for the use
 
 When a section is confirmed, delete the matching "reported, not yet confirmed" line at the top of the file.
 
-## 3. Core notes
+## 3. Tool map
+`knowledge/tool-map.md` (loaded every session, 40 lines at most) says which tool answers what. Update it with what
+step 1 found: which connections answer, the Grafana datasources worth naming, the read commands the team runs and
+where (admin host, jump host). No secrets, no full tool lists (the tools describe themselves).
+
+## 4. Core notes
 Ask for the few facts every session needs and put them in `knowledge/notes.md` (60 lines at most): naming prefixes for
 clusters, zones, buckets, tenants; agreed thresholds; who owns what and how to escalate.
 
-## 4. Finish
+## 5. Finish
 Summarize what was filled, what is still empty, and which connections remain to configure. The save hook has already
 committed and pushed the files.

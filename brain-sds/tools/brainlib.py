@@ -126,6 +126,58 @@ def knowledge_files():
             + sorted(glob.glob(os.path.join(k, "incidents", "**", "*.md"), recursive=True)))
 
 
+def write_index():
+    """knowledge/INDEX.md: what the team knows, at a glance in the git server's web view (core facts, topics with their
+    fact counts, pages, runbooks, captures waiting, incidents, the tool map). Generated at every knowledge commit; never
+    edited by hand. Returns True when it changed."""
+    k = KNOWLEDGE
+    if not os.path.isdir(k):
+        return False
+
+    def title(f):
+        try:
+            return open(f, encoding="utf-8", errors="replace").read().split("\n", 1)[0].lstrip("# ").strip()[:90]
+        except OSError:
+            return ""
+
+    def facts(f):
+        try:
+            return sum(1 for l in open(f, encoding="utf-8", errors="replace").read().splitlines()
+                       if re.match(r"^- \d{4}-\d{2}-\d{2}\b", l))
+        except OSError:
+            return 0
+    name = os.path.basename
+    topics, pages = [], []
+    for f in sorted(glob.glob(os.path.join(k, "notes", "*.md"))):
+        n = facts(f)
+        (topics if n else pages).append(f"- [{name(f)}](notes/{name(f)}): {title(f)}" + (f" ({n} facts)" if n else ""))
+    core = facts(os.path.join(k, "notes.md"))
+    books = [f"- [{name(f)}](runbooks/{name(f)}): {title(f)}" for f in sorted(glob.glob(os.path.join(k, "runbooks", "*.md")))]
+    caps = sorted(glob.glob(os.path.join(k, "captures", "*.md")))
+    inc = sorted(glob.glob(os.path.join(k, "incidents", "**", "*.md"), recursive=True))
+    rel = lambda f: os.path.relpath(f, k).replace(os.sep, "/")
+    lines = ["# Team knowledge index", "", "Generated at every knowledge commit; edit the files, not this page.", "",
+             f"- [environment.md](environment.md): clusters, grids, servers, monitoring (loaded every session)",
+             f"- [notes.md](notes.md): {core} core facts (loaded every session)",
+             "- [tool-map.md](tool-map.md): which tool answers what (loaded every session)", "",
+             "## Topics (dated facts, read when a question touches them)", ""] + (topics or ["- none yet"]) + [
+             "", "## Pages", ""] + (pages or ["- none yet"]) + [
+             "", "## Runbooks (change procedures a person ran and confirmed)", ""] + (books or ["- none yet"]) + [
+             "", f"## Captures waiting for curation: {len(caps)}", ""] + [f"- [{name(c)}]({rel(c)}): {title(c)}" for c in caps[:40]] + [
+             "", f"## Incidents: {len(inc)}", ""] + [f"- [{rel(i)}]({rel(i)}): {title(i)}" for i in inc[-40:]] + [""]
+    text = "\n".join(lines)
+    p = os.path.join(k, "INDEX.md")
+    try:
+        if open(p, encoding="utf-8").read() == text:
+            return False
+    except OSError:
+        pass
+    with open(p + ".tmp", "w", encoding="utf-8") as f:
+        f.write(text)
+    os.replace(p + ".tmp", p)
+    return True
+
+
 # ---- git: knowledge/ is committed and pushed for the team; nothing else is ever committed from here
 
 _IDENT = None
@@ -195,8 +247,9 @@ def commit(message, rel=None):
     rejected because a teammate pushed first: pull their commits, push again. Returns True when something was committed."""
     if not is_repo():
         return False
+    write_index()
     if rel:
-        spec = ["--", rel]
+        spec = ["--", rel, os.path.join("knowledge", "INDEX.md")]
     else:
         held = [os.path.relpath(f, ROOT) for f in knowledge_files() if findings(f)]
         spec = ["--", "knowledge"] + [":!" + h for h in held]
@@ -232,6 +285,8 @@ def sync():
             return ("CONFLICT with the team's changes in " + ", ".join(conflicted[:5])
                     + f": tell the user to resolve it by hand (cd {ROOT} && git pull --rebase)")
         return "pull failed: " + (out.splitlines() or ["?"])[-1][:160] + " (working from the local copy)"
+    if write_index():                       # two members' pages merged: the index follows them
+        commit("brain: index", os.path.join("knowledge", "INDEX.md"))
     rc = push(8)
     ahead = git(["rev-list", "--count", "@{upstream}..HEAD"], 5)[1]
     if rc == 0 or ahead in ("0", ""):

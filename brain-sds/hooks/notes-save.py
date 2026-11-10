@@ -4,6 +4,7 @@ secrets (S3 keys, tokens, passwords, presigned URLs, private keys). Clean: commi
 docs-local's index is refreshed in the background and the VM's docs service (docs-http) is told to re-index the team's
 knowledge, so teammates find the page seconds later. A secret: nothing is committed and Claude is told to replace it.
   notes-save.py --scan     scan every knowledge file; exit 1 on findings (check.py runs the same patterns)
+  notes-save.py --index    rewrite knowledge/INDEX.md (every knowledge commit does it too)
 Standard library only; never fails the tool call (always exit 0 as a hook)."""
 import json
 import os
@@ -75,6 +76,9 @@ def hook():
 
 
 def main():
+    if sys.argv[1:2] == ["--index"]:
+        print("knowledge/INDEX.md " + ("rewritten" if b.write_index() else "unchanged"))
+        return 0
     if sys.argv[1:2] == ["--scan"]:
         found = [x for f in b.knowledge_files() for x in b.findings(f)]
         print("\n".join(found))
