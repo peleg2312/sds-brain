@@ -4,9 +4,15 @@ description: How to search the offline documentation library and the team knowle
 ---
 # Docs lookup
 
-The `sds-docs` MCP server searches everything under `docs/` plus `knowledge/` (notes, runbooks, captures, incidents).
-Tools: `search_docs`, `read_chunk`, `read_document`, `related_docs`, `list_sources`. Without MCP:
-`python3 tools/search.py "query" [--product storagegrid-119]`.
+Two servers, the same tools (`search_docs`, `read_chunk`, `read_document`, `related_docs`, `list_sources`):
+- **docs-http**: the VM's docs service. The vendor library, plus the team's knowledge as of its last round (10 minutes
+  at most). When it is connected, search vendor documentation here.
+- **docs-local**: the team's knowledge (notes, runbooks, captures, incidents) as it is on this machine right now. Where
+  there is no docs-http it searches the vendor library too (`list_sources` shows what it has).
+
+A product question goes to the server that has the library; a question about this environment or a past problem goes
+to docs-local first. Chunk ids belong to the server that returned them. Without MCP:
+`python3 ~/.claude/sds-brain/brain-sds/tools/search.py "query" [--product storagegrid-119]`.
 
 ## Products (vendor / product; `list_sources` shows the current list and counts)
 | Ask about | Use |
@@ -17,7 +23,7 @@ Tools: `search_docs`, `read_chunk`, `read_document`, `related_docs`, `list_sourc
 | AWS S3 reference: errors, SigV4, presigned URLs, multipart, versioning, lifecycle, Object Lock, 403 guide | `aws` / `s3` |
 | Grafana (Elasticsearch / Prometheus datasources, service accounts), Prometheus, Elasticsearch APIs | `grafana`, `prometheus`, `elastic` |
 | HPE iLOrest and Redfish | `hpe` / `ilo-redfish` |
-| The team's own knowledge | results marked `library: team knowledge` |
+| The team's own knowledge | results marked `library: team knowledge`, or product `brain-notes` / `brain-runbooks` / ... |
 
 **Not in the library unless the team added it**: Red Hat Ceph Storage and RHEL manuals and release notes, StorageGRID
 fixed-issue PDFs, HPE service guides. When the answer needs one, say so and ask the user for the page, or use the
@@ -35,6 +41,7 @@ Red Hat offline portal connection (`sds-okp`) when it is connected. Never fill t
 5. A hit titled "Unverified capture" is a teammate's draft: useful lead, say it is unverified.
 
 ## Adding documents
-Files (PDF, HTML, Markdown, text) placed under `docs/<vendor>/<product>/` and committed are indexed at the next
-session, for the whole team (for example `docs/redhat/rhcs-8.1/`, `docs/redhat/rhel-9/`, `docs/hpe/apollo-4200-gen10/`).
+Files (PDF, HTML, Markdown, text) placed under `docs/<vendor>/<product>/` of the team repository and committed (for
+example `docs/redhat/rhcs-8.1/`, `docs/redhat/rhel-9/`, `docs/hpe/apollo-4200-gen10/`) reach the whole team: the VM's
+library is rebuilt by `vm-setup.py` there, a machine without docs-http indexes them at the next session (`LIBRARY.md`).
 Tell the user this when a needed manual is missing; adding files there is the user's step.

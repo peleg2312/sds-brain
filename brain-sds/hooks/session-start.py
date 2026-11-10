@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-"""SessionStart hook: sync knowledge/ with the team repository and print a few lines of brain status into the session
-(library, environment, the memory catalog, runbooks, captures waiting, teammates' recent changes, connections).
+"""SessionStart hook: sync the team repository (the brain's home), bring this plugin up to date when its files changed
+there, and print a few lines of brain status into the session (home, library, environment, the memory catalog,
+runbooks, captures waiting, teammates' recent changes, connections).
 Standard library only; never fails the session (always exit 0)."""
 import glob
 import os
 import re
 import sqlite3
+import subprocess
 import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "tools"))
+sys.path.insert(0, os.path.join(os.path.dirname(HERE), "tools"))
 import brainlib as b  # noqa: E402
 
 NOTES_CAP, TOPIC_CAP, STALE_DAYS = 60, 150, 180
@@ -25,15 +27,49 @@ def read(path):
         return ""
 
 
+def home_line():
+    return (f"Home: {b.shown()} (the team repository: rules/, knowledge/, docs/, connections/). Paths in the rules and "
+            "skills are relative to it; write notes there, never into the folder you were started in.")
+
+
+def plugin_line():
+    """this plugin runs from Claude Code's copy; when the repository's plugin folder differs (a teammate changed a skill
+    or a hook), update the copy in the background, once per version. It applies from the next session."""
+    src = os.path.join(b.ROOT, b.NAME)
+    if not os.path.isdir(src) or os.path.realpath(src) == os.path.realpath(b.PLUGIN):
+        return ""
+    want = b.fingerprint(src)
+    if want == b.fingerprint(b.PLUGIN):
+        return ""
+    mark = os.path.join(b.CACHE, "plugin-update")
+    if read(mark).strip() == want:
+        return ("The brain's plugin differs from the team repository and an update did not change that: tell the user to "
+                f"run `sh {b.shown()}/join.sh` (uncommitted changes in {b.NAME}/ are not installed).")
+    try:
+        os.makedirs(b.CACHE, exist_ok=True)
+        with open(mark, "w", encoding="utf-8") as f:
+            f.write(want + "\n")
+        log = open(os.path.join(b.CACHE, "plugin-update.log"), "w")
+        subprocess.Popen(["sh", "-c", f"claude plugin marketplace update {b.NAME} && claude plugin update {b.NAME}@{b.NAME}"],
+                         stdin=subprocess.DEVNULL, stdout=log, stderr=log, start_new_session=True)
+    except OSError:
+        return f"The brain's plugin changed in the team repository: tell the user to run `sh {b.shown()}/join.sh`."
+    return "The brain's plugin (skills, hooks) changed in the team repository: it is being updated and applies from the next session."
+
+
 def library_line():
-    db = os.path.join(b.CACHE, "docs.db")
+    """where the vendor documentation is searched on this machine"""
+    http, db = b.docs_http(), b.vm_library() or os.path.join(b.CACHE, "docs.db")
+    if http and not b.vm_library():
+        return ("Docs: the vendor library is on docs-http (the VM's docs service, with the team's knowledge as of its last "
+                "10-minute round); docs-local searches the team's knowledge as it is on this machine.")
     try:
         con = sqlite3.connect(f"file:{db}?mode=ro", uri=True, timeout=2)
         n, p = con.execute("SELECT count(*), count(DISTINCT vendor || '/' || product) FROM docs WHERE dup_of IS NULL").fetchone()
         con.close()
-        return f"Library: {n} documents in {p} products under docs/ (sds-docs: list_sources shows them)."
+        return f"Docs: docs-local searches {n} documents in {p} products plus the team's knowledge (list_sources shows them)."
     except sqlite3.Error:
-        return "Library: docs/ (the sds-docs server builds its index at first start, a few seconds)."
+        return "Docs: docs-local builds its index from docs/ at first start (a few seconds), plus the team's knowledge."
 
 
 def environment_line():
@@ -41,7 +77,7 @@ def environment_line():
     rows = sum(1 for line in text.splitlines() if re.match(r"^\|\s*[^|\s-][^|]*\|", line) and not line.startswith("| Cluster")
                and not line.startswith("| Grid") and not line.startswith("| Model"))
     if "not yet confirmed per cluster" in text and not rows:
-        return "environment.md: only the reported fleet summary, no cluster or grid filled in yet (offer /brain-setup once)."
+        return "environment.md: only the reported fleet summary, no cluster or grid filled in yet (offer /brain-sds:brain-setup once)."
     return f"environment.md: {rows} cluster / grid / server rows filled."
 
 
@@ -100,7 +136,8 @@ def team_changes_line(days=14, most=6):
     if not b.is_repo():
         return ""
     me = b.git(["config", "user.email"], 3)[1] or b.identity().get("GIT_AUTHOR_EMAIL", "")
-    rc, out = b.git(["log", f"--since={days}.days", "--format=%x00%ae%x09%an", "--name-only", "--", "knowledge"], 4)
+    rc, out = b.git(["log", f"--since={days}.days", "--invert-grep", "--grep=^SDS brain:", "--format=%x00%ae%x09%an",
+                      "--name-only", "--", "knowledge"], 4)          # not the commits that built or restructured the brain
     if rc != 0:
         return ""
     seen = {}
@@ -132,8 +169,11 @@ def main():
         sys.stdin.read()
     except Exception:
         pass
+    if not b.ROOT:
+        print("SDS brain: " + b.SETUP + " Tell the user this once; until then only the skills and the read-only guard work.")
+        return 0
     lines = []
-    for fn in (lambda: "Team repository: " + b.sync() + ".", library_line, environment_line, memory_lines, team_changes_line,
+    for fn in (home_line, lambda: "Team repository: " + b.sync() + ".", plugin_line, library_line, environment_line, memory_lines, team_changes_line,
                connections_line):
         try:
             got = fn()

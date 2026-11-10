@@ -9,8 +9,9 @@ Goal: `knowledge/environment.md` describes the real clusters and grids, and the 
 Ask, do not guess (rule 2); no passwords, keys or tokens in any file (rule 4).
 
 ## 1. Connections (report each as: working / not configured / failing, with the fix)
-- **sds-docs**: call `list_sources`; say how many documents per product, and what is missing for this team (Red Hat
-  manuals: `docs-lookup`, "Adding documents").
+- **docs**: call `list_sources` on docs-http when it is connected, else on docs-local; say how many documents per
+  product, and what is missing for this team (Red Hat manuals: `docs-lookup`, "Adding documents"). No docs-http: the
+  team has no VM docs service set up, docs-local searches the repository's own `docs/` (`vm-setup.py` adds it).
 - **grafana**: if its tools answer, list the datasources (name, type, uid). If it says it is not configured, show the
   user the two lines from `connections/grafana/README.md` (URL and read-only token in their shell profile).
 - **objectify**: call its status tool and report what it says is still needed (`connections/objectify/README.md`).

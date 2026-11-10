@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Start the official Grafana MCP server shipped in vendor/ (nothing is downloaded), read-only.
 
-    python3 connections/grafana/launch.py            what .mcp.json runs
+    python3 connections/grafana/launch.py            what the plugin runs (brain-sds/tools/connect.py grafana)
     python3 connections/grafana/launch.py --check    verify the archive for this machine and show the configuration
 
 Configuration (your shell profile; see README.md):
@@ -22,7 +22,7 @@ import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
-sys.path.insert(0, os.path.join(ROOT, "tools"))
+sys.path.insert(0, os.path.join(ROOT, "brain-sds", "tools"))
 FLAGS = ["-t", "stdio", "--disable-write", "--usage-stats=disabled",
          "--enabled-tools=search,datasource,dashboard,elasticsearch,prometheus"]
 

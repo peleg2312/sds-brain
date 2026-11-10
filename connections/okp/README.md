@@ -6,13 +6,13 @@ documentation that is not in `docs/` (the other way: put the manuals under `docs
 
 Nothing here is started by the brain. You run the container; each person connects to it with one command.
 
-## Connect (once per person, from this repository's folder)
+## Connect (once per person)
 ```bash
-claude mcp add --transport http --scope local sds-okp http://127.0.0.1:8000/mcp
+claude mcp add --transport http --scope user sds-okp http://127.0.0.1:8000/mcp
 ```
 `/mcp` in Claude then lists `sds-okp`. The service on another host: keep it on that host's loopback and tunnel,
 `ssh -N -L 8000:127.0.0.1:8000 <host>`; a shared endpoint needs a TLS proxy with authentication in front.
-Remove with `claude mcp remove --scope local sds-okp`.
+Remove with `claude mcp remove --scope user sds-okp`.
 
 ## Run the service (Linux host with Podman 4.6+, rootless Quadlet units in `podman/`)
 The images are not shipped: `quay.io/redhat-user-workloads/rhel-lightspeed-tenant/rhel-knowledge-bridge` (okp-mcp) and,

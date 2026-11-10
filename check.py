@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""The repository's own check (CI runs it on every push; run it before a manual change lands):
-every JSON file parses, the Python files compile, every skill and agent has a name and a description, the hooks the
-settings name exist, the knowledge files hold no secret, notes.md stays under its cap, every runbook has its
-Pre-checks / Procedure / Verification / Rollback sections, every docs product says where it came from, and the
+"""The team repository's own check (CI runs it on every push; run it before a manual change lands):
+every JSON file parses, the Python files compile, the marketplace and the plugin name each other, every skill and
+agent has a name and a description, the hooks and MCP servers the plugin names exist, no .mcp.json entry is a
+placeholder, the rules stay short, the knowledge files hold no secret, notes.md stays under its cap, every runbook has
+its Pre-checks / Procedure / Verification / Rollback sections, every docs product says where it came from, and the
 vendored Grafana archives match their pinned sha256. Standard library, Python 3.9. Exit 1 on a finding."""
 import glob
 import hashlib
@@ -11,12 +12,15 @@ import os
 import re
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+HERE = os.path.dirname(os.path.abspath(__file__))
+os.environ["SDS_BRAIN_HOME"] = HERE                      # this clone, whatever is joined on the machine
+sys.path.insert(0, os.path.join(HERE, "brain-sds", "tools"))
 import brainlib as b  # noqa: E402
 
-ROOT = b.ROOT
+ROOT, PLUG = b.ROOT, os.path.join(HERE, b.NAME)
 bad = []
 RUNBOOK_SECTIONS = ("Pre-checks", "Procedure", "Verification", "Rollback")
+RULE_CAPS = {"main.md": 120, "persona.md": 30}
 
 
 def ok(label, cond, detail=""):
@@ -41,18 +45,29 @@ def front(path):
     return parts[1] if len(parts) > 2 else ""
 
 
-for f in tracked("*.json", ".mcp.json", ".claude/**/*.json", "connections/**/*.json", "docs/**/manifest.json"):
+for f in tracked("*.json", ".claude-plugin/*.json", "brain-sds/**/*.json", "brain-sds/.mcp.json", "brain-sds/.claude-plugin/*.json",
+                 "connections/**/*.json", "docs/**/manifest.json"):
     try:
         json.load(open(f, encoding="utf-8"))
     except (OSError, ValueError) as e:
         ok("json " + rel(f), False, str(e))
-for f in tracked("tools/**/*.py", ".claude/hooks/*.py", "connections/**/*.py"):
+for f in tracked("*.py", "brain-sds/**/*.py", "connections/**/*.py"):
     try:
         compile(open(f, encoding="utf-8").read(), f, "exec")       # a syntax check; nothing is written
     except SyntaxError as e:
         ok("python " + rel(f), False, f"line {e.lineno}: {e.msg}")
 
-skills = tracked(".claude/skills/*/SKILL.md")
+market = json.load(open(os.path.join(ROOT, ".claude-plugin", "marketplace.json")))
+manifest = json.load(open(os.path.join(PLUG, ".claude-plugin", "plugin.json")))
+entry = next((p for p in market.get("plugins", []) if p.get("name") == b.NAME), {})
+ok("marketplace", market.get("name") == b.NAME and entry.get("source") == "./" + b.NAME and manifest.get("name") == b.NAME,
+   f"marketplace.json, its plugin entry (source ./{b.NAME}) and plugin.json must all be named {b.NAME}")
+ok("plugin.json has no version", "version" not in manifest, "leave it out: Claude Code then takes the commit as the version, so every change is delivered")
+team = b.team()
+ok("team.json", bool(re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,31}", str(team.get("name", ""))))
+   and bool(re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,31}", str(team.get("library", "")))), "needs name and library (lower case)")
+
+skills = tracked("brain-sds/skills/*/SKILL.md")
 ok("skills present", len(skills) > 0)
 for f in skills:
     fm = front(f)
@@ -61,22 +76,41 @@ for f in skills:
        "frontmatter needs name (= its folder) and description")
     desc = re.search(r"^description:\s*(.*)$", fm, re.M)
     ok("skill description length " + rel(f), not desc or len(desc.group(1)) <= 1024, "1024 characters at most")
-for f in tracked(".claude/agents/*.md"):
+for f in tracked("brain-sds/agents/*.md"):
     ok("agent " + rel(f), "name:" in front(f) and "description:" in front(f), "frontmatter needs name and description")
 
-settings = json.load(open(os.path.join(ROOT, ".claude", "settings.json")))
-for groups in settings.get("hooks", {}).values():
+hooks = json.load(open(os.path.join(PLUG, "hooks", "hooks.json")))
+for groups in hooks.get("hooks", {}).values():
     for g in groups:
         for h in g.get("hooks", []):
-            m = re.search(r"\.claude/hooks/([\w.-]+\.py)", h.get("command", ""))
-            ok("hook " + h.get("command", "")[-40:], bool(m) and os.path.isfile(os.path.join(ROOT, ".claude", "hooks", m.group(1))),
-               "the settings name a hook script that is missing")
-servers = json.load(open(os.path.join(ROOT, ".mcp.json")))["mcpServers"]
+            m = re.search(r"\$\{CLAUDE_PLUGIN_ROOT\}/(hooks/[\w.-]+\.py)", h.get("command", ""))
+            ok("hook " + h.get("command", "")[-40:], bool(m) and os.path.isfile(os.path.join(PLUG, m.group(1))),
+               "hooks.json names a hook script that is missing (use ${CLAUDE_PLUGIN_ROOT}/hooks/<name>.py)")
+servers = json.load(open(os.path.join(PLUG, ".mcp.json")))["mcpServers"]
+ok(".mcp.json docs-local", "docs-local" in servers, "the plugin's own docs server is missing")
 for name, cfg in servers.items():
-    script = next((a for a in cfg.get("args", []) if a.endswith(".py")), "")
-    ok(f".mcp.json {name}", bool(script) and os.path.isfile(os.path.join(ROOT, script)), "its script is missing")
-ok("enabledMcpjsonServers", sorted(settings.get("enabledMcpjsonServers", [])) == sorted(servers),
-   ".claude/settings.json and .mcp.json name different servers")
+    if cfg.get("type") == "http" or cfg.get("url"):
+        url = str(cfg.get("url", ""))
+        ok(f".mcp.json {name}", url.startswith(("http://", "https://")) and not re.search(r"\b(HOST|TOKEN|example)\b", json.dumps(cfg)),
+           "an address or token placeholder: a server goes into .mcp.json only when it is complete (vm-setup.py writes docs-http)")
+        continue
+    script = next((a for a in cfg.get("args", []) if a.endswith(".py")), "").replace("${CLAUDE_PLUGIN_ROOT}/", "")
+    ok(f".mcp.json {name}", bool(script) and os.path.isfile(os.path.join(PLUG, script)), "its script is missing")
+    if "connect.py" in script:
+        conn = next((a for a in cfg.get("args", []) if not a.endswith(".py")), "")
+        ok(f"connection {name}", os.path.isfile(os.path.join(ROOT, "connections", conn, "launch.py")), f"connections/{conn}/launch.py is missing")
+
+for name, cap in RULE_CAPS.items():
+    f = os.path.join(ROOT, "rules", name)
+    ok("rules/" + name, os.path.isfile(f), "missing")
+    if os.path.isfile(f):
+        n = len(open(f, encoding="utf-8").read().splitlines())
+        ok(f"rules/{name} under {cap} lines", n <= cap, f"{n} lines: it is loaded into every session")
+        found = b.findings(f)
+        ok("no secret in rules/" + name, not found, "; ".join(x.split(": ", 1)[-1] for x in found[:5]))
+main_md = open(os.path.join(ROOT, "rules", "main.md"), encoding="utf-8").read() if os.path.isfile(os.path.join(ROOT, "rules", "main.md")) else ""
+for imp in re.findall(r"^@(\S+)$", main_md, re.M):
+    ok("rules/main.md import " + imp, os.path.isfile(os.path.normpath(os.path.join(ROOT, "rules", imp))), "the imported file is missing")
 
 for f in b.knowledge_files():
     found = b.findings(f)

@@ -1,14 +1,94 @@
-"""Shared by the hooks (.claude/hooks/) and tools/check.py: where the brain is, the secret scan, and the git sync of
-knowledge/. Standard library only; every git call has a timeout and never asks for a password."""
+"""Shared by the plugin's hooks and tools and by check.py: where the brain's home is, the secret scan, and the git
+sync of knowledge/. Standard library only; every git call has a timeout and never asks for a password.
+
+The plugin is what Claude Code installs (a copy in its own cache); the team repository is the brain's HOME and holds
+what the plugin works on: rules/, knowledge/, docs/, connections/. join.sh links it as ~/.claude/sds-brain."""
 import glob
+import hashlib
+import json
 import os
 import re
 import subprocess
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-KNOWLEDGE = os.path.join(ROOT, "knowledge")
-CACHE = os.path.join(ROOT, ".cache")
+NAME = "brain-sds"
+PLUGIN = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))          # this plugin folder (repository or cache copy)
+CONFIG = os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(os.path.expanduser("~"), ".claude")
+LINK = os.path.join(CONFIG, "sds-brain")                                      # what join.sh creates
+
+
+def find_home():
+    """the team repository: SDS_BRAIN_HOME, the folder this plugin sits in (run from a clone), or join.sh's link"""
+    for c in (os.environ.get("SDS_BRAIN_HOME"), os.path.dirname(PLUGIN), LINK):
+        if c and os.path.isdir(os.path.join(c, "knowledge")) and os.path.isdir(os.path.join(c, "rules")):
+            return os.path.realpath(c)
+    return ""
+
+
+ROOT = find_home()                                    # "" until join.sh ran on this machine
+BASE = ROOT or os.path.join(os.devnull, "sds-brain")  # a path that never exists when there is no home
+KNOWLEDGE = os.path.join(BASE, "knowledge")
+CACHE = os.path.join(BASE, ".cache")
 MARKER = os.path.join(CACHE, "push-failed")          # the last push failure's reason; session start shows it
+SETUP = ("The SDS brain is not set up on this machine: clone the team repository and run `sh join.sh` in it once "
+         "(it links the repository as ~/.claude/sds-brain and loads the team's rules), then start a new session.")
+
+
+def team():
+    """this plugin's team.json: the team's name on the VM's docs service and the name of its library there"""
+    try:
+        with open(os.path.join(PLUGIN, "team.json"), encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def docs_http():
+    """the VM's docs service, from this plugin's .mcp.json (vm-setup.py writes it there): (url, Authorization header,
+    CA file) or None while the team has no VM"""
+    try:
+        with open(os.path.join(PLUGIN, ".mcp.json"), encoding="utf-8") as f:
+            cfg = (json.load(f).get("mcpServers") or {}).get("docs-http") or {}
+    except (OSError, ValueError):
+        return None
+    url = str(cfg.get("url") or "")
+    if not url.startswith(("http://", "https://")):
+        return None
+    ca = os.path.join(PLUGIN, "lib", "paas-ui.crt")
+    return url, str((cfg.get("headers") or {}).get("Authorization") or ""), ca if os.path.isfile(ca) else ""
+
+
+def vm_library():
+    """the team's library where the VM's docs service keeps it (this machine is the VM), or """""
+    name = str(team().get("library") or "")
+    path = os.path.join(os.environ.get("PAAS_LIBRARIES") or "/opt/paas/libraries", name, "docs.db")
+    return path if name and os.path.isfile(path) and os.access(path, os.R_OK) else ""
+
+
+def shown():
+    """the home as the rules name it: join.sh's link (~/.claude/sds-brain) when it leads here"""
+    if ROOT and os.path.realpath(LINK) == ROOT:
+        home = os.path.expanduser("~")
+        return "~" + LINK[len(home):] if LINK.startswith(home + os.sep) else LINK
+    return ROOT
+
+
+def fingerprint(folder):
+    """the content of a plugin folder: its files and what is in them (caches and Claude Code's own markers left out)"""
+    h = hashlib.sha1()
+    for root, dirs, files in os.walk(folder):
+        dirs[:] = sorted(d for d in dirs if d != "__pycache__")
+        for f in sorted(files):
+            if f.endswith(".pyc") or f.startswith(".orphaned"):
+                continue
+            p = os.path.join(root, f)
+            try:
+                with open(p, "rb") as fh:
+                    data = fh.read()
+            except OSError:
+                continue
+            h.update(os.path.relpath(p, folder).replace(os.sep, "/").encode() + b"\0" + hashlib.sha1(data).digest())
+    return h.hexdigest()
+
 
 # What must never be saved in a note (rule 4). A line ending in "notes-check: allow" is skipped.
 SECRET = [
@@ -34,7 +114,7 @@ def findings(path):
             continue
         for rx, what in SECRET:
             if rx.search(line):
-                out.append(f"{os.path.relpath(path, ROOT)}:{n}: {what}")
+                out.append(f"{os.path.relpath(path, BASE)}:{n}: {what}")
                 break
     return out
 
@@ -57,7 +137,7 @@ def identity():
     if _IDENT is None:
         _IDENT = {}
         try:
-            have = subprocess.run(["git", "-C", ROOT, "config", "--get-regexp", r"^user\.(name|email)$"], capture_output=True,
+            have = subprocess.run(["git", "-C", BASE, "config", "--get-regexp", r"^user\.(name|email)$"], capture_output=True,
                                   text=True, timeout=5, stdin=subprocess.DEVNULL).stdout
         except Exception:
             have = ""
@@ -78,7 +158,7 @@ def identity():
 def git(args, timeout=10):
     """(return code, output); 124 on timeout, 127 when git is missing"""
     try:
-        r = subprocess.run(["git", "-C", ROOT] + list(args), capture_output=True, text=True, timeout=timeout,
+        r = subprocess.run(["git", "-C", BASE] + list(args), capture_output=True, text=True, timeout=timeout,
                            stdin=subprocess.DEVNULL, env=dict(os.environ, GIT_TERMINAL_PROMPT="0", **identity()))
         return r.returncode, (r.stdout + r.stderr).strip()
     except subprocess.TimeoutExpired:
@@ -88,7 +168,7 @@ def git(args, timeout=10):
 
 
 def is_repo():
-    return os.path.exists(os.path.join(ROOT, ".git"))
+    return bool(ROOT) and os.path.exists(os.path.join(ROOT, ".git"))
 
 
 def upstream():

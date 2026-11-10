@@ -9,11 +9,13 @@ Shell commands (Bash), looked at piece by piece, also inside ssh / cephadm shell
   asked    (the user confirms): curl / wget writes to another host, a host change on this machine, a remote command
            this guard does not know.
 MCP tools: a tool whose name says it changes something is blocked.
-Brain files: Claude may write under knowledge/ and docs/; CLAUDE.md, the hooks, tools/, connections/ and the settings
-are changed by people.
+Brain files: in the team repository (the brain's home) Claude may write under knowledge/ and docs/; the rules, this
+plugin, the connections and everything else there are changed by people, with a commit.
+Approved without a prompt, because the plugin cannot ship permission rules: the plugin's own read-only MCP tools
+(docs-local, docs-http, grafana, objectify), saving a file under the home's knowledge/, and tools/search.py.
 
 Exit code 2 = blocked, the reason goes back to Claude. A read command blocked by mistake: add its exact beginning to
-ALLOW in .claude/hooks/guard-allow.txt (one per line). This is a net against mistakes, not a sandbox: read-only
+rules/guard-allow.txt in the team repository (one per line). This is a net against mistakes, not a sandbox: read-only
 accounts on every backend are the real guarantee."""
 import fnmatch
 import json
@@ -22,9 +24,17 @@ import re
 import shlex
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-PROTECTED_FILES = {"CLAUDE.md", ".mcp.json", ".claude/settings.json", ".gitattributes", ".gitlab-ci.yml"}
-PROTECTED_DIRS = (".claude/hooks/", "tools/", "connections/", ".git/")
+PLUGIN = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+try:                                                 # the home is looked up by the shared library; without it only the home rules are off
+    sys.path.insert(0, os.path.join(PLUGIN, "tools"))
+    import brainlib
+    ROOT, NAME = brainlib.ROOT, brainlib.NAME
+except Exception:
+    ROOT, NAME = "", "brain-sds"
+WRITABLE = ("knowledge/", "docs/", ".cache/")        # what Claude may write inside the team repository
+OWN_MCP = f"mcp__plugin_{NAME}_"                     # how Claude Code names this plugin's MCP tools
+ALLOW = json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "allow",
+                                           "permissionDecisionReason": "SDS brain: a read-only tool of the brain itself"}})
 SUBST = re.compile(r"\$\(([^()]*)\)|`([^`]*)`")
 
 
@@ -329,16 +339,24 @@ def check(cmd, remote=False, depth=0):
     return worst
 
 
+def inside(path, cwd, folder):
+    """the path relative to folder ("" for the folder itself), or None when it is somewhere else"""
+    if not path or not folder:
+        return None
+    p = os.path.realpath(os.path.join(cwd or os.getcwd(), os.path.expanduser(str(path))))
+    root = os.path.realpath(folder)
+    if p == root:
+        return ""
+    return p[len(root) + 1:].replace(os.sep, "/") if p.startswith(root + os.sep) else None
+
+
 def protected(path, cwd):
-    """a brain file only people change: the rules, the hooks, the tools, the connections, the settings"""
-    if not path:
-        return False
-    p = os.path.realpath(os.path.join(cwd or ROOT, os.path.expanduser(str(path))))
-    root = os.path.realpath(ROOT) + os.sep
-    if not p.startswith(root):
-        return False
-    rel = p[len(root):].replace(os.sep, "/")
-    return rel in PROTECTED_FILES or rel.startswith(PROTECTED_DIRS)
+    """a brain file only people change: the installed plugin, and everything in the team repository outside knowledge/
+    and docs/ (the rules, the plugin's source, the connections, join.sh, the git folder)"""
+    if inside(path, cwd, PLUGIN) is not None:
+        return True
+    rel = inside(path, cwd, ROOT)
+    return rel is not None and not rel.startswith(WRITABLE)
 
 
 def shell_touches_brain(cmd, cwd):
@@ -364,7 +382,7 @@ def shell_touches_brain(cmd, cwd):
 
 def allowed(cmd):
     try:
-        with open(os.path.join(ROOT, ".claude", "hooks", "guard-allow.txt"), encoding="utf-8") as f:
+        with open(os.path.join(ROOT or os.devnull, "rules", "guard-allow.txt"), encoding="utf-8") as f:
             pats = [l.strip() for l in f if l.strip() and not l.startswith("#")]
     except OSError:
         return False
@@ -372,21 +390,35 @@ def allowed(cmd):
     return bool(parts) and all(any(fnmatch.fnmatch(s, p if "*" in p else p + "*") for p in pats) for s in parts)
 
 
+def own_search(cmd, cwd):
+    """`python3 <this plugin>/tools/search.py ...` and nothing else on the line: the docs search without MCP"""
+    if SUBST.search(cmd) or re.search(r"[<>]", cmd):
+        return False
+    parts = segments(cmd)
+    w = words(parts[0]) if len(parts) == 1 else []
+    if len(w) < 2 or os.path.basename(w[0]) not in ("python3", "python"):
+        return False
+    target = os.path.realpath(os.path.join(cwd or os.getcwd(), os.path.expanduser(w[1])))
+    return target in {os.path.realpath(os.path.join(d, "tools", "search.py")) for d in (PLUGIN, os.path.join(ROOT, NAME)) if d}
+
+
 def decide(data):
     name = str(data.get("tool_name") or "")
     inp = data.get("tool_input") or {}
-    cwd = data.get("cwd") or ROOT
+    cwd = data.get("cwd") or os.getcwd()
     if name in ("Edit", "Write", "MultiEdit", "NotebookEdit"):
         path = inp.get("file_path") or inp.get("notebook_path") or ""
         if protected(path, cwd):
-            return 2, (f"BLOCKED: {path} is part of the brain's rules or code. Only people change it (in the repository, "
+            return 2, (f"BLOCKED: {path} is part of the brain's rules or code. Only people change it (in the team repository, "
                        "with a commit). Tell the user what you would change and why; facts go under knowledge/.")
-        return 0, ""
+        return 0, ALLOW if (inside(path, cwd, ROOT) or "").startswith("knowledge/") else ""
     if name == "Bash":
         cmd = str(inp.get("command", ""))
         hit = shell_touches_brain(cmd, cwd)
         if hit:
             return 2, f"BLOCKED: this command would change {hit}, part of the brain's rules or code. Only people change it."
+        if own_search(cmd, cwd):
+            return 0, ALLOW
         if allowed(cmd):
             return 0, ""
         level, why = check(cmd)
@@ -397,7 +429,10 @@ def decide(data):
             return 0, json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "ask",
                                                          "permissionDecisionReason": f"Read-only guard: {why}. Allow?"}})
         return 0, ""
-    if name.startswith("mcp__") and not name.startswith("mcp__sds-docs__"):
+    if name.startswith("mcp__"):
+        own = name.startswith(OWN_MCP)
+        if own and name[len(OWN_MCP):].startswith(("docs-local__", "docs-http__")):
+            return 0, ALLOW
         toks = [t for t in re.split(r"[_\-.\s]+", re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", name.split("__", 2)[-1]).lower()) if t]
         bad = [t for t in toks if t in MCP_WRITE]
         if toks and toks[0] in MCP_READ:
@@ -406,6 +441,7 @@ def decide(data):
         if bad or method in ("POST", "PUT", "PATCH", "DELETE"):
             return 2, (f"BLOCKED by the read-only rule: {name} looks like a change ({', '.join(bad) or method}). Give the user "
                        "the steps to run instead.")
+        return 0, ALLOW if own else ""
     return 0, ""
 
 

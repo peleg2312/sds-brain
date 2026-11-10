@@ -1,0 +1,5 @@
+{
+  "name": "brain-sds",
+  "description": "SDS object-storage assistant: investigation skills, the read-only guard, the team's shared knowledge and an offline docs search. Set up with join.sh from the team repository.",
+  "author": {"name": "SDS team"}
+}

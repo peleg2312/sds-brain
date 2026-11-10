@@ -1,7 +1,15 @@
 # The offline documentation library (docs/)
 
-Everything under `docs/<vendor>/<product>/` is searched by the `sds-docs` server (and `python3 tools/search.py`).
-The index is built on each machine (`.cache/docs.db`, a few seconds) and refreshed when files here change.
+`docs/<vendor>/<product>/` holds the documents; who indexes and serves them depends on where the team runs:
+
+| | Index (the database) | Searched through |
+|---|---|---|
+| The team has the VM docs service (`vm-setup.py` was run) | One, on the VM: `/opt/paas/libraries/sds/docs.db`, built from this folder | `docs-http` from every machine; `docs-local` reads it directly on the VM itself |
+| No VM | One per machine: `.cache/docs.db` in the clone, built in a few seconds at the first session | `docs-local` |
+
+The team's own knowledge (`knowledge/`) is a second, small index either way: `docs-local` builds it on each machine
+at every start (`.cache/knowledge.db`), and the VM's docs service keeps one for the team from the repository
+(every 10 minutes, and at once after a note is pushed). Neither database is ever committed.
 
 | Vendor / product | Contents | Source |
 |---|---|---|
@@ -22,9 +30,12 @@ Each single page's original address and title are in its product's `manifest.jso
 
 ## Add your own documents
 Put PDF, HTML, Markdown, AsciiDoc or text files in `docs/<vendor>/<product>/` (for example `docs/redhat/rhcs-8.1/`),
-add a one-line `SOURCE.md` saying where they came from, commit and push. Everyone's next session indexes them.
-PDF files need the `pypdf` Python package on the machine; without it they are skipped and the rest is indexed.
-Check what is indexed with `python3 tools/docs_server.py --index`.
+add a one-line `SOURCE.md` saying where they came from, commit and push. Then:
+- with the VM: `sudo python3 vm-setup.py` on the VM again (it copies the folder and rebuilds the VM's index);
+- without: nothing, everyone's next session indexes them.
+
+PDF files need the `pypdf` Python package on the machine that indexes; without it they are skipped and the rest is
+indexed. What a machine searches: `python3 brain-sds/tools/docs_server.py --index`.
 
 ## Terms
 These are copies of public vendor documentation, kept for internal offline reference; each remains under its

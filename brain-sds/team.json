@@ -1,0 +1,6 @@
+{
+  "name": "sds",
+  "title": "SDS object storage",
+  "description": "Ceph / RGW, S3, NetApp StorageGRID, the RHEL hosts and HPE servers under them, Grafana and Elasticsearch",
+  "library": "sds"
+}

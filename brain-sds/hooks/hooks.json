@@ -1,0 +1,19 @@
+{
+  "description": "SDS brain: session status and team sync, the read-only guard, save-and-share of notes, capture reminder",
+  "hooks": {
+    "SessionStart": [
+      {"hooks": [{"type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.py\"", "timeout": 40}]}
+    ],
+    "PreToolUse": [
+      {"matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit|mcp__.*",
+       "hooks": [{"type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/guard.py\"", "timeout": 10}]}
+    ],
+    "PostToolUse": [
+      {"matcher": "Edit|Write|MultiEdit",
+       "hooks": [{"type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/notes-save.py\"", "timeout": 30}]}
+    ],
+    "Stop": [
+      {"hooks": [{"type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/capture-nudge.py\"", "timeout": 10}]}
+    ]
+  }
+}

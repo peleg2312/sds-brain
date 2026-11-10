@@ -1,0 +1,12 @@
+{
+  "name": "brain-sds",
+  "owner": {"name": "SDS team"},
+  "metadata": {"description": "The SDS team's brain: one plugin, with the team's rules, knowledge and docs library beside it in this repository"},
+  "plugins": [
+    {
+      "name": "brain-sds",
+      "source": "./brain-sds",
+      "description": "SDS object-storage assistant: Ceph / RGW, S3, NetApp StorageGRID, RHEL hosts, HPE servers, Grafana, Elasticsearch. Read-only."
+    }
+  ]
+}

@@ -6,12 +6,13 @@ when_to_use: A problem was solved, a change procedure the user ran worked, the u
 # Brain learn
 
 Facts come from tool results, pasted output and the user only (rule 2). Never keys, tokens or passwords: write
-`<REDACTED>` (rule 4). Everything is under `knowledge/` in this repository; the save hook checks each file for secrets,
-commits it and pushes it to the team, and the search index follows by itself.
+`<REDACTED>` (rule 4). Everything is under `~/.claude/sds-brain/knowledge/`, the team repository: the `knowledge/...`
+paths below are in it, never in the folder you were started in. The save hook checks each file for secrets, commits
+it and pushes it to the team, and the search index follows by itself.
 
 ## a) Capture
 1. Worth it? Only if a teammate in three months saves real time. Not generic vendor facts the library already has.
-2. `grep -ri <keyword> knowledge/notes knowledge/captures knowledge/runbooks` first: update an existing line instead of
+2. `grep -ri <keyword> ~/.claude/sds-brain/knowledge/{notes,captures,runbooks}` first: update an existing line instead of
    adding one.
 3. Destination: confident and the topic is clear -> a dated line in `knowledge/notes/<topic>.md`
    (`- <date> · <fact> · <verified|observed|hypothesis> · <source>`; a new topic file starts with `# Topic: what is in it`).
@@ -40,7 +41,7 @@ A change procedure the **user ran and that worked** (add an RGW zone, replace an
 certificate) becomes `knowledge/runbooks/<topic>-<task>.md`. Not run yet, or fixed on the way and not re-checked: a
 capture instead. Search first (`ls knowledge/runbooks`): an existing runbook is updated, never duplicated. Every
 command is for the user to run; placeholders (`<fsid>`, `<osd-id>`, `<tenant-id>`) plus the read-only command that
-shows each value. Sections (`tools/check.py` requires the four marked *):
+shows each value. Sections (`check.py` requires the four marked *):
 ```
 # <Verb phrase: Replace a failed OSD drive on an Apollo 4200>
 When to use: ...   Impact while running: ...   Prerequisites: ...

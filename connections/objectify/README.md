@@ -16,7 +16,7 @@ not known yet, so nothing is enabled.
    `authentication` (`bearer` or `env_header`; the token itself stays in an environment variable named by
    `token_env`), `contract.openapi_file` and its `openapi_sha256`, and the operations you approve with the response
    fields Claude may see (never keys).
-3. Check without contacting anything: `python3 connections/objectify/launch.py --check`
+3. Check without contacting anything: `python3 ~/.claude/sds-brain/connections/objectify/launch.py --check`
 4. Start a new Claude session; `objectify_status` lists the enabled operations.
 
 The adapter was written for separate customers: each call carries the `customer_id` and `cluster_id` set in the

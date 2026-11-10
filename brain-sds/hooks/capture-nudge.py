@@ -8,18 +8,20 @@ import re
 import sys
 import time
 
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+import brainlib as b  # noqa: E402
+
 REASON = (
     "This was a substantial session and nothing was saved to the team's knowledge. Check whether it produced durable, "
     "non-obvious knowledge: a root cause, a workaround, a quirk of this environment, a procedure that worked, a wrong "
     "assumption corrected, a fixed problem. If yes, write it down with the brain-learn skill (a dated line in "
-    "knowledge/notes/<topic>.md when confident, else a capture knowledge/captures/<date>-<slug>.md) and tell the user in "
+    "notes/<topic>.md when confident, else a capture captures/<date>-<slug>.md, under ~/.claude/sds-brain/knowledge/) and tell the user in "
     "two lines. If not, reply with one short line saying nothing needed capturing and stop. Do not repeat your "
     "previous answer.")
 
 
 def main():
-    if os.environ.get("SDS_NUDGE_DISABLE") == "1":
+    if os.environ.get("SDS_NUDGE_DISABLE") == "1" or not b.ROOT:
         return 0
     try:
         data = json.load(sys.stdin)
@@ -35,7 +37,7 @@ def main():
     # something was written under knowledge/ this session (a mention of the folder in prose does not count)
     if re.search(r'"file_path"\s*:\s*"[^"]*knowledge/(?:notes/|captures/|runbooks/|incidents/|notes\.md|environment\.md)', text):
         return 0
-    d = os.path.join(ROOT, ".cache", "nudged")
+    d = os.path.join(b.CACHE, "nudged")
     try:
         os.makedirs(d, exist_ok=True)
         for f in os.listdir(d):

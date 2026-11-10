@@ -1,5 +1,5 @@
 # Environment
-<!-- Loaded in every session. Fill in the tables (or run /brain-setup and let Claude ask you). No passwords, keys or tokens. -->
+<!-- Loaded in every session. Fill in the tables (or type /brain-sds:brain-setup and let Claude ask you). No passwords, keys or tokens. -->
 
 Reported for the whole fleet on 2026-11-09, not yet confirmed per cluster (replace with the tables below):
 - **Ceph**: Red Hat Ceph Storage, cephadm, containerized, with RGW. Releases in use: 7.1z7, 8.1z3, 8.1z6, 8.1z7, 8.1z8, 8.1z9.

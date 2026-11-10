@@ -13,7 +13,7 @@ export SDS_GRAFANA_TOKEN=<the service-account token>
 export SDS_GRAFANA_CA_FILE=/etc/pki/ca-trust/source/anchors/internal-ca.pem   # only if Grafana uses a private CA
 ```
 
-Start a new Claude session. Check any time with `python3 connections/grafana/launch.py --check`.
+Start a new Claude session. Check any time with `python3 ~/.claude/sds-brain/connections/grafana/launch.py --check`.
 
 Until the two variables are set, the connection offers one tool, `grafana_setup`, that says what is missing.
 
