@@ -1,0 +1,77 @@
+# The official Grafana MCP server, read-only, over HTTP with a bearer token. See README.md beside this file.
+#   oc create secret generic sds-grafana --from-literal=GRAFANA_SERVICE_ACCOUNT_TOKEN=<Grafana Viewer service-account token> \
+#      --from-literal=MCP_GRAFANA_SERVER_TOKEN=$(head -c 24 /dev/urandom | base64 | tr -d '/+=')
+# Grafana behind a private CA: oc create configmap sds-grafana-ca --from-file=ca.pem=<the CA> and uncomment the lines below.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sds-grafana
+  labels: {app: sds-grafana, app.kubernetes.io/part-of: sds-brain}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: sds-grafana}
+  template:
+    metadata:
+      labels: {app: sds-grafana, app.kubernetes.io/part-of: sds-brain}
+    spec:
+      automountServiceAccountToken: false               # these servers never talk to the cluster's API
+      containers:
+      - name: grafana
+        image: <registry>/sds-brain/grafana-mcp:v2.2.0
+        ports:
+        - {containerPort: 8000, name: http}
+        env:
+        - {name: GRAFANA_URL, value: "https://<grafana>"}
+        - {name: MCP_ALLOWED_HOSTS, value: "sds-grafana.<apps domain>"}   # the Route's host, exactly
+        # - {name: GRAFANA_CA_FILE, value: /ca/ca.pem}
+        envFrom:
+        - secretRef: {name: sds-grafana}
+        # volumeMounts:
+        # - {name: ca, mountPath: /ca, readOnly: true}
+        readinessProbe:
+          tcpSocket: {port: 8000}                        # /healthz checks the Host header: a probe has the pod's address
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket: {port: 8000}
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities: {drop: ["ALL"]}
+          seccompProfile: {type: RuntimeDefault}
+        resources:
+          requests: {cpu: 20m, memory: 64Mi}
+          limits: {memory: 256Mi}
+      # volumes:
+      # - name: ca
+      #   configMap: {name: sds-grafana-ca}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sds-grafana
+  labels: {app: sds-grafana, app.kubernetes.io/part-of: sds-brain}
+spec:
+  selector: {app: sds-grafana}
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: sds-grafana
+  labels: {app: sds-grafana, app.kubernetes.io/part-of: sds-brain}
+  annotations:
+    haproxy.router.openshift.io/timeout: 120s       # a slow tool call (a large Grafana query) must not be cut
+spec:
+  host: sds-grafana.<apps domain>                            # fixed: it goes into the plugin, and Grafana checks it
+  to: {kind: Service, name: sds-grafana}
+  port: {targetPort: http}
+  tls:
+    termination: edge                                   # the cluster's certificate; the pod speaks http inside
+    insecureEdgeTerminationPolicy: Redirect

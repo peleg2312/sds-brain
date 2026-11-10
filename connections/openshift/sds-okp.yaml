@@ -1,0 +1,85 @@
+# Red Hat's okp-mcp for an existing Offline Knowledge Portal, with the token gateway in front (okp-mcp has no
+# authentication of its own): okp-mcp listens on the pod's loopback only, the gateway on 8080. See README.md.
+#   oc create secret generic sds-okp --from-literal=MCP_SERVER_TOKEN=$(head -c 24 /dev/urandom | base64 | tr -d '/+=')
+# The okp-mcp image is Red Hat's (quay.io/redhat-user-workloads/rhel-lightspeed-tenant/rhel-knowledge-bridge),
+# mirrored into your registry by its digest (connections/okp/README.md).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sds-okp
+  labels: {app: sds-okp, app.kubernetes.io/part-of: sds-brain}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: sds-okp}
+  template:
+    metadata:
+      labels: {app: sds-okp, app.kubernetes.io/part-of: sds-brain}
+    spec:
+      automountServiceAccountToken: false               # these servers never talk to the cluster's API
+      containers:
+      - name: okp-mcp
+        image: <registry>/okp-mcp@sha256:<approved digest>
+        env:
+        - {name: MCP_TRANSPORT, value: streamable-http}
+        - {name: MCP_HOST, value: "127.0.0.1"}              # reachable from the gateway in the same pod only
+        - {name: MCP_PORT, value: "8000"}
+        - {name: MCP_SOLR_URL, value: "http://<portal's solr>:8983"}
+        - {name: MCP_OKP_HTML_URL, value: "-"}
+        - {name: MCP_MAX_RESPONSE_CHARS, value: "30000"}
+        - {name: MCP_GLITCHTIP_DSN, value: ""}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities: {drop: ["ALL"]}
+          seccompProfile: {type: RuntimeDefault}
+        resources:
+          requests: {cpu: 50m, memory: 128Mi}
+          limits: {memory: 512Mi}
+      - name: gateway
+        image: <registry>/sds-brain/mcp-gateway:<tag>
+        args: ["--listen", "0.0.0.0:8080", "--upstream", "http://127.0.0.1:8000/mcp"]
+        ports:
+        - {containerPort: 8080, name: http}
+        envFrom:
+        - secretRef: {name: sds-okp}
+        readinessProbe:
+          httpGet: {path: /health, port: 8080}
+          periodSeconds: 10
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities: {drop: ["ALL"]}
+          seccompProfile: {type: RuntimeDefault}
+        resources:
+          requests: {cpu: 10m, memory: 48Mi}
+          limits: {memory: 128Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sds-okp
+  labels: {app: sds-okp, app.kubernetes.io/part-of: sds-brain}
+spec:
+  selector: {app: sds-okp}
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: sds-okp
+  labels: {app: sds-okp, app.kubernetes.io/part-of: sds-brain}
+  annotations:
+    haproxy.router.openshift.io/timeout: 120s       # a slow tool call (a large Grafana query) must not be cut
+spec:
+  host: sds-okp.<apps domain>                            # fixed: it goes into the plugin, and Grafana checks it
+  to: {kind: Service, name: sds-okp}
+  port: {targetPort: http}
+  tls:
+    termination: edge                                   # the cluster's certificate; the pod speaks http inside
+    insecureEdgeTerminationPolicy: Redirect

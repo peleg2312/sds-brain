@@ -573,15 +573,48 @@ threading.Thread(target=okp.serve_forever, daemon=True).start()
 o = mcp([PLUGIN + "/tools/connect.py", "okp"], [("search_documentation", {"query": "rgw"})], cwd=ROOT,
         env=dict(ENV, SDS_OKP_URL=f"http://127.0.0.1:{okp.server_address[1]}/mcp"))
 assert [t["name"] for t in o[99]["tools"]] == ["search_documentation"] and "RHCS 8" in o[1]["content"][0]["text"], o
+
+# the token gateway in front of an HTTP server without authentication (okp-mcp in its OpenShift pod)
+with socket.socket() as so:
+    so.bind(("127.0.0.1", 0)); uport = so.getsockname()[1]
+ug = subprocess.Popen([sys.executable, "connections/http/gateway.py", "--listen", f"127.0.0.1:{uport}", "--upstream",
+                       f"http://127.0.0.1:{okp.server_address[1]}/mcp"], cwd=ROOT, env=dict(ENV, MCP_SERVER_TOKEN="upstream-token-0123456789"),
+                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+try:
+    for _ in range(100):
+        try:
+            urllib.request.urlopen(f"http://127.0.0.1:{uport}/health", timeout=1).read(); break
+        except OSError:
+            time.sleep(0.1)
+
+    def ucall(msg, token="upstream-token-0123456789"):
+        req = urllib.request.Request(f"http://127.0.0.1:{uport}/mcp", data=json.dumps(msg).encode(), method="POST",
+                                     headers={"Content-Type": "application/json", **({"Authorization": "Bearer " + token} if token else {})})
+        try:
+            with urllib.request.urlopen(req, timeout=10) as r:
+                return r.status, json.loads(r.read() or b"null")
+        except urllib.error.HTTPError as e:
+            return e.code, None
+    assert ucall({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}, token="")[0] == 401
+    code, got = ucall({"jsonrpc": "2.0", "id": 5, "method": "tools/list"})
+    assert code == 200 and got["id"] == 5 and got["result"]["tools"][0]["name"] == "search_documentation", got
+    code, got = ucall({"jsonrpc": "2.0", "id": 6, "method": "tools/call", "params": {"name": "search_documentation", "arguments": {}}})
+    assert code == 200 and "RHCS 8" in got["result"]["content"][0]["text"], got
+finally:
+    ug.kill()
 okp.shutdown()
 
 # a stdio connection served over HTTP by the gateway (what the Objectify container runs), and use.py's switch
 with socket.socket() as so:
     so.bind(("127.0.0.1", 0)); gport = so.getsockname()[1]
 gtoken = "gateway-token-0123456789"
-gw = subprocess.Popen([sys.executable, "connections/http/gateway.py", "--listen", f"127.0.0.1:{gport}", "--", sys.executable,
-                       "connections/objectify/server.py", "--config", "connections/objectify/config.example.json"],
-                      cwd=ROOT, env=dict(ENV, MCP_SERVER_TOKEN=gtoken), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+gwdir = tempfile.mkdtemp(prefix="sds-brain-gw-")           # the image's layout: gateway.py beside Objectify's files
+for f in ("connections/http/gateway.py", "connections/objectify/server.py", "connections/objectify/config.example.json",
+          "connections/objectify/observed-endpoints.json"):
+    shutil.copy(os.path.join(ROOT, f), gwdir)
+gw = subprocess.Popen([sys.executable, os.path.join(gwdir, "gateway.py"), "--listen", f"127.0.0.1:{gport}", "--objectify"],
+                      cwd=gwdir, env=dict(ENV, MCP_SERVER_TOKEN=gtoken, OBJECTIFY_CONFIG="/config/none.json"),   # not mounted: the example
+                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 try:
     def gcall(msg, token=gtoken):
         req = urllib.request.Request(f"http://127.0.0.1:{gport}/mcp", data=json.dumps(msg).encode(), method="POST", headers={
@@ -607,6 +640,7 @@ try:
     assert code == 200 and got["id"] == 43 and '"enabled": false' in got["result"]["content"][0]["text"], got
 finally:
     gw.kill()
+    shutil.rmtree(gwdir, ignore_errors=True)
 work2 = tempfile.mkdtemp(prefix="sds-brain-use-")
 try:
     shutil.copytree(os.path.join(ROOT, PLUGIN), os.path.join(work2, PLUGIN), ignore=shutil.ignore_patterns("__pycache__"))
@@ -622,7 +656,45 @@ try:
     assert use("grafana", "https://vm.example.internal:8444/mcp").returncode != 0          # never without a token
     assert use("grafana", "--stdio").returncode == 0
     assert json.load(open(os.path.join(work2, PLUGIN, ".mcp.json")))["mcpServers"]["grafana"]["args"][-1] == "grafana"
+    assert use("docs-http", "https://sds-docs.apps.example/mcp", "--token-file", os.path.join(work2, "t")).returncode != 0   # ?team=
+    assert use("docs-http", "https://sds-docs.apps.example/mcp?team=sds", "--token-file", os.path.join(work2, "t")).returncode == 0
+    assert json.load(open(os.path.join(work2, PLUGIN, ".mcp.json")))["mcpServers"]["docs-http"]["url"].endswith("?team=sds")
+    assert use("docs-http", "--stdio").returncode == 0 and "docs-http" not in json.load(open(os.path.join(work2, PLUGIN, ".mcp.json")))["mcpServers"]
 finally:
     shutil.rmtree(work2, ignore_errors=True)
 print("connections ok")
+
+# ---- 9. the OpenShift manifests: restricted pods, tokens from secrets, Routes over TLS (needs PyYAML; skipped without)
+try:
+    import yaml
+except ImportError:
+    yaml = None
+if yaml:
+    import glob as _glob
+    objs = [d for f in sorted(_glob.glob(os.path.join(ROOT, "connections", "openshift", "*.yaml"))) for d in yaml.safe_load_all(open(f)) if d]
+    deps = {d["metadata"]["name"]: d for d in objs if d["kind"] == "Deployment"}
+    routes = {d["metadata"]["name"]: d for d in objs if d["kind"] == "Route"}
+    svcs = {d["metadata"]["name"]: d for d in objs if d["kind"] == "Service"}
+    assert set(deps) == {"sds-docs", "sds-grafana", "sds-objectify", "sds-okp"} == set(routes) == set(svcs), (deps.keys(), routes.keys())
+    for name, d in deps.items():
+        spec = d["spec"]["template"]["spec"]
+        assert spec["automountServiceAccountToken"] is False, name
+        ports = set()
+        for c in spec["containers"]:
+            sc = c["securityContext"]
+            assert sc["readOnlyRootFilesystem"] and sc["runAsNonRoot"] and sc["capabilities"]["drop"] == ["ALL"] \
+                and sc["allowPrivilegeEscalation"] is False, (name, c["name"])
+            assert "limits" in c["resources"], (name, c["name"])
+            ports |= {p["containerPort"] for p in c.get("ports", [])}
+            assert not any("TOKEN" in e["name"] for e in c.get("env", [])), (name, "a token belongs in the secret")
+        assert svcs[name]["spec"]["ports"][0]["targetPort"] in ports, name
+        assert routes[name]["spec"]["tls"]["termination"] == "edge", name
+    env = {e["name"]: e.get("value") for e in deps["sds-grafana"]["spec"]["template"]["spec"]["containers"][0]["env"]}
+    assert env["MCP_ALLOWED_HOSTS"] == routes["sds-grafana"]["spec"]["host"], "Grafana must allow the Route's host"
+    okp_env = {e["name"]: e.get("value") for e in deps["sds-okp"]["spec"]["template"]["spec"]["containers"][0]["env"]}
+    assert okp_env["MCP_HOST"] == "127.0.0.1", "okp-mcp must be reachable through the gateway only"
+    assert any(d["kind"] == "NetworkPolicy" for d in objs)
+    print("OpenShift manifests ok")
+else:
+    print("OpenShift manifests not checked (no PyYAML)")
 print("all tests passed")

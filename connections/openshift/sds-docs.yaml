@@ -1,0 +1,77 @@
+# The SDS docs service (docs-http): the library built into the image, the team's knowledge cloned from the team
+# repository and re-indexed every 10 minutes and right after each push. See README.md beside this file.
+#   oc create secret generic sds-docs --from-literal=MCP_SERVER_TOKEN=$(head -c 24 /dev/urandom | base64 | tr -d '/+=') \
+#      --from-literal=SDS_REPO_TOKEN=<a read-only deploy token of the team repository>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sds-docs
+  labels: {app: sds-docs, app.kubernetes.io/part-of: sds-brain}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: sds-docs}
+  template:
+    metadata:
+      labels: {app: sds-docs, app.kubernetes.io/part-of: sds-brain}
+    spec:
+      automountServiceAccountToken: false               # these servers never talk to the cluster's API
+      containers:
+      - name: docs
+        image: <registry>/sds-brain/docs-mcp:<tag>
+        ports:
+        - {containerPort: 8000, name: http}
+        env:
+        - {name: SDS_REPO_URL, value: "https://<gitlab>/<group>/sds-brain.git"}
+        - {name: SDS_REPO_USER, value: "oauth2"}               # the deploy token's user name (GitLab: the token's name)
+        - {name: SDS_REFRESH_MINUTES, value: "10"}
+        envFrom:
+        - secretRef: {name: sds-docs}
+        volumeMounts:
+        - {name: data, mountPath: /data}
+        readinessProbe:
+          httpGet: {path: /health, port: 8000}
+          periodSeconds: 10
+        livenessProbe:
+          httpGet: {path: /health, port: 8000}
+          initialDelaySeconds: 20
+          periodSeconds: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities: {drop: ["ALL"]}
+          seccompProfile: {type: RuntimeDefault}
+        resources:
+          requests: {cpu: 50m, memory: 256Mi}
+          limits: {memory: 768Mi}
+      volumes:
+      - name: data                                      # the clone and the knowledge index: rebuilt from git at start
+        emptyDir: {sizeLimit: 1Gi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sds-docs
+  labels: {app: sds-docs, app.kubernetes.io/part-of: sds-brain}
+spec:
+  selector: {app: sds-docs}
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: sds-docs
+  labels: {app: sds-docs, app.kubernetes.io/part-of: sds-brain}
+  annotations:
+    haproxy.router.openshift.io/timeout: 120s       # a slow tool call (a large Grafana query) must not be cut
+spec:
+  host: sds-docs.<apps domain>                            # fixed: it goes into the plugin, and Grafana checks it
+  to: {kind: Service, name: sds-docs}
+  port: {targetPort: http}
+  tls:
+    termination: edge                                   # the cluster's certificate; the pod speaks http inside
+    insecureEdgeTerminationPolicy: Redirect

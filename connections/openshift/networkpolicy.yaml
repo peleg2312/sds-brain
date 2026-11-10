@@ -1,0 +1,14 @@
+# Only the OpenShift router reaches the SDS brain's pods (no other pod of the cluster can call them directly).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sds-brain-from-router
+  labels: {app.kubernetes.io/part-of: sds-brain}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/part-of: sds-brain}
+  policyTypes: [Ingress]
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels: {policy-group.network.openshift.io/ingress: ""}

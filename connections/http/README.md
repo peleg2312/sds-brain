@@ -7,18 +7,20 @@ configuration, one place to change them. The plugin keeps the same server names,
 | Connection | Image | How it serves HTTP |
 |---|---|---|
 | grafana | `localhost/sds-brain/grafana-mcp:v2.2.0` (UBI 9 minimal + the verified official binary) | The Grafana server's own streamable HTTP, read-only, bearer token required |
-| objectify | `localhost/sds-brain/objectify-mcp:<commit>` (UBI 9 Python 3.12 + the adapter) | `gateway.py`: the stdio adapter behind HTTP, bearer token required |
-| okp | Red Hat's okp-mcp container (`connections/okp/README.md`) | Already HTTP: point the plugin at it with `use.py okp <url>` |
-| docs | the VM's docs service | Already HTTP: `vm-setup.py` writes docs-http |
+| objectify | `localhost/sds-brain/mcp-gateway:<commit>` (UBI 9 Python 3.12 + the adapter + the gateway) | `gateway.py`: the stdio adapter behind HTTP, bearer token required |
+| okp | Red Hat's okp-mcp container (`connections/okp/README.md`) | Already HTTP, without a token of its own: put `mcp-gateway --upstream` in front (the OpenShift manifest does) |
+| docs | the VM's docs service, or `localhost/sds-brain/docs-mcp:<commit>` (the library inside, the team's knowledge from git) | `vm-setup.py` writes docs-http for the VM; `use.py docs-http <url>` for a container |
 
 ## 1. Build (a machine with podman or docker and this repository)
 ```bash
 python3 connections/http/build.py grafana   --save grafana-mcp.tar     [--base <internal registry>/ubi9/ubi-minimal:latest]
-python3 connections/http/build.py objectify --save objectify-mcp.tar   [--base <internal registry>/ubi9/python-312:latest]
+python3 connections/http/build.py gateway   --save mcp-gateway.tar     [--base <internal registry>/ubi9/python-312:latest]
+python3 connections/http/build.py docs      --save docs-mcp.tar        [--base <internal registry>/ubi9/python-312:latest]
 ```
 Nothing is downloaded except the base image: on the internal network, `--base` names the copy in your registry.
 The Grafana archive and executable are checked against `connections/grafana/release-manifest.json` first.
-Copy the tar files to the VM and `podman load -i grafana-mcp.tar` (same for objectify).
+Copy the tar files to the VM and `podman load -i grafana-mcp.tar` (same for the others). On OpenShift instead:
+`connections/openshift/README.md`.
 
 ## 2. Run (the VM, Podman Quadlet)
 Copy the unit from `quadlet/` to `/etc/containers/systemd/` (root) or `~/.config/containers/systemd/` (rootless),

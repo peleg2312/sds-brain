@@ -9,7 +9,7 @@ Description=SDS brain: the Objectify adapter over HTTP (read-only)
 After=network-online.target
 
 [Container]
-Image=localhost/sds-brain/objectify-mcp:<version>
+Image=localhost/sds-brain/mcp-gateway:<version>
 Pull=never
 PublishPort=8445:8000
 Volume=/srv/sds-objectify:/config:ro,Z

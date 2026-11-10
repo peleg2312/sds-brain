@@ -17,7 +17,7 @@ knowledge/                        environment.md, notes.md, tool-map.md (loaded 
 templates/                        topic, capture, page, runbook, incident, metric: copied into knowledge/
 docs/                             the vendor documentation the library is built from (LIBRARY.md)
 connections/                      Grafana (bundled, read-only), Objectify, Red Hat offline portal (okp); http/: the
-                                  same as containers on the VM
+                                  images; openshift/: the same as pods
 join.sh  vm-setup.py  check.py  test_brain.py
 ```
 
@@ -98,9 +98,9 @@ Elasticsearch) are skills in `brain-sds/skills/`: Claude picks them by itself, o
 - **Red Hat offline portal** (RHCS and RHEL manuals, knowledge base): the plugin's `okp` server. Set `SDS_OKP_URL`
   (or the team's url in `connections/okp/config.json`): `connections/okp/README.md`.
 - **Objectify**: the full contract for enabling reads is `connections/objectify/INTEGRATION.md`.
-- **Once for everyone, on the VM**: Grafana and Objectify can run as containers that serve HTTP, so nobody needs
-  their own token or configuration: `connections/http/README.md` (build, Quadlet units, `use.py` to point the plugin
-  at them).
+- **Once for everyone**: every MCP server (docs, Grafana, Objectify, okp) can run as a container that serves HTTP, so
+  nobody needs their own index, token or configuration: on OpenShift (`connections/openshift/README.md`) or with
+  Podman on the VM (`connections/http/README.md`); `use.py` points the plugin at them.
 
 ## The biggest gap: Red Hat manuals
 The Red Hat Ceph Storage and RHEL documentation is **not** in the library (Red Hat's site refused the download when

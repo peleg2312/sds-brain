@@ -1,0 +1,79 @@
+# Objectify's read-only adapter behind the token gateway. Off (status only) until its contract is supplied
+# (connections/objectify/INTEGRATION.md). See README.md beside this file.
+#   oc create configmap sds-objectify-config --from-file=config.local.json --from-file=openapi.json --from-file=ca.pem
+#      (the files connections/objectify/README.md describes; paths inside config.local.json relative to it)
+#   oc create secret generic sds-objectify --from-literal=OBJECTIFY_TOKEN=<Objectify read-only token> \
+#      --from-literal=MCP_SERVER_TOKEN=$(head -c 24 /dev/urandom | base64 | tr -d '/+=')
+# (OBJECTIFY_TOKEN: the variable config.local.json's authentication.token_env names)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sds-objectify
+  labels: {app: sds-objectify, app.kubernetes.io/part-of: sds-brain}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: sds-objectify}
+  template:
+    metadata:
+      labels: {app: sds-objectify, app.kubernetes.io/part-of: sds-brain}
+    spec:
+      automountServiceAccountToken: false               # these servers never talk to the cluster's API
+      containers:
+      - name: objectify
+        image: <registry>/sds-brain/mcp-gateway:<tag>
+        args: ["--listen", "0.0.0.0:8000", "--objectify"]
+        ports:
+        - {containerPort: 8000, name: http}
+        env:
+        - {name: OBJECTIFY_CONFIG, value: /config/config.local.json}    # comment out to run the disabled example
+        envFrom:
+        - secretRef: {name: sds-objectify}
+        volumeMounts:
+        - {name: config, mountPath: /config, readOnly: true}
+        readinessProbe:
+          httpGet: {path: /health, port: 8000}
+          periodSeconds: 10
+        livenessProbe:
+          httpGet: {path: /health, port: 8000}
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities: {drop: ["ALL"]}
+          seccompProfile: {type: RuntimeDefault}
+        resources:
+          requests: {cpu: 20m, memory: 64Mi}
+          limits: {memory: 256Mi}
+      volumes:
+      - name: config
+        configMap: {name: sds-objectify-config, optional: true}   # absent: the disabled example, status only
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sds-objectify
+  labels: {app: sds-objectify, app.kubernetes.io/part-of: sds-brain}
+spec:
+  selector: {app: sds-objectify}
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: sds-objectify
+  labels: {app: sds-objectify, app.kubernetes.io/part-of: sds-brain}
+  annotations:
+    haproxy.router.openshift.io/timeout: 120s       # a slow tool call (a large Grafana query) must not be cut
+spec:
+  host: sds-objectify.<apps domain>                            # fixed: it goes into the plugin, and Grafana checks it
+  to: {kind: Service, name: sds-objectify}
+  port: {targetPort: http}
+  tls:
+    termination: edge                                   # the cluster's certificate; the pod speaks http inside
+    insecureEdgeTerminationPolicy: Redirect
