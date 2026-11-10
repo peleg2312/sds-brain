@@ -20,6 +20,9 @@ it and pushes it to the team, and the search index follows by itself.
    from `topic.md`). Otherwise a capture `knowledge/captures/<date>-<slug>.md` from `capture.md`. A settled finding
    that needs sections: a page `knowledge/notes/<topic>-<slug>.md` from `page.md`. An exporter metric the team has
    understood: a block from `metric.md` in `notes/observability.md`.
+   Pages, runbooks and incidents start with the template's header: `applies_to` names the exact releases (rule 3),
+   `confidence` one of the five words, `last_verified` the date it was last checked here (change it, and the
+   confidence, only on new evidence), `sources` what it rests on.
 4. Tell the user the file and a two-line summary.
 
 ## b) Curate ("curate the captures")
@@ -34,8 +37,8 @@ A change procedure the **user ran and that worked** (add an RGW zone, replace an
 certificate) becomes `knowledge/runbooks/<topic>-<task>.md`. Not run yet, or fixed on the way and not re-checked: a
 capture instead. Search first (`ls knowledge/runbooks`): an existing runbook is updated, never duplicated. Every
 command is for the user to run; placeholders (`<fsid>`, `<osd-id>`, `<tenant-id>`) plus the read-only command that
-shows each value. Start from `templates/runbook.md`: Pre-checks, Procedure, Verification and Rollback are required
-(`check.py` fails a runbook without them), then Scope and History.
+shows each value. Start from `templates/runbook.md`: its header, then Pre-checks, Procedure, Verification and
+Rollback, which `check.py` requires, then Scope and History.
 Show it to the user and wait for the go-ahead before saving. When asked for change steps later, a matching runbook
 is the answer: follow it, say which one, add a History line when the user reports it worked again.
 
@@ -45,3 +48,8 @@ impact, UTC timeline, root cause with its confidence and the alternatives weighe
 it, what did not, evidence, learning, action items). Search the library and `knowledge/` for related history first.
 Mark suggested commands apart from executed ones; a correlated timing is a lead, not the root cause.
 Then one dated line in `notes/<topic>.md` pointing to the report.
+
+## e) A new investigation procedure
+When the team keeps running the same investigation and no skill covers it, draft one from `templates/skill.md`
+(scope, bounded read-only evidence, decision points, escalation and exit, sources) and give it to the user as text:
+skills live in `brain-sds/skills/` and only people add them, with a commit.

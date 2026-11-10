@@ -82,8 +82,16 @@ def environment_line():
 
 
 def stale_count():
+    """dated fact lines, and pages / runbooks whose header's last_verified is older than STALE_DAYS"""
     cut, n = time.time() - STALE_DAYS * 86400, 0
     import calendar
+    for f in glob.glob(os.path.join(K, "notes", "*.md")) + glob.glob(os.path.join(K, "runbooks", "*.md")):
+        m = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", b.header(read(f))[0].get("last_verified", ""))
+        try:
+            if m and calendar.timegm((int(m.group(1)), int(m.group(2)), int(m.group(3)), 0, 0, 0)) < cut:
+                n += 1
+        except (ValueError, OverflowError):
+            pass
     for f in [os.path.join(K, "notes.md")] + glob.glob(os.path.join(K, "notes", "*.md")):
         for line in read(f).splitlines():
             m = line.startswith("- ") and re.search(r"(\d{4})-(\d{2})-(\d{2})", line)
@@ -103,7 +111,7 @@ def memory_lines():
     topics = []
     for path in sorted(glob.glob(os.path.join(K, "notes", "*.md"))):
         text = read(path)
-        title = text.split("\n", 1)[0].lstrip("# ").strip()[:70]
+        title = b.doc_title(text, 70)
         facts = sum(1 for l in text.splitlines() if l.startswith("- ") and re.search(r"\d{4}-\d{2}-\d{2}", l))
         big = " - OVER 150 lines: merge duplicates, drop stale facts" if len(text.splitlines()) > TOPIC_CAP else ""
         topics.append(f"  notes/{os.path.basename(path)}" + (f" ({facts} facts)" if facts else "") + f": {title}{big}")
@@ -124,7 +132,7 @@ def memory_lines():
                    + (" - curation is due: offer it once after the user's first question" if due else "") + ".")
     stale = stale_count()
     if stale:
-        out.append(f"stale: {stale} fact(s) older than {STALE_DAYS} days; re-verify the ones a question touches.")
+        out.append(f"stale: {stale} fact(s) or page(s) last verified more than {STALE_DAYS} days ago; re-verify the ones a question touches.")
     inc = glob.glob(os.path.join(K, "incidents", "**", "*.md"), recursive=True)
     if inc:
         out.append(f"incidents: {len(inc)} postmortems under knowledge/incidents/ (searchable).")

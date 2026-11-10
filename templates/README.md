@@ -12,6 +12,13 @@ from here: `<REDACTED>`.
 | `runbook.md` | `knowledge/runbooks/<topic>-<task>.md` | A change procedure a person ran and that worked. `check.py` requires its four sections |
 | `incident.md` | `knowledge/incidents/<yyyy>/<yyyy-mm-dd>-<slug>.md` | A postmortem, blameless, times in UTC |
 | `metric.md` | a section of `knowledge/notes/observability.md` | An exporter metric the team has understood |
+| `skill.md` | `brain-sds/skills/<name>/SKILL.md` (a person's commit) | A new read-only investigation procedure: scope, bounded evidence, decision points, escalation |
+
+Pages, runbooks and incidents start with a header (from the first SDS brain): `title`, `area`, `type`, `applies_to`
+(the releases it holds for), `confidence`, `last_verified` and `sources`. The search uses the title, the session start
+lists a page whose `last_verified` is older than 180 days, and `check.py` checks the fields. Topic files and captures
+have no header: each fact line carries its own date and confidence, and a capture's title is how the search marks it
+a draft.
 
 A fact line, everywhere: `- <yyyy-mm-dd> · <fact> · <confidence> · <source>`, with confidence one of `verified`
 (tested here, more than once or with recorded evidence), `observed` (seen once here), `documented` (read in a cited

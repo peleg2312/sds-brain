@@ -1,4 +1,14 @@
-# <Verb phrase: "Replace a failed OSD drive on an Apollo 4200">
+---
+title: "<Verb phrase: Replace a failed OSD drive on an Apollo 4200>"
+area: <ceph | rgw | s3 | storagegrid | linux | hardware | observability | objectify | general>
+type: runbook
+applies_to: [<product-release, e.g. rhcs-8.1z9, storagegrid-11.9, rhel-9.6, apollo-4200-gen10>]
+confidence: verified
+last_verified: <yyyy-mm-dd>
+sources: [<title + url + version of a document, a knowledge file, a command output reference>]
+---
+
+# <the same title>
 
 When to use: <the situation>   Impact while running: <client impact, degraded redundancy, duration>
 Prerequisites: <access, maintenance window, approvals, spare parts>

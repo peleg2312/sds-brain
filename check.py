@@ -124,7 +124,7 @@ if os.path.isfile(notes):
     n = len(open(notes, encoding="utf-8").read().splitlines())
     ok("knowledge/notes.md under 60 lines", n <= 60, f"{n} lines: move facts into knowledge/notes/<topic>.md")
 learn = open(os.path.join(PLUG, "skills", "brain-learn", "SKILL.md"), encoding="utf-8").read()
-for name in sorted(set(re.findall(r"`(?:templates/)?([a-z]+\.md)` *(?:\)|from|:|\.|,| )", learn)) & {"topic.md", "capture.md", "page.md", "runbook.md", "incident.md", "metric.md"}):
+for name in sorted(set(re.findall(r"`(?:templates/)?([a-z]+\.md)` *(?:\)|from|:|\.|,| )", learn)) & {"topic.md", "capture.md", "page.md", "runbook.md", "incident.md", "metric.md", "skill.md"}):
     ok("templates/" + name, os.path.isfile(os.path.join(ROOT, "templates", name)), "the brain-learn skill names it, the file is missing")
 for f in tracked("templates/*.md"):
     found = b.findings(f)
@@ -133,6 +133,30 @@ for f in tracked("knowledge/runbooks/*.md", "templates/runbook.md"):
     heads = {m.group(1).strip().lower() for m in re.finditer(r"^##\s+(.+?)\s*$", open(f, encoding="utf-8", errors="replace").read(), re.M)}
     missing = [h for h in RUNBOOK_SECTIONS if not any(x.startswith(h.lower()) for x in heads)]
     ok("runbook " + rel(f), not missing, "missing section(s): " + ", ".join("## " + h for h in missing))
+def check_header(f, required, template=False):
+    """the --- header of a page, runbook or incident: every field there, a confidence word, a yyyy-mm-dd last_verified"""
+    meta, _ = b.header(open(f, encoding="utf-8", errors="replace").read())
+    if not meta:
+        if required:
+            ok("header " + rel(f), False, "starts with a --- header: title, area, type, applies_to, confidence, last_verified, "
+               "sources (copy templates/" + required + ")")
+        return
+    missing = [k for k in b.HEADER_FIELDS if not meta.get(k)]
+    ok("header " + rel(f), not missing, "missing: " + ", ".join(missing))
+    if not template:
+        ok("header confidence " + rel(f), meta.get("confidence") in b.CONFIDENCE, "one of " + ", ".join(b.CONFIDENCE))
+        ok("header last_verified " + rel(f), bool(re.fullmatch(r"\d{4}-\d{2}-\d{2}", meta.get("last_verified", ""))), "yyyy-mm-dd")
+
+
+for f in tracked("knowledge/runbooks/*.md"):
+    check_header(f, "runbook.md")
+for f in tracked("knowledge/incidents/**/*.md"):
+    check_header(f, "incident.md")
+for f in tracked("knowledge/notes/*.md"):
+    check_header(f, "")                                            # topic files have none; a page may
+for f in tracked("templates/page.md", "templates/runbook.md", "templates/incident.md"):
+    check_header(f, "x", template=True)
+
 loose = 0
 for f in [notes] + tracked("knowledge/notes/*.md"):
     for n, line in enumerate(open(f, encoding="utf-8", errors="replace").read().splitlines() if os.path.isfile(f) else [], 1):

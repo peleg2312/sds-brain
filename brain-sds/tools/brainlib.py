@@ -126,6 +126,32 @@ def knowledge_files():
             + sorted(glob.glob(os.path.join(k, "incidents", "**", "*.md"), recursive=True)))
 
 
+CONFIDENCE = ("verified", "observed", "documented", "user-reported", "hypothesis")
+HEADER_FIELDS = ("title", "area", "type", "applies_to", "confidence", "last_verified", "sources")
+
+
+def header(text):
+    """(fields, body) of a knowledge file that starts with a --- header (pages, runbooks, incidents), else ({}, text)"""
+    if not text.startswith("---\n"):
+        return {}, text
+    end = text.find("\n---", 3)
+    if end < 0:
+        return {}, text
+    meta = {}
+    for line in text[4:end].splitlines():
+        if ":" in line and not line.startswith((" ", "#")):
+            k, v = line.split(":", 1)
+            meta[k.strip()] = v.strip().strip("'\"")
+    return meta, text[end + 4:].lstrip("\n")
+
+
+def doc_title(text, limit=90):
+    """the header's title, else the first heading"""
+    meta, body = header(text)
+    t = meta.get("title") or body.split("\n", 1)[0].lstrip("# ").strip()
+    return t[:limit]
+
+
 def write_index():
     """knowledge/INDEX.md: what the team knows, at a glance in the git server's web view (core facts, topics with their
     fact counts, pages, runbooks, captures waiting, incidents, the tool map). Generated at every knowledge commit; never
@@ -136,7 +162,7 @@ def write_index():
 
     def title(f):
         try:
-            return open(f, encoding="utf-8", errors="replace").read().split("\n", 1)[0].lstrip("# ").strip()[:90]
+            return doc_title(open(f, encoding="utf-8", errors="replace").read())
         except OSError:
             return ""
 

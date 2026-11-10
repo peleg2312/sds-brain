@@ -240,18 +240,26 @@ try:
     assert "in sync" in out and "bob's fact" in open(os.path.join(alice, "knowledge/notes/ceph.md")).read(), out
 
     # a runbook and a capture are listed; the checks catch a runbook without its sections and a secret
-    save(bob, "knowledge/runbooks/ceph-replace-osd-drive.md", "# Replace a failed OSD drive\n## Pre-checks\n## Procedure\n## Verification\n## Rollback\n")
+    save(bob, "knowledge/runbooks/ceph-replace-osd-drive.md", "---\ntitle: Replace a failed OSD drive\narea: ceph\ntype: runbook\n"
+         "applies_to: [rhcs-8.1z9]\nconfidence: verified\nlast_verified: 2026-11-10\nsources: [ceph-volume lvm list]\n---\n\n"
+         "# Replace a failed OSD drive\n## Pre-checks\n## Procedure\n## Verification\n## Rollback\n")
     save(bob, "knowledge/captures/2026-11-10-slow-list.md", "# Bucket listing slow on prod-a\n## Symptom\nlisting takes 40 s\n")
     rc, out, _ = hook("session-start.py", {}, cwd=bob, root=bob)
     assert "runbooks: 1 tested procedures" in out and "ceph-replace-osd-drive" in out and "captures: 1 waiting" in out, out
+    index = sh("git", "show", "main:knowledge/INDEX.md", cwd=bare)      # the title comes from the runbook's header
+    assert "[ceph-replace-osd-drive.md](runbooks/ceph-replace-osd-drive.md): Replace a failed OSD drive" in index, index
     assert subprocess.run([sys.executable, "check.py"], cwd=bob, capture_output=True, text=True, env=ENV).returncode == 0
     with open(os.path.join(bob, "knowledge/runbooks/bad.md"), "w") as f:
         f.write("# Bad\n## Procedure\n")
+    with open(os.path.join(bob, "knowledge/notes/ceph-old-page.md"), "w") as f:                  # a page with a broken header
+        f.write("---\ntitle: Old page\narea: ceph\ntype: page\napplies_to: [rhcs-7.1]\nconfidence: sure\nlast_verified: 2026-11-10\nsources: [x]\n---\n# Old page\n")
     with open(os.path.join(bob, "knowledge/notes/leak.md"), "w") as f:
         f.write("# Leak\n- 2026-11-10 · password=Hunter2!x · observed · test\n")
     r = subprocess.run([sys.executable, "check.py"], cwd=bob, capture_output=True, text=True, env=ENV)
     assert r.returncode == 1 and "FAIL runbook knowledge/runbooks/bad.md" in r.stdout and "FAIL no secret in knowledge/notes/leak.md" in r.stdout, r.stdout
-    os.remove(os.path.join(bob, "knowledge/runbooks/bad.md")); os.remove(os.path.join(bob, "knowledge/notes/leak.md"))
+    assert "FAIL header knowledge/runbooks/bad.md" in r.stdout and "FAIL header confidence knowledge/notes/ceph-old-page.md" in r.stdout, r.stdout
+    for x in ("knowledge/runbooks/bad.md", "knowledge/notes/leak.md", "knowledge/notes/ceph-old-page.md"):
+        os.remove(os.path.join(bob, x))
     print("team sync, save hook and checks ok")
 
     # ---- 3. the capture nudge: once per long session without a save
