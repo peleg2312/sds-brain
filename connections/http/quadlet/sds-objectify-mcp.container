@@ -1,0 +1,31 @@
+# ~/.config/containers/systemd/ (rootless) or /etc/containers/systemd/ (root), then:
+#   systemctl [--user] daemon-reload && systemctl [--user] start sds-objectify-mcp
+# /srv/sds-objectify holds config.local.json, the reviewed openapi.json and the CA it names (connections/objectify/
+# INTEGRATION.md); paths inside the configuration are relative to it. Secrets first:
+#   printf '%s' '<Objectify read-only token>' | podman secret create sds-objectify-token -
+#   head -c 24 /dev/urandom | base64 | tr -d '/+=' > objectify-mcp.token && podman secret create sds-objectify-mcp-token objectify-mcp.token
+[Unit]
+Description=SDS brain: the Objectify adapter over HTTP (read-only)
+After=network-online.target
+
+[Container]
+Image=localhost/sds-brain/objectify-mcp:<version>
+Pull=never
+PublishPort=8445:8000
+Volume=/srv/sds-objectify:/config:ro,Z
+Environment=OBJECTIFY_CONFIG=/config/config.local.json
+# target= is the variable the configuration's authentication.token_env names
+Secret=sds-objectify-token,type=env,target=OBJECTIFY_TOKEN
+Secret=sds-objectify-mcp-token,type=env,target=MCP_SERVER_TOKEN
+# HTTPS for Claude Code with the VM's certificate:
+#Volume=/etc/paas/market:/tls/vm:ro,Z
+#Environment=MCP_TLS_CERT=/tls/vm/paas-ui.crt MCP_TLS_KEY=/tls/vm/paas-ui.key
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=ALL
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

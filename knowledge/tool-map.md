@@ -9,6 +9,7 @@
   `query_prometheus` / `list_prometheus_metric_names` (only if Prometheus is behind Grafana). Datasource uids per
   cluster: `environment.md`.
 - **objectify**: `objectify_status` only, until its contract is supplied (`connections/objectify/INTEGRATION.md`).
+  grafana and objectify run on each machine, or once on the VM over HTTP (`connections/http/README.md`): same tools.
 - **okp** (Red Hat offline portal, when configured): RHCS / RHEL manuals and knowledge base; check product and version
   of each result. Not configured: `okp_setup` says what is missing.
 - **Shell, run by the user** (Claude runs read commands itself only on a machine that has them, when asked for live

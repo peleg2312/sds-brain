@@ -1,0 +1,32 @@
+# ~/.config/containers/systemd/ (rootless) or /etc/containers/systemd/ (root), then:
+#   systemctl [--user] daemon-reload && systemctl [--user] start sds-grafana-mcp
+# Secrets first (the values never go into this file):
+#   printf '%s' '<Grafana Viewer service-account token>' | podman secret create sds-grafana-token -
+#   head -c 24 /dev/urandom | base64 | tr -d '/+=' > grafana-mcp.token && podman secret create sds-grafana-mcp-token grafana-mcp.token
+[Unit]
+Description=SDS brain: the Grafana MCP server over HTTP (read-only)
+After=network-online.target
+
+[Container]
+Image=localhost/sds-brain/grafana-mcp:v2.2.0
+Pull=never
+PublishPort=8444:8000
+Environment=GRAFANA_URL=https://grafana.example.internal
+Environment=MCP_ALLOWED_HOSTS=vm.example.internal:8444
+Secret=sds-grafana-token,type=env,target=GRAFANA_SERVICE_ACCOUNT_TOKEN
+Secret=sds-grafana-mcp-token,type=env,target=MCP_GRAFANA_SERVER_TOKEN
+# Grafana behind a private CA:
+#Volume=/etc/pki/ca-trust/source/anchors/internal-ca.pem:/tls/grafana-ca.pem:ro,Z
+#Environment=GRAFANA_CA_FILE=/tls/grafana-ca.pem
+# HTTPS for Claude Code with the VM's certificate (members already trust it through join.sh):
+#Volume=/etc/paas/market:/tls/vm:ro,Z
+#Environment=MCP_TLS_CERT=/tls/vm/paas-ui.crt MCP_TLS_KEY=/tls/vm/paas-ui.key
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=ALL
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

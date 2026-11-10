@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import urllib.error
 import urllib.request
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -573,5 +574,55 @@ o = mcp([PLUGIN + "/tools/connect.py", "okp"], [("search_documentation", {"query
         env=dict(ENV, SDS_OKP_URL=f"http://127.0.0.1:{okp.server_address[1]}/mcp"))
 assert [t["name"] for t in o[99]["tools"]] == ["search_documentation"] and "RHCS 8" in o[1]["content"][0]["text"], o
 okp.shutdown()
+
+# a stdio connection served over HTTP by the gateway (what the Objectify container runs), and use.py's switch
+with socket.socket() as so:
+    so.bind(("127.0.0.1", 0)); gport = so.getsockname()[1]
+gtoken = "gateway-token-0123456789"
+gw = subprocess.Popen([sys.executable, "connections/http/gateway.py", "--listen", f"127.0.0.1:{gport}", "--", sys.executable,
+                       "connections/objectify/server.py", "--config", "connections/objectify/config.example.json"],
+                      cwd=ROOT, env=dict(ENV, MCP_SERVER_TOKEN=gtoken), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+try:
+    def gcall(msg, token=gtoken):
+        req = urllib.request.Request(f"http://127.0.0.1:{gport}/mcp", data=json.dumps(msg).encode(), method="POST", headers={
+            "Content-Type": "application/json", **({"Authorization": "Bearer " + token} if token else {})})
+        try:
+            with urllib.request.urlopen(req, timeout=10) as r:
+                return r.status, json.loads(r.read() or b"null")
+        except urllib.error.HTTPError as e:
+            return e.code, None
+    for _ in range(100):
+        try:
+            urllib.request.urlopen(f"http://127.0.0.1:{gport}/health", timeout=1).read(); break
+        except OSError:
+            time.sleep(0.1)
+    assert gcall({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}, token="")[0] == 401
+    assert gcall({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}, token="wrong-token-0123456789")[0] == 401
+    code, got = gcall({"jsonrpc": "2.0", "id": "a", "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "t", "version": "1"}}})
+    assert code == 200 and got["id"] == "a" and got["result"]["serverInfo"]["name"] == "sds-objectify", got
+    assert gcall({"jsonrpc": "2.0", "method": "notifications/initialized"})[0] == 202
+    code, got = gcall({"jsonrpc": "2.0", "id": 42, "method": "tools/list"})
+    assert code == 200 and got["id"] == 42 and [t["name"] for t in got["result"]["tools"]] == ["objectify_status"], got
+    code, got = gcall({"jsonrpc": "2.0", "id": 43, "method": "tools/call", "params": {"name": "objectify_status", "arguments": {}}})
+    assert code == 200 and got["id"] == 43 and '"enabled": false' in got["result"]["content"][0]["text"], got
+finally:
+    gw.kill()
+work2 = tempfile.mkdtemp(prefix="sds-brain-use-")
+try:
+    shutil.copytree(os.path.join(ROOT, PLUGIN), os.path.join(work2, PLUGIN), ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copytree(os.path.join(ROOT, "connections", "http"), os.path.join(work2, "connections", "http"))
+    with open(os.path.join(work2, "t"), "w") as f:
+        f.write("use-token-0123456789abcdef\n")
+    use = lambda *a: subprocess.run([sys.executable, os.path.join(work2, "connections", "http", "use.py")] + list(a), capture_output=True, text=True, env=ENV)
+    r = use("grafana", "https://vm.example.internal:8444/mcp", "--token-file", os.path.join(work2, "t"))
+    entry = json.load(open(os.path.join(work2, PLUGIN, ".mcp.json")))["mcpServers"]["grafana"]
+    assert r.returncode == 0 and entry == {"type": "http", "url": "https://vm.example.internal:8444/mcp",
+                                           "headers": {"Authorization": "Bearer use-token-0123456789abcdef"}}, (r.stdout, entry)
+    assert "use-token" not in r.stdout, "the token must not be printed"
+    assert use("grafana", "https://vm.example.internal:8444/mcp").returncode != 0          # never without a token
+    assert use("grafana", "--stdio").returncode == 0
+    assert json.load(open(os.path.join(work2, PLUGIN, ".mcp.json")))["mcpServers"]["grafana"]["args"][-1] == "grafana"
+finally:
+    shutil.rmtree(work2, ignore_errors=True)
 print("connections ok")
 print("all tests passed")
