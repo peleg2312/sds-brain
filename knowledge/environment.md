@@ -31,3 +31,13 @@ Reported for the whole fleet on 2026-11-09, not yet confirmed per cluster (repla
 
 ## Objectify
 - Base url, how to authenticate (no secrets here), which backends it fronts:
+
+## Still to confirm (each answer unlocks something; remove a line once it is answered above)
+- Per cluster / grid: FSID or grid name, exact release (StorageGRID "12": which minor and build), endpoints.
+- Servers: generation, storage controller, iLO firmware of each model (XL420 / XL170r / XL190r / DL385 is the
+  reported mapping, not a confirmed one).
+- Grafana and Elasticsearch versions; one datasource per cluster?; whether Prometheus is behind Grafana; the custom
+  exporter's metric names, types and labels (one reviewed sample).
+- Objectify: its `/openapi.json`, authentication scheme and one redacted successful response per read
+  (`connections/objectify/INTEGRATION.md`).
+- Red Hat documentation: which RHCS / RHEL manuals the team may add under `docs/redhat/`, or the offline portal.

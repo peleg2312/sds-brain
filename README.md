@@ -13,7 +13,7 @@ brain-sds/                        the plugin: skills/ (22), agents/, hooks/, .mc
 rules/                            main.md (golden rules), persona.md, guard-allow.txt: the team's own, loaded every session
 knowledge/                        environment.md, notes.md, notes/, runbooks/, captures/, incidents/: what the team learns
 docs/                             the vendor documentation the library is built from (LIBRARY.md)
-connections/                      Grafana (bundled, read-only), Objectify, Red Hat offline portal
+connections/                      Grafana (bundled, read-only), Objectify, Red Hat offline portal (okp)
 join.sh  vm-setup.py  check.py  test_brain.py
 ```
 
@@ -32,13 +32,28 @@ one import line to `~/.claude/CLAUDE.md` so every session loads `rules/main.md`.
 The first time, type `/brain-sds:brain-setup`: Claude asks about your clusters and grids and fills
 `knowledge/environment.md` for the whole team.
 
+**Or straight from the marketplace**, without cloning first:
+```bash
+claude plugin marketplace add <this repository's git url>
+claude plugin install brain-sds@brain-sds
+```
+The first session clones the team repository as `~/.claude/sds-brain` in the background and adds the import line
+(that session gets the rules from the marketplace copy); from the second session on it is the same as after
+`join.sh`. `join.sh` is still the way to trust the VM's HTTPS certificate on a machine without it.
+
 ## Docs: the VM's docs service, or each machine by itself
-Two MCP servers, as in the storage team's brains:
+Two MCP servers and two hooks, as in the storage team's brains:
 
 - **docs-http**: the docs service on the VM (the storage brain's `paas-docs`). It serves SDS its own library and the
   team's knowledge, over HTTPS with the service's token. Nothing is built on a member's machine.
 - **docs-local**: the plugin's small server. It indexes the team's knowledge on the person's machine at every start,
-  so a note written a minute ago is found. Without a VM it also indexes `docs/` locally (a few seconds, once).
+  so a note written a minute ago is found. Without a VM it also indexes `docs/` locally (a few seconds, once). On the
+  VM itself it opens the docs service's own index of the team's knowledge (`/var/lib/paas-docs/index/sds.db`) when it
+  matches the clone, instead of building one per person.
+- **docs-leads** (each request): the best matching documents and the meaning of pasted identifiers, before Claude
+  answers. **docs-hints** (each result of a shell command or MCP tool): the meaning of the Ceph health checks
+  (`PG_DEGRADED`), S3 error codes (`SignatureDoesNotMatch`) and error messages it shows. Both search the local index,
+  else docs-http, and stay silent when nothing matches well.
 
 To connect the VM, once, as root on the VM, from a clone whose `origin` is the team's git url:
 
@@ -46,8 +61,12 @@ To connect the VM, once, as root on the VM, from a clone whose `origin` is the t
 sudo python3 vm-setup.py                # then commit and push the two files it names
 ```
 It copies `docs/` into the VM's libraries (`/opt/paas/libraries/sds`) and builds the index there, registers the team
-`sds` with the docs service (which then follows this repository's `knowledge/`), and writes the service's address and
-token into `brain-sds/.mcp.json`. After the push every member has `docs-http` at their next session. The other teams
+`sds` with the docs service (which then keeps the team's own small knowledge index, refreshed every 10 minutes and
+right after each push), and writes the service's address and token into `brain-sds/.mcp.json`:
+```json
+"docs-http": {"type": "http", "url": "https://<vm>:8443/mcp?team=sds", "headers": {"Authorization": "Bearer <the docs token>"}}
+```
+That entry is not in the repository until `vm-setup.py` has run: the address and the token exist only on the VM. After the push every member has `docs-http` at their next session. The other teams
 on the VM are not touched. Until then, and on a network without that VM, the brain works with `docs-local` alone.
 
 ## How the team shares knowledge
@@ -69,8 +88,9 @@ Elasticsearch) are skills in `brain-sds/skills/`: Claude picks them by itself, o
 - **Grafana**: set `SDS_GRAFANA_URL` and `SDS_GRAFANA_TOKEN` (a Viewer service-account token) in your shell profile:
   `connections/grafana/README.md`. Until then Claude says it is not configured.
 - **Objectify**: reports status only. To enable reads, supply the API's OpenAPI file: `connections/objectify/README.md`.
-- **Red Hat offline portal** (RHCS and RHEL manuals, knowledge base): optional, one command to connect:
-  `connections/okp/README.md`.
+- **Red Hat offline portal** (RHCS and RHEL manuals, knowledge base): the plugin's `okp` server. Set `SDS_OKP_URL`
+  (or the team's url in `connections/okp/config.json`): `connections/okp/README.md`.
+- **Objectify**: the full contract for enabling reads is `connections/objectify/INTEGRATION.md`.
 
 ## The biggest gap: Red Hat manuals
 The Red Hat Ceph Storage and RHEL documentation is **not** in the library (Red Hat's site refused the download when
@@ -79,8 +99,18 @@ and commit: see `LIBRARY.md`. Until then Claude says when an answer needs them.
 
 ## Read-only
 Claude never changes Ceph, RGW, StorageGRID, S3 data, hosts or hardware: it gives you the commands to run, with
-pre-checks and rollback. A guard hook blocks changing commands (also inside `ssh`, `cephadm shell`, `podman exec`)
-and commands that print keys, in every folder Claude is started in. It is a net against mistakes, not a wall:
+pre-checks and rollback. The guard hook (`brain-sds/hooks/guard.py`), in every folder Claude is started in:
+- **blocks** commands that change storage (`ceph`, `radosgw-admin`, `rados`, `rbd`, `cephadm`, `ceph-volume` beyond a
+  list of read commands; S3 writes and deletes with `aws`, `s3cmd`, `mc`, `s5cmd`, `rclone`; HPE `ilorest`, `ipmitool`,
+  `ssacli`, `storcli`, `smartctl` tests), host changes on a remote machine, and commands that print keys
+  (`radosgw-admin user info` without a `jq` projection), also inside `ssh`, `cephadm shell`, `podman exec`, `bash -c`,
+  `sudo`, `timeout`, `watch` and `$(...)`;
+- **asks you** for `curl` / `wget` writes to another host, a change on this machine, a remote command it does not know;
+- **blocks** MCP tools whose names say they change something (`update_dashboard`, `create_incident`...);
+- **blocks** Claude's writes to the brain itself (rules, plugin, connections, `join.sh`): only `knowledge/` and
+  `docs/` are Claude's;
+- **approves** without a prompt the brain's own read-only tools (docs, Grafana reads, Objectify status, OKP search),
+  notes saved under `knowledge/`, and the shell docs search. It is a net against mistakes, not a wall:
 read-only accounts on every backend are the real guarantee. A read command blocked by mistake: add its beginning to
 `rules/guard-allow.txt` and push.
 
@@ -93,7 +123,7 @@ Before pushing:
 
 ```bash
 python3 check.py        # JSON, plugin shape, skills, hooks, rules length, no secrets in knowledge, runbook sections, archives
-python3 test_brain.py   # the guard (118 commands), save and sync, join.sh, the VM docs service, docs search: about 30 s
+python3 test_brain.py   # the guard, save and sync, docs leads / hints, marketplace install, join.sh, the VM docs service, OKP: about 30 s
 ```
 `.gitlab-ci.yml` runs both on every push (point its `image` at your internal registry).
 

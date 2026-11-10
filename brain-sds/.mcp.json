@@ -1,7 +1,35 @@
 {
   "mcpServers": {
-    "docs-local": {"type": "stdio", "command": "python3", "args": ["${CLAUDE_PLUGIN_ROOT}/tools/docs_server.py"]},
-    "grafana": {"type": "stdio", "command": "python3", "args": ["${CLAUDE_PLUGIN_ROOT}/tools/connect.py", "grafana"]},
-    "objectify": {"type": "stdio", "command": "python3", "args": ["${CLAUDE_PLUGIN_ROOT}/tools/connect.py", "objectify"]}
+    "docs-local": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/tools/docs_server.py"
+      ]
+    },
+    "grafana": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/tools/connect.py",
+        "grafana"
+      ]
+    },
+    "objectify": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/tools/connect.py",
+        "objectify"
+      ]
+    },
+    "okp": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/tools/connect.py",
+        "okp"
+      ]
+    }
   }
 }

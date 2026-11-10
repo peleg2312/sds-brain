@@ -167,7 +167,7 @@ for tool, want in ((OWN + "docs-local__search_docs", "approve"), (OWN + "docs-ht
                    (OWN + "grafana__query_prometheus", "approve"), (OWN + "grafana__list_datasources", "approve"),
                    (OWN + "grafana__update_dashboard", "block"), (OWN + "grafana__create_incident", "block"),
                    (OWN + "objectify__objectify_status", "approve"), (OWN + "objectify__objectify_get_account", "approve"),
-                   (OWN + "objectify__resize_account", "block"), ("mcp__sds-okp__search_documentation", "allow"),
+                   (OWN + "objectify__resize_account", "block"), (OWN + "okp__search_documentation", "approve"), ("mcp__sds-okp__search_documentation", "allow"),
                    ("mcp__other__delete_volume", "block")):
     assert guard(tool) == want, f"guard: {tool}: expected {want}, got {guard(tool)}"
 # the docs search without MCP is approved only as the whole command
@@ -186,6 +186,7 @@ def sh(*cmd, cwd=None, check=True):
 
 
 work = tempfile.mkdtemp(prefix="sds-brain-test-")
+ENV["TMPDIR"] = work                  # the hooks' once-per-session files: this run's own, never a previous run's
 try:
     bare, alice, bob = (os.path.join(work, n) for n in ("remote.git", "alice", "bob"))
     shutil.copytree(ROOT, alice, ignore=shutil.ignore_patterns(".git", ".cache", "__pycache__"))
@@ -302,6 +303,29 @@ try:
     assert r.returncode == 0 and "aws/s3" in r.stdout, r.stdout[:300]
     print("docs-local ok (no VM: the repository's docs/ and the team's knowledge)")
 
+    # ---- 4b. docs leads (each request) and docs hints (each result) on the local index
+    def prompt_hook(text, sid, root=bob, env=None):
+        return hook("docs-leads.py", {"session_id": sid, "prompt": text, "cwd": work}, cwd=work, root=root, env=env)[1]
+
+    def result_hook(tool, response, sid, root=bob, env=None):
+        out = hook("docs-hints.py", {"session_id": sid, "tool_name": tool, "tool_response": response}, cwd=work, root=root, env=env)[1]
+        return json.loads(out)["hookSpecificOutput"]["additionalContext"] if out else ""
+
+    out = prompt_hook("Low metadata storage alert on the StorageGRID grid, what does it mean on 11.9?", "lead1")
+    assert out.startswith("Docs leads (docs-local;") and "storagegrid-119" in out and "metadata" in out.lower(), out
+    assert prompt_hook("Low metadata storage alert on the StorageGRID grid, what does it mean on 11.9?", "lead1") == ""   # once
+    for quiet in ("yes continue", "fix the bug in this python function", "/brain-sds:ceph-health"):
+        assert prompt_hook(quiet, "lead2") == "", quiet
+    out = prompt_hook("clients get SignatureDoesNotMatch and the cluster shows PG_DEGRADED", "lead3")
+    assert "PG_DEGRADED [ceph/squid, chunk" in out and "SignatureDoesNotMatch (S3 error code)" in out and "aws/s3" in out, out
+    health = "HEALTH_WARN 1 nearfull osd(s)\n[WRN] OSD_NEARFULL: 1 nearfull osd(s)\n[WRN] PG_DEGRADED: Degraded data redundancy\nHTTP_PROXY PATH_INFO"
+    ctx = result_hook("Bash", {"stdout": health, "stderr": ""}, "hint1")
+    assert "OSD_NEARFULL [ceph/squid" in ctx and "PG_DEGRADED [ceph/squid" in ctx and "HTTP_PROXY" not in ctx, ctx
+    assert result_hook("Bash", {"stdout": health, "stderr": ""}, "hint1") == ""                  # each once per session
+    assert result_hook("mcp__plugin_brain-sds_docs-local__search_docs", "PG_DEGRADED", "hint2") == ""  # never on the docs' own results
+    assert "PG_DEGRADED" in result_hook("mcp__plugin_brain-sds_grafana__query_prometheus", {"text": "alert PG_DEGRADED firing"}, "hint3")
+    print("docs leads and docs hints ok (local index)")
+
     # ---- 5. the installed plugin: a copy outside the repository (Claude Code's cache), the home found through join.sh's link
     cache, cfg, fake = (os.path.join(work, n) for n in ("cache", "cfg", "fakebin"))
     shutil.copytree(os.path.join(bob, PLUGIN), os.path.join(cache, PLUGIN), ignore=shutil.ignore_patterns("__pycache__"))
@@ -321,6 +345,30 @@ try:
     assert [t["name"] for t in o[99]["tools"]] == ["docs_setup"] and "join.sh" in o[1]["content"][0]["text"]
     o = mcp([os.path.join(cache, PLUGIN, "tools", "connect.py"), "grafana"], [("grafana_setup", {})], cwd=work, env=env)
     assert "join.sh" in o[1]["content"][0]["text"]
+    # installed from the marketplace without join.sh: the first session sets the home up itself
+    known = os.path.join(cfg, "plugins", "known_marketplaces.json")
+    os.makedirs(os.path.dirname(known))
+    with open(known, "w") as f:                                     # a marketplace added from a clone's folder: linked
+        json.dump({"brain-sds": {"source": {"source": "directory", "path": bob}, "installLocation": bob}}, f)
+    rc, out, _ = hook("session-start.py", {}, cwd=work, root=cache, env=env)
+    assert "home was linked now" in out and os.path.realpath(os.path.join(cfg, "sds-brain")) == os.path.realpath(bob), out
+    assert open(os.path.join(cfg, "CLAUDE.md")).read().count("sds-brain/rules/main.md") == 1
+    os.remove(os.path.join(cfg, "sds-brain")); os.remove(os.path.join(cfg, "CLAUDE.md"))
+    with open(known, "w") as f:                                     # a git marketplace: cloned in the background
+        json.dump({"brain-sds": {"source": {"source": "git", "url": bare}, "installLocation": bob}}, f)
+    rc, out, _ = hook("session-start.py", {}, cwd=work, root=cache, env=env)
+    assert "is being cloned now" in out and "The team's rules for this session:" in out and "Golden rules" in out, out
+    for _ in range(300):
+        if os.path.isdir(os.path.join(cfg, "sds-brain", "knowledge")):
+            break
+        time.sleep(0.1)
+    assert os.path.isdir(os.path.join(cfg, "sds-brain", ".git")) and not os.path.islink(os.path.join(cfg, "sds-brain"))
+    assert "sds-brain/rules/main.md" in open(os.path.join(cfg, "CLAUDE.md")).read()
+    rc, out, _ = hook("session-start.py", {}, cwd=work, root=cache, env=env)
+    assert out.startswith(f"SDS brain: Home: {os.path.join(cfg, 'sds-brain')} ") and "in sync" in out, out
+    shutil.rmtree(os.path.join(cfg, "sds-brain")); os.remove(os.path.join(cfg, "CLAUDE.md")); os.remove(known)
+    print("marketplace install ok (linked folder, background clone)")
+
     # joined (the link): the copy works on the team repository from any folder
     os.symlink(bob, os.path.join(cfg, "sds-brain"))
     rc, out, _ = hook("session-start.py", {}, cwd=work, root=cache, env=env)
@@ -435,7 +483,24 @@ try:
                 break
             time.sleep(0.2)
         assert found and "zzgridalpha" in json.dumps(found[0]), "the saved note did not reach the docs service:\n" + "".join(l for l in open(os.path.join(work, "service.log")) if "POST /mcp" not in l)[-1800:]
-        print("VM docs service ok (vm-setup.py, the library and the team knowledge over HTTP, docs-local knowledge only)")
+        # without a local index the hooks ask docs-http
+        out = prompt_hook("Low metadata storage alert on the StorageGRID grid, what does it mean on 11.9?", "vmlead")
+        assert out.startswith("Docs leads (docs-http;") and "storagegrid-119" in out, out
+        assert "PG_DEGRADED [ceph/squid" in result_hook("Bash", {"stdout": "[WRN] PG_DEGRADED: Degraded"}, "vmhint")
+        # on the VM itself, docs-local opens the service's own index of the team's knowledge when it matches this clone
+        sh("git", "pull", "-q", cwd=bob)
+        for _ in range(100):
+            if json.load(open(os.path.join(bob, PLUGIN, ".mcp.json")))["mcpServers"].get("docs-http") and \
+                    os.path.exists(os.path.join(state, "index", "sds.db.stamp")):
+                break
+            time.sleep(0.1)
+        shutil.rmtree(os.path.join(bob, ".cache"), ignore_errors=True)
+        venv_local = dict(ENV, PAAS_DOCS_INDEX=os.path.join(state, "index"))
+        o = mcp([PLUGIN + "/tools/docs_server.py"], [("search_docs", {"query": "zzgridalpha", "limit": 3})], cwd=bob, env=venv_local)
+        assert "zzgridalpha" in json.dumps(text(o[1])), text(o[1])
+        assert not os.path.exists(os.path.join(bob, ".cache", "knowledge.db")), "docs-local built its own index on the VM"
+        print("VM docs service ok (vm-setup.py, the library and the team knowledge over HTTP, docs-local knowledge only, "
+              "hooks over docs-http, the shared knowledge index)")
     finally:
         service.kill()
 finally:
@@ -448,5 +513,40 @@ r = subprocess.run([sys.executable, "connections/objectify/launch.py", "--check"
 assert r.returncode == 0 and json.loads(r.stdout)["enabled"] is False, r.stdout
 o = mcp([PLUGIN + "/tools/connect.py", "nothing-here"], [("nothing_here_setup", {})], cwd=ROOT)
 assert "launch.py is missing" in o[1]["content"][0]["text"]
+r = subprocess.run([sys.executable, "connections/okp/launch.py", "--check"], cwd=ROOT, capture_output=True, text=True, env=ENV)
+assert r.returncode == 1 and "not configured" in r.stdout, r.stdout
+o = mcp([PLUGIN + "/tools/connect.py", "okp"], [("okp_setup", {})], cwd=ROOT)
+assert [t["name"] for t in o[99]["tools"]] == ["okp_setup"] and "SDS_OKP_URL" in o[1]["content"][0]["text"]
+
+# okp-mcp speaks MCP over HTTP with a session id and event streams: the bridge carries both
+import http.server  # noqa: E402
+import threading  # noqa: E402
+
+
+class FakeOkp(http.server.BaseHTTPRequestHandler):
+    def log_message(self, *a):
+        pass
+
+    def do_POST(self):
+        msg = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        if msg.get("method") != "initialize" and self.headers.get("Mcp-Session-Id") != "s-42":
+            self.send_response(400); self.end_headers(); return
+        if "id" not in msg:
+            self.send_response(202); self.end_headers(); return
+        result = {"protocolVersion": "2025-06-18", "capabilities": {"tools": {}}, "serverInfo": {"name": "okp", "version": "t"}} \
+            if msg["method"] == "initialize" else {"tools": [{"name": "search_documentation", "inputSchema": {"type": "object"}}]} \
+            if msg["method"] == "tools/list" else {"content": [{"type": "text", "text": "RHCS 8 Administration Guide"}]}
+        body = ("event: message\ndata: " + json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": result}) + "\n\n").encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream"); self.send_header("Mcp-Session-Id", "s-42")
+        self.send_header("Content-Length", str(len(body))); self.end_headers(); self.wfile.write(body)
+
+
+okp = http.server.ThreadingHTTPServer(("127.0.0.1", 0), FakeOkp)
+threading.Thread(target=okp.serve_forever, daemon=True).start()
+o = mcp([PLUGIN + "/tools/connect.py", "okp"], [("search_documentation", {"query": "rgw"})], cwd=ROOT,
+        env=dict(ENV, SDS_OKP_URL=f"http://127.0.0.1:{okp.server_address[1]}/mcp"))
+assert [t["name"] for t in o[99]["tools"]] == ["search_documentation"] and "RHCS 8" in o[1]["content"][0]["text"], o
+okp.shutdown()
 print("connections ok")
 print("all tests passed")

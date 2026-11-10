@@ -23,4 +23,7 @@ The adapter was written for separate customers: each call carries the `customer_
 configuration's `context`, and every returned record must match them. With one organization, use fixed names (for
 example your organization and the cluster) in `context`.
 
+The full contract (what the owner must supply, every setting, the request and response safeguards, the protocol
+limits): `INTEGRATION.md`.
+
 Tests: `python3 -m unittest connections/objectify/test_objectify.py` (65 tests, no network).

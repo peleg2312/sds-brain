@@ -8,6 +8,10 @@ depending on the machine, the vendor documentation:
   no VM (docs-http not set up)           the repository's own docs/, indexed here into .cache/docs.db (a few seconds the
                                          first time, refreshed when a file under docs/ changed)
 
+The team's knowledge index is .cache/knowledge.db, except on the VM: there the docs service already keeps one per team
+(/var/lib/paas-docs/index/sds.db, refreshed every 10 minutes and after each push), and docs-local opens that one when
+it was built from the same pages as this clone, so twenty people on the VM do not each build their own.
+
     python3 brain-sds/tools/docs_server.py            what the plugin's .mcp.json runs
     python3 brain-sds/tools/docs_server.py --index    say which of the three applies, build the local index when it is the third
 
@@ -104,6 +108,22 @@ def library(log=lambda *_: None):
     return (DB, f"the repository's docs/, indexed here ({DB})") if os.path.exists(DB) else ("", "no index could be built from docs/")
 
 
+SHARED_INDEX = "/var/lib/paas-docs/index"           # where the VM's docs service keeps one knowledge index per team
+
+
+def shared_knowledge(mcp_stdio):
+    """on the VM: the docs service's index of this team's knowledge (<team>.db), when it was built from exactly the pages
+    of this clone; then docs-local opens it instead of building its own copy. "" otherwise."""
+    db = os.path.join(os.environ.get("PAAS_DOCS_INDEX") or SHARED_INDEX, str(b.team().get("name") or "-") + ".db")
+    try:
+        files = mcp_stdio.knowledge_files(b.KNOWLEDGE)
+        with open(db + ".stamp", encoding="utf-8") as f:
+            same = f.read().strip() == mcp_stdio.knowledge_state(b.KNOWLEDGE, files)
+        return db if same and os.access(db, os.R_OK) else ""
+    except OSError:
+        return ""
+
+
 def main():
     if not ROOT:
         if "--index" in sys.argv[1:]:
@@ -134,7 +154,8 @@ def main():
     if not db:
         mcp_stdio.INSTRUCTIONS = KNOWLEDGE_ONLY
     os.makedirs(CACHE, exist_ok=True)
-    sys.argv = [sys.argv[0], "--knowledge", b.KNOWLEDGE, "--brain-db", os.path.join(CACHE, "knowledge.db")]
+    shared = shared_knowledge(mcp_stdio)
+    sys.argv = [sys.argv[0], "--knowledge", b.KNOWLEDGE, "--brain-db", shared or os.path.join(CACHE, "knowledge.db")]
     sys.argv += ["--db", db] if db else ["--no-library"]
     return mcp_stdio.main()
 

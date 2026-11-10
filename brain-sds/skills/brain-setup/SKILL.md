@@ -15,8 +15,8 @@ Ask, do not guess (rule 2); no passwords, keys or tokens in any file (rule 4).
 - **grafana**: if its tools answer, list the datasources (name, type, uid). If it says it is not configured, show the
   user the two lines from `connections/grafana/README.md` (URL and read-only token in their shell profile).
 - **objectify**: call its status tool and report what it says is still needed (`connections/objectify/README.md`).
-- **sds-okp** (Red Hat offline portal): only if the user runs the portal; `connections/okp/README.md` has the one
-  command that connects it.
+- **okp** (Red Hat offline portal): if `okp_setup` is its only tool, report what it says; the team may not run the
+  portal at all (`connections/okp/README.md`).
 
 ## 2. Environment, one section at a time
 Read `knowledge/environment.md`. For each table, ask the user for the real values and fill them in; keep what is

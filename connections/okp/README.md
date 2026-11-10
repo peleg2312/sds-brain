@@ -4,15 +4,19 @@ If you run the Red Hat Offline Knowledge Portal (RHOKP) internally, Red Hat's `o
 it: RHCS and RHEL manuals, knowledge base solutions, CVEs and errata. This is the way to cover the Red Hat
 documentation that is not in `docs/` (the other way: put the manuals under `docs/redhat/`, see the main README).
 
-Nothing here is started by the brain. You run the container; each person connects to it with one command.
+The plugin's `okp` server connects to it: nothing to install per person. Nothing here starts the service itself.
 
-## Connect (once per person)
-```bash
-claude mcp add --transport http --scope user sds-okp http://127.0.0.1:8000/mcp
-```
-`/mcp` in Claude then lists `sds-okp`. The service on another host: keep it on that host's loopback and tunnel,
-`ssh -N -L 8000:127.0.0.1:8000 <host>`; a shared endpoint needs a TLS proxy with authentication in front.
-Remove with `claude mcp remove --scope user sds-okp`.
+## Connect
+The plugin looks for the service in this order:
+- `SDS_OKP_URL` in a person's shell profile, e.g. `export SDS_OKP_URL=http://127.0.0.1:8000/mcp` (the service on this
+  machine, or a tunnel to the team's host: `ssh -N -L 8000:127.0.0.1:8000 <host>`);
+- `"url"` in `connections/okp/config.json`, committed: the team's shared endpoint, for everyone at once;
+- `SDS_OKP_TOKEN` (shell profile only, never in git): a bearer token, when a proxy in front of the service asks for one.
+
+Start a new session; `/mcp` lists `plugin:brain-sds:okp`. Check any time:
+`python3 ~/.claude/sds-brain/connections/okp/launch.py --check`. Not configured, or the service does not answer when the
+session starts: the server offers one tool, `okp_setup`, that says what is missing. A shared endpoint needs a TLS proxy
+with authentication in front (the service has none of its own).
 
 ## Run the service (Linux host with Podman 4.6+, rootless Quadlet units in `podman/`)
 The images are not shipped: `quay.io/redhat-user-workloads/rhel-lightspeed-tenant/rhel-knowledge-bridge` (okp-mcp) and,

@@ -1,0 +1,4 @@
+{
+  "_note": "the team's shared okp-mcp endpoint, e.g. https://okp.example.internal/mcp; empty: each person sets SDS_OKP_URL (README.md)",
+  "url": ""
+}

@@ -17,6 +17,18 @@ Start a new Claude session. Check any time with `python3 ~/.claude/sds-brain/con
 
 Until the two variables are set, the connection offers one tool, `grafana_setup`, that says what is missing.
 
+The launcher passes only this connection to the server: Grafana, OpenTelemetry and web-proxy settings inherited from
+your shell are removed, anonymous usage reporting is off, and the certificate is always verified (`SDS_GRAFANA_CA_FILE`
+for a private CA; verification is never switched off). The server needs **Grafana 9.0 or later** for its datasource
+tools; record the installed Grafana and Elasticsearch versions in `knowledge/environment.md`.
+
+## Before relying on it (once, with the team)
+In Grafana, check that the service account sees only the folders and datasources the team needs (a dashboard
+variable or a query filter is not an access boundary). Then in one session: list the datasources, read one known
+dashboard, run one known Elasticsearch query over a short window, and look at the output for anything sensitive.
+Write what was confirmed (datasource uids, index names, timestamp and request-id fields) into
+`knowledge/environment.md`. Until then, treat it as connected but not confirmed.
+
 ## What Claude can do with it
 17 read tools: search dashboards and folders, read a dashboard and its panel queries, list and check datasources,
 query Elasticsearch, query Prometheus (metric names, labels, instant and range queries). No tool that creates or

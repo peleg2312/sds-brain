@@ -169,8 +169,13 @@ def main():
         sys.stdin.read()
     except Exception:
         pass
-    if not b.ROOT:
-        print("SDS brain: " + b.SETUP + " Tell the user this once; until then only the skills and the read-only guard work.")
+    if not b.ROOT:                                   # installed from the marketplace, not set up yet: set itself up
+        try:
+            import bootstrap
+            got = bootstrap.start()
+        except Exception as e:
+            got = [f"{b.SETUP} ({e.__class__.__name__}: {e})"]
+        print("SDS brain: " + "\n".join(got))
         return 0
     lines = []
     for fn in (home_line, lambda: "Team repository: " + b.sync() + ".", plugin_line, library_line, environment_line, memory_lines, team_changes_line,

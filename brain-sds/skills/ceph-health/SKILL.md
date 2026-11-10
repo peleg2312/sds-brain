@@ -5,7 +5,9 @@ description: First look at a Ceph cluster warning - collect the health baseline,
 # Ceph health baseline
 
 Read-only (rule 1). Scope first: which cluster (`knowledge/environment.md`), its RHCS release, when the impact began (UTC)
-and which client operations fail.
+and which client operations fail. Check that `ceph fsid` is the cluster asked about before going on. Admin-socket and
+other version-sensitive commands differ between Reef and Squid: check the command's help or the release's
+documentation before suggesting one. Short bounded samples, not repeated full PG / OSD dumps.
 
 ## 1. Snapshot (admin host of that cluster)
 ```bash

@@ -15,7 +15,7 @@ it and pushes it to the team, and the search index follows by itself.
 2. `grep -ri <keyword> ~/.claude/sds-brain/knowledge/{notes,captures,runbooks}` first: update an existing line instead of
    adding one.
 3. Destination: confident and the topic is clear -> a dated line in `knowledge/notes/<topic>.md`
-   (`- <date> · <fact> · <verified|observed|hypothesis> · <source>`; a new topic file starts with `# Topic: what is in it`).
+   (`- <date> · <fact> · <verified|observed|documented|user-reported|hypothesis> · <source>`; a new topic file starts with `# Topic: what is in it`).
    Otherwise a capture `knowledge/captures/<date>-<slug>.md`:
    ```
    # <title>
@@ -23,7 +23,7 @@ it and pushes it to the team, and the search index follows by itself.
    ## Cause
    ## Fix / workaround   commands in a code block, placeholders instead of real names
    ## Scope          cluster / grid, releases, hardware where it applies; where it is known not to
-   ## How we know    what was observed, when, confidence: verified | observed | hypothesis
+   ## How we know    what was observed, when, confidence: verified | observed | documented | user-reported | hypothesis
    ## History        <date>: created
    ```
    A fact that needs sections but is settled is a page `knowledge/notes/<topic>-<slug>.md` (line 1 `# <title>`).
@@ -59,6 +59,9 @@ is the answer: follow it, say which one, add a History line when the user report
 Blameless postmortem in `knowledge/incidents/<yyyy>/<date>-<slug>.md`. Search the library and `knowledge/` for
 related history first. Sections, in order: **Header** (title, date, severity sev1-sev4, status, clusters / grids
 affected, started / detected / mitigated / resolved with time zone), **Impact**, **Timeline** (one line per event),
-**Root cause** (with a confidence word), **Contributing factors**, **What fixed it**, **What was tried and did not
-work**, **Evidence** (redacted log lines, health checks, alerts, document references), **Action items** (owner, due).
+**Root cause** (with a confidence word, and the alternative explanations it was weighed against), **Contributing
+factors**, **What fixed it** (only the changes actually made, and how they were verified), **What was tried and did
+not work**, **Evidence** (redacted request IDs, log lines, health checks, alerts, document references; suggested
+commands marked apart from executed ones), **Learning** (what becomes a note, a runbook or a skill change),
+**Action items** (owner, due). Times in UTC. A correlated timing is a lead, not the root cause.
 Then one dated line in `notes/<topic>.md` pointing to the report.

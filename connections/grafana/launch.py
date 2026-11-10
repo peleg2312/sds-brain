@@ -16,6 +16,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import sys
 import tarfile
 import zipfile
@@ -75,6 +76,10 @@ def main():
         exe, version = binary()
     except (ValueError, OSError, KeyError) as e:
         exe, version, problem = "", "?", str(e)
+    if not problem and url and not re.fullmatch(r"https://[^\s/@?#]+(/[^\s?#@]*)?", url):
+        problem = "SDS_GRAFANA_URL must be an https:// address without credentials, query or fragment"
+    if not problem and token and re.search(r"[\x00-\x1f\x7f]", token):
+        problem = "SDS_GRAFANA_TOKEN contains control characters"
     if not problem and not (url and token):
         problem = ("Grafana is not configured on this machine. In your shell profile set SDS_GRAFANA_URL (https://...) and "
                    "SDS_GRAFANA_TOKEN (a service-account token with the Viewer role), optionally SDS_GRAFANA_CA_FILE, then "
@@ -87,7 +92,9 @@ def main():
     if problem:
         import stub_mcp
         return stub_mcp.serve("grafana", "grafana_setup", "Grafana is not connected yet: call this to see what is missing.", problem)
-    env = {k: v for k, v in os.environ.items() if k not in ("SDS_GRAFANA_TOKEN",)}
+    # only this connection: no Grafana settings, trace exporters or web proxies inherited from the person's shell
+    env = {k: v for k, v in os.environ.items() if k != "SDS_GRAFANA_TOKEN" and not k.upper().startswith(("GRAFANA_", "OTEL_"))
+           and k.upper() not in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY")}
     env.update(GRAFANA_URL=url, GRAFANA_SERVICE_ACCOUNT_TOKEN=token, GRAFANA_USAGE_STATS="disabled", DO_NOT_TRACK="1")
     os.execve(exe, [exe] + FLAGS + (["--tls-ca-file", ca] if ca else []), env)
 

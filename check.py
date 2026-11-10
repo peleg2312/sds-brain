@@ -126,10 +126,10 @@ for f in tracked("knowledge/runbooks/*.md"):
 loose = 0
 for f in [notes] + tracked("knowledge/notes/*.md"):
     for n, line in enumerate(open(f, encoding="utf-8", errors="replace").read().splitlines() if os.path.isfile(f) else [], 1):
-        if re.match(r"^- \d{4}-\d{2}-\d{2}\b", line) and not re.search(r"\b(verified|observed|hypothesis)\b", line):
+        if re.match(r"^- \d{4}-\d{2}-\d{2}\b", line) and not re.search(r"\b(verified|observed|documented|user-reported|hypothesis)\b", line):
             loose += 1
             if loose <= 10:
-                print(f"note {rel(f)}:{n}: dated fact without a confidence word (verified / observed / hypothesis)")
+                print(f"note {rel(f)}:{n}: dated fact without a confidence word (verified / observed / documented / user-reported / hypothesis)")
 
 for product in tracked("docs/*/*/"):
     files = [x for x in os.listdir(product) if not x.startswith(".")]

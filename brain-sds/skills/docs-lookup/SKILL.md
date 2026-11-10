@@ -27,7 +27,8 @@ to docs-local first. Chunk ids belong to the server that returned them. Without 
 
 **Not in the library unless the team added it**: Red Hat Ceph Storage and RHEL manuals and release notes, StorageGRID
 fixed-issue PDFs, HPE service guides. When the answer needs one, say so and ask the user for the page, or use the
-Red Hat offline portal connection (`sds-okp`) when it is connected. Never fill the gap from memory as if cited.
+Red Hat offline portal (the `okp` server) when it is connected: its results are Red Hat's; check the product and
+version of each before applying it to RHCS. Never fill the gap from memory as if cited.
 
 ## Method
 1. **Pick the version first** (rule 3): the installed release from `knowledge/environment.md` decides the product.
