@@ -1,0 +1,43 @@
+---
+permalink: vmware/navigating-to-grid-manager.html
+sidebar: sidebar
+keywords: how to navigate to Grid Manager
+summary: 'You use the Grid Manager to define all of the information required to configure your StorageGRID system.'
+---
+= Navigate to the Grid Manager
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You use the Grid Manager to define all of the information required to configure your StorageGRID system.
+
+.Before you begin
+
+The primary Admin Node must be deployed and have completed the initial startup sequence.
+
+.Steps
+
+. Open your web browser and navigate to:
++
+`https://_primary_admin_node_ip_`
++
+Alternatively, you can access the Grid Manager on port 8443:
++
+`https://_primary_admin_node_ip_:8443`
++
+You can use the IP address for the primary Admin Node IP on the Grid Network or on the Admin Network, as appropriate for your network configuration. You might need to use the security/advanced option in your browser to navigate to an untrusted certificate.
+
+. Manage a temporary installer password as needed:
+
+* If a password has already been set using one of these methods, enter the password to proceed.
+ 
+**	A user set the password while accessing the installer previously
+**	The SSH/console password was automatically imported from the OVF properties
+
+* If a password has not been set, optionally set a password to secure the StorageGRID installer.
+
+. Select *Install a StorageGRID system*.
++
+The page used to configure a StorageGRID grid appears.
++
+image::../media/gmi_installer_first_screen.gif[This image is explained by the surrounding text.]

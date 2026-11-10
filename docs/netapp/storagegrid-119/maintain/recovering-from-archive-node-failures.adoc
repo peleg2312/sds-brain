@@ -1,0 +1,14 @@
+---
+permalink: maintain/recovering-from-archive-node-failures.html
+sidebar: sidebar
+keywords: recover, archive node failure, workflow
+summary: 'Support for Archive Nodes has been removed.'
+---
+= Recover from Archive Node failures
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Support for Archive Nodes has been removed.
+
+For information about recovering Archive Nodes, see https://docs.netapp.com/us-en/storagegrid-118/maintain/recovering-from-archive-node-failures.html[Recover from Archive Node failures (StorageGRID 11.8 doc site)^].

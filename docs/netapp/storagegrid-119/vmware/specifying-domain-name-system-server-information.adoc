@@ -1,0 +1,31 @@
+---
+permalink: vmware/specifying-domain-name-system-server-information.html
+sidebar: sidebar
+keywords: how to specify domain name system server information
+summary: 'You must specify DNS information for your StorageGRID system, so that you can access external servers using hostnames instead of IP addresses.'
+---
+= Specify DNS server information
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You must specify DNS information for your StorageGRID system, so that you can access external servers using hostnames instead of IP addresses.
+
+.About this task
+
+Specifying https://docs.netapp.com/us-en/storagegrid-appliances/commonhardware/checking-dns-server-configuration.html[DNS server information^] allows you to use Fully Qualified Domain Name (FQDN) hostnames rather than IP addresses for email notifications and AutoSupport.
+
+include::../_include/dns-server-restrictions.adoc[]
+
+.Steps
+
+. Specify the IPv4 address for at least one DNS server in the *Server 1* text box.
+. If necessary, select the plus sign next to the last entry to add additional server entries.
++
+image::../media/9_gmi_installer_dns_page.gif[This image is explained by the surrounding text.]
++
+The best practice is to specify at least two DNS servers. You can specify up to six DNS servers.
+
+. Select *Next*.
+
+

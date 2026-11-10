@@ -1,0 +1,66 @@
+---
+permalink: expand/configuring-expanded-storagegrid-system.html
+sidebar: sidebar
+keywords: expansion, configuration
+summary: 'After completing an expansion, you must perform additional integration and configuration steps.'
+---
+= Configuration steps after expansion
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+After completing an expansion, you must perform additional integration and configuration steps.
+
+.About this task
+
+You must complete the configuration tasks listed below for the grid nodes or sites you are adding in your expansion. Some tasks might be optional, depending on the options selected when installing and administering your system, and how you want to configure the nodes and sites added during the expansion.
+
+.Steps
+
+. If you added a site:
+
+* link:../ilm/creating-storage-pool.html[Create a storage pool] for the site and each storage grade you selected for the new Storage Nodes.
+
+* Confirm that the ILM policy meets the new requirements. If rule changes are required, link:../ilm/access-create-ilm-rule-wizard.html[create new rules] and link:../ilm/creating-ilm-policy.html[update the ILM policy]. If the rules are already correct, link:../ilm/creating-ilm-policy.html#activate-ilm-policy[activate a new policy] with no rule changes to ensure StorageGRID uses the new nodes.
+
+* Confirm that Network Time Protocol (NTP) servers are accessible from that site. See link:../maintain/configuring-ntp-servers.html[Manage NTP servers].
++
+CAUTION: Make sure that at least two nodes at each site can access at least four external NTP sources. If only one node at a site can reach the NTP sources, timing issues will occur if that node goes down. In addition, designating two nodes per site as primary NTP sources ensures accurate timing if a site is isolated from the rest of the grid.
+
+. If you added one or more Storage Nodes to an existing site:
+
+* link:../ilm/viewing-storage-pool-details.html[View storage pool details] to confirm that each node you added is included in the expected storage pools and used in the expected ILM rules.
+
+* Confirm that the ILM policy meets the new requirements. If rule changes are required, link:../ilm/access-create-ilm-rule-wizard.html[create new rules] and link:../ilm/creating-ilm-policy.html[update the ILM policy]. If the rules are already correct, link:../ilm/creating-ilm-policy.html#activate-ilm-policy[activate a new policy] with no rule changes to ensure StorageGRID uses the new nodes.
+
+* link:verifying-storage-node-is-active.html[Verify that the Storage Node is active] and able to ingest objects.
+
+* If you were unable to add the recommended number of Storage Nodes, rebalance erasure-coded data. See 
+link:rebalancing-erasure-coded-data-after-adding-storage-nodes.html[Rebalance erasure-coded data after adding Storage Nodes].
+
+. If you added a Gateway Node:
+
+** If high availability (HA) groups are used for client connections, optionally add the Gateway Node to an HA group. Select *CONFIGURATION* > *Network* > *High availability groups* to review the list of existing HA groups and to add the new node. See link:../admin/configure-high-availability-group.html[Configure high availability groups].
+
+. If you added an Admin Node:
+
+.. If single sign-on (SSO) is enabled for your StorageGRID system, create a relying party trust for the new Admin Node. You can't sign in to the node until you create this relying party trust. See
+link:../admin/configuring-sso.html[Configure single sign-on].
+
+.. If you plan to use the Load Balancer service on Admin Nodes, optionally add the new Admin Node to an HA group. Select *CONFIGURATION* > *Network* > *High availability groups* to review the list of existing HA groups and to add the new node. See link:../admin/configure-high-availability-group.html[Configure high availability groups].
+
+.. Optionally, copy the Admin Node database from the primary Admin Node to the expansion Admin Node if you want to keep the attribute and audit information consistent on each Admin Node. See link:copying-admin-node-database.html[Copy the Admin Node database].
+
+.. Optionally, copy the Prometheus database from the primary Admin Node to the expansion Admin Node if you want to keep the historical metrics consistent on each Admin Node. See  link:copying-prometheus-metrics.html[Copy Prometheus metrics].
+
+.. Optionally, copy the existing audit logs from the primary Admin Node to the expansion Admin Node if you want to keep the historical log information consistent on each Admin Node. See link:copying-audit-logs.html[Copy audit logs].
+
+. To check if expansion nodes were added with an untrusted Client Network or to change whether a node's Client Network is untrusted or trusted, go to *CONFIGURATION* > *Security* > *Firewall control*.
++
+If the Client Network on the expansion node is untrusted, then connections to the node on the Client Network must be made using a load balancer endpoint. See link:../admin/configuring-load-balancer-endpoints.html[Configure load balancer endpoints] and link:../admin/manage-firewall-controls.html[Manage firewall controls].
+
+. Configure the DNS.
++
+If you have been specifying DNS settings separately for each grid node, you must add custom per-node DNS settings for the new nodes. See link:../maintain/modifying-dns-configuration-for-single-grid-node.html[Modify DNS configuration for single grid node].
++
+include::../_include/dns-server-restrictions.adoc[]

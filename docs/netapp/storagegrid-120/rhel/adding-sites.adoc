@@ -1,0 +1,4 @@
+---
+permalink: rhel/adding-sites.html
+redirect: storagegrid/swnodes/adding-sites.html
+---

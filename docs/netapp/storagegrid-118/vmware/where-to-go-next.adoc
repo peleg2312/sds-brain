@@ -1,0 +1,21 @@
+---
+permalink: vmware/where-to-go-next.html
+sidebar: sidebar
+keywords: after installation
+summary: 'After completing an installation, perform the required integration and configuration tasks. You can perform the optional tasks as needed.'
+---
+= Where to go next
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+After completing an installation, perform the required integration and configuration tasks. You can perform the optional tasks as needed.
+
+== Required tasks
+
+* Configure VMware vSphere Hypervisor for automatic restart.
++
+You must configure the hypervisor to restart the virtual machines when the server restarts. Without an automatic restart, the virtual machines and grid nodes remain shut down after the server restarts. For details, see the VMware vSphere Hypervisor documentation.
+
+include::../_include/install-rhel-ub-vm-where-next.adoc[]
+

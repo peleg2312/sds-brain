@@ -1,0 +1,80 @@
+---
+permalink: expand/index.html
+sidebar: sidebar
+keywords: expand grid
+summary: 'You can expand the capacity or capabilities of your StorageGRID system without interrupting system operations.'
+---
+= Expansion types
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can expand the capacity or capabilities of your StorageGRID system without interrupting system operations.
+
+A StorageGRID expansion allows you to add:
+
+* Storage volumes to Storage Nodes
+* New grid nodes to an existing site
+* An entire new site
+
+The reason you are performing the expansion determines how many new nodes of each type you must add and the location of those new nodes. For example, there are different node requirements if you are performing an expansion to increase storage capacity, add metadata capacity, or add redundancy or new capabilities. 
+
+Follow the steps for the type of expansion you're performing:
+
+//tabbed blocks start here
+
+[role="tabbed-block"]
+====
+
+.Add storage volumes
+--
+
+Follow the steps for link:adding-storage-volumes-to-storage-nodes.html[adding storage volumes to Storage Nodes].
+
+--
+//end Add volumes, begin add nodes
+
+.Add grid nodes
+--
+
+. Follow the steps for link:adding-grid-nodes-to-existing-site-or-adding-new-site.html[adding grid nodes to an existing site].
+
+. link:updating-subnets-for-grid-network.html[Update the subnets].
+
+. Deploy grid nodes:
+
+* link:deploying-new-grid-nodes.html#appliances-deploying-storage-gateway-or-non-primary-admin-nodes[Appliances]
+* link:deploying-new-grid-nodes.html#vmware-deploy-grid-nodes[VMware]
+* link:deploying-new-grid-nodes.html#linux-deploy-grid-nodes[Linux]
++
+NOTE: "Linux" refers to a Red Hat Enterprise Linux, Ubuntu, or Debian deployment. For a list of supported versions, see the https://imt.netapp.com/matrix/#welcome[NetApp Interoperability Matrix Tool (IMT)^].
+
+. link:performing-expansion.html[Perform the expansion].
+
+. link:configuring-expanded-storagegrid-system.html[Configure the expanded system].
+
+--
+//end add grid nodes, start add new site
+
+.Add new site
+--
+
+. Follow the steps for link:adding-grid-nodes-to-existing-site-or-adding-new-site.html[Adding a new site].
+
+. link:updating-subnets-for-grid-network.html[Update the subnets].
+
+. Deploy grid nodes:
+
+* link:deploying-new-grid-nodes.html#appliances-deploying-storage-gateway-or-non-primary-admin-nodes[Appliances]
+* link:deploying-new-grid-nodes.html#vmware-deploy-grid-nodes[VMware]
+* link:deploying-new-grid-nodes.html#linux-deploy-grid-nodes[Linux]
++
+NOTE: "Linux" refers to a Red Hat Enterprise Linux, Ubuntu, or Debian deployment. For a list of supported versions, see the https://imt.netapp.com/matrix/#welcome[NetApp Interoperability Matrix Tool (IMT)^].
+
+. link:performing-expansion.html[Perform the expansion].
+
+. link:configuring-expanded-storagegrid-system.html[Configure the expanded system].
+
+--
+====
+//end tabbed blocks

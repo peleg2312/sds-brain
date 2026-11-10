@@ -1,0 +1,134 @@
+---
+permalink: ilm/create-ilm-rule-define-placements.html
+sidebar: sidebar
+keywords: ilm rule step 2, define placements
+summary: 'The Define placements step of the Create ILM Rule wizard allows you to define the placement instructions that determine how long objects are stored, the type of copies \(replicated or erasure-coded\), the storage location, and the number of copies.'
+---
+= Step 2 of 3: Define placements
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The *Define placements* step of the Create ILM Rule wizard allows you to define the placement instructions that determine how long objects are stored, the type of copies (replicated or erasure-coded), the storage location, and the number of copies.
+
+include::../_include/screenshots-vary.adoc[]
+
+.About this task
+
+An ILM rule can include one or more placement instructions. Each placement instruction applies to a single period of time. When you use more than one instruction, the time periods must be contiguous, and at least one instruction must start on day 0. The instructions can continue either forever, or until you no longer require any object copies.
+
+Each placement instruction can have multiple lines if you want to create different types of copies or use different locations during that time period.
+
+In this example, the ILM rule stores one replicated copy in Site 1 and one replicated copy in Site 2 for the first year. After one year, a 2+1 erasure-coded copy is made and saved at only one site.
+
+image::../media/ilm_create_ilm_rule_wizard_2.png[Create ILM Rule Wizard Step 2]
+
+.Steps
+
+. For *Reference time*, select the type of time to use when calculating the start time for a placement instruction.
++
+[cols="1a,2a" options="header"]
+|===
+| Option| Description
+
+| Ingest time
+| The time when the object was ingested.
+
+| Last access time
+| The time when the object was last retrieved (read or viewed).
+
+To use this option, updates to Last access time must be enabled for the S3 bucket. Refer to link:using-last-access-time-in-ilm-rules.html[Use Last access time in ILM rules].
+
+| User defined creation time
+| A time specified in user-defined metadata.
+
+| Noncurrent time
+| "Noncurrent time" is automatically selected if you selected *Yes* for the question, "Apply this rule to older object versions only (in S3 buckets with versioning enabled)?" in link:create-ilm-rule-enter-details.html[Step 1 of the Create an ILM rule wizard].
+|===
++
+If you want to create a _compliant_ rule, you must select *Ingest time*. Refer to link:managing-objects-with-s3-object-lock.html[Manage objects with S3 Object Lock].
++
+. In the *Time period and placements* section, enter a starting time and a duration for the first time period.
++
+For example, you might want to specify where to store objects for the first year (_From day 0 store for 365 days_). At least one instruction must start at day 0.
+
+. If you want to create replicated copies:
+.. From the *Store objects by* drop-down list, select *replicating*.
+.. Select the number of copies you want to make.
++
+A warning appears if you change the number of copies to 1. An ILM rule that creates only one replicated copy for any time period puts data at risk of permanent loss. Refer to link:why-you-should-not-use-single-copy-replication.html[Why you should not use single-copy replication].
++
+To avoid the risk, do one or more of the following:
+
+* Increase the number of copies for the time period.
+* Add copies to other storage pools or to a Cloud Storage Pool.
+* Select *erasure coding* instead of *replicating*.
++
+You can safely ignore this warning if this rule already creates multiple copies for all time periods.
+
+.. In the *copies at* field, select the storage pools you want to add.
++
+*If you specify only one storage pool*, be aware that StorageGRID can store only one replicated copy of an object on any given Storage Node. If your grid includes three Storage Nodes and you select 4 as the number of copies, only three copies will be made&#8212;one copy for each Storage Node.
++
+The *ILM placement unachievable* alert is triggered to indicate that the ILM rule could not be completely applied.
++
+*If you specify more than one storage pool*, keep these rules in mind:
+
+  *** The number of copies can't be greater than the number of storage pools.
+  *** If the number of copies equals the number of storage pools, one copy of the object is stored in each storage pool.
+  *** If the number of copies is less than the number of storage pools, one copy is stored at the ingest site, and then the system distributes the remaining copies to keep disk usage among the pools balanced, while ensuring that no site gets more than one copy of an object.
+  *** If the storage pools overlap (contain the same Storage Nodes), all copies of the object might be saved at only one site. For this reason, don't specify the All Storage Nodes storage pool (StorageGRID 11.6 and earlier) and another storage pool.
+
+. If you want to create an erasure-coded copy:
+ .. From the *Store objects by* drop-down list, select *erasure coding*.
++
+NOTE: Erasure coding is best suited for objects greater than 1 MB. Don't use erasure coding for objects smaller than 200 KB to avoid the overhead of managing very small erasure-coded fragments.
++
+.. If you didn't add an Object size filter for a value greater than 200 KB, select *Previous* to return to Step 1. Then, select *Add an advanced filter* and set an *Object size* filter to any value greater than 200 KB.
+
+.. Select the storage pool you want to add and the erasure-coding scheme you want to use.
++
+The storage location for an erasure-coded copy includes the name of the erasure-coding scheme, followed by the name of the storage pool.
++
+Available erasure-coding schemes are limited by the number of Storage Nodes in the storage pool you select. A `Recommended` badge appears next to the schemes that provide either the link:../ilm/what-erasure-coding-schemes-are.html[best protection or the lowest storage overhead].
+
+. Optionally:
+.. Select *Add other type or location* to create additional copies at different locations.
+.. Select *Add another time period* to add different time periods.
++
+[NOTE]
+====
+Object deletions occur based on the following settings:
+
+* Objects are automatically deleted at the end of the final time period unless another time period ends with *forever*.
+* Depending on link:../ilm/example-8-priorities-for-s3-bucket-lifecycle-and-ilm-policy.html#example-of-bucket-lifecycle-taking-priority-over-ilm-policy[bucket and tenant retention period settings], objects might not be deleted even if the ILM retention period ends.
+====
+
+. If you want to store objects in a Cloud Storage Pool:
+ .. In the *Store objects by* drop-down list, select *replicating*.
+ .. Select the *copies at* field, then select a Cloud Storage Pool.
++
+When using Cloud Storage Pools, keep these rules in mind:
+
+  *** You can't select more than one Cloud Storage Pool in a single placement instruction. Similarly, you can't select a Cloud Storage Pool and a storage pool in the same placement instruction.
+
+  *** You can store only one copy of an object in any given Cloud Storage Pool. An error message appears if you set *Copies* to 2 or more.
+
+  *** You can't store more than one object copy in any Cloud Storage Pool at the same time. An error message appears if multiple placements that use a Cloud Storage Pool have overlapping dates or if multiple lines in the same placement use a Cloud Storage Pool.
+
+  *** You can store an object in a Cloud Storage Pool at the same time that object is being stored as replicated or erasure-coded copies in StorageGRID. However, you must include more than one line in the placement instruction for the time period, so you can specify the number and types of copies for each location.
+
+. In the Retention diagram, confirm your placement instructions.
++
+In this example, the ILM rule stores one replicated copy in Site 1 and one replicated copy in Site 2 for the first year. After one year and for an additional 10 years, a 6+3 erasure-coded copy will be saved at three sites. After 11 years total, the objects will be deleted from StorageGRID.
++
+The Rule analysis section of the Retention diagram states:
++
+* StorageGRID site-loss protection will apply for the duration of this rule.
+* Objects processed by this rule will be deleted after Day 4015.
++
+Refer to link:using-multiple-storage-pools-for-cross-site-replication.html[Enable site-loss protection.]
++
+image::../media/ilm_rule_retention_diagram.png[ILM Rule Retention Diagram]
+
+. Select *Continue*. link:create-ilm-rule-select-ingest-behavior.html[Step 3 (Select ingest behavior)] of the Create an ILM rule wizard appears.

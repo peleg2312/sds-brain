@@ -1,0 +1,40 @@
+---
+permalink: tenant/viewing-another-users-s3-access-keys.html
+sidebar: sidebar
+keywords: how to view other user access key
+summary: 'If you are using an S3 tenant and you have appropriate permissions, you can view another user’s S3 access keys. You can sort the list by expiration time so you can determine which keys will expire soon. As needed, you can create new keys and delete keys that are no longer in use.'
+---
+= View another user's S3 access keys
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+If you are using an S3 tenant and you have appropriate permissions, you can view another user's S3 access keys. You can sort the list by expiration time so you can determine which keys will expire soon. As needed, you can create new keys and delete keys that are no longer in use.
+
+.Before you begin
+
+* You are signed in to the Tenant Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have the link:tenant-management-permissions.html[Root access permission].
+
+CAUTION: The S3 buckets and objects belonging to a user can be accessed using the access key ID and secret access key displayed for that user in the Tenant Manager. For this reason, protect access keys as you would a password. Rotate access keys on a regular basis, remove any unused keys from the account, and never share them with other users.
+
+.Steps
+. Select *ACCESS MANAGEMENT* > *Users*.
+
+. From the Users page, select the user whose S3 access keys you want to view.
+
+. From the User details page, select *Access keys*.
+
+. Sort the keys by *Expiration time* or *Access key ID*.
+
+. As needed, create new keys and manually delete keys that the are no longer in use.
++
+If you create new keys before the existing keys expire, the user can begin using the new keys without temporarily losing access to the objects in the account.
++
+Expired keys are removed automatically.
+
+.Related information
+
+* link:creating-another-users-s3-access-keys.html[Create another user's S3 access keys]
+
+* link:deleting-another-users-s3-access-keys.html[Delete another user's S3 access keys]

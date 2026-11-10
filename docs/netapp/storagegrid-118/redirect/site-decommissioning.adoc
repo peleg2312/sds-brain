@@ -1,0 +1,4 @@
+---
+permalink: maintain/site-decommissioning.html
+redirect: storagegrid-118/maintain/considerations-for-removing-site.html
+---

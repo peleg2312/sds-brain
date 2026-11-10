@@ -1,0 +1,4 @@
+---
+permalink: admin/kms-removing.html
+redirect: admin/kms-viewing-details.html
+---

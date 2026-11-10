@@ -1,0 +1,4 @@
+---
+permalink: rhel/downloading-and-extracting-storagegrid-installation-files.html
+redirect: storagegrid/swnodes/downloading-and-extracting-storagegrid-installation-files.html
+---

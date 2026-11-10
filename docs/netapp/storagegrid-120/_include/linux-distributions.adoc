@@ -1,0 +1,7 @@
+//This is the shared note listing all supported Linux distributions//
+
+//ALSO UPDATE IN OTHER REPO//
+
+NOTE: "Linux" refers to a RHEL, Ubuntu, or Debian deployment. For a list of supported versions, see the https://imt.netapp.com/matrix/#welcome[NetApp Interoperability Matrix Tool (IMT)^].
+
+//ALSO UPDATE IN OTHER REPO//

@@ -1,0 +1,4 @@
+---
+permalink: s3/consistency-controls.html
+redirect: storagegrid/s3/consistency.html
+---

@@ -1,0 +1,4 @@
+---
+permalink: monitor/applying-hotfixes-or-upgrading-software-if-necessary.html
+redirect: storagegrid-118/landing-install-upgrade/index.html
+---

@@ -1,0 +1,135 @@
+---
+permalink: s3/head-object.html
+sidebar: sidebar
+keywords: HeadObject
+summary: 'You can use the S3 HeadObject request to retrieve metadata from an object without returning the object itself.'
+---
+= HeadObject
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can use the S3 HeadObject request to retrieve metadata from an object without returning the object itself. If the object is stored in a Cloud Storage Pool, you can use HeadObject to determine the object's transition state.
+
+== HeadObject and multipart objects
+
+You can use the `partNumber` request parameter to retrieve metadata for a specific part of a multipart or segmented object.  The `x-amz-mp-parts-count` response element indicates how many parts the object has.
+
+You can set `partNumber` to 1 for both segmented/multipart objects and  non-segmented/non-multipart objects; however, the `x-amz-mp-parts-count` response element is only returned for segmented or multipart objects.
+
+== UTF-8 characters in user metadata
+
+StorageGRID does not parse or interpret escaped UTF-8 characters in user-defined metadata. HEAD requests for an object with escaped UTF-8 characters in user-defined metadata don't return the `x-amz-missing-meta` header if the key name or value includes unprintable characters.
+
+== Supported request header
+
+The following request header is supported:
+
+* `x-amz-checksum-mode` 
++
+The `partNumber` parameter and `Range` header aren't supported with `x-amz-checksum-mode` for HeadObject. When you include them in the request with `x-amz-checksum-mode` enabled, StorageGRID doesn't return a checksum value in the response.
+
+== Unsupported request header
+
+The following request header isn't supported and returns `XNotImplemented`:
+
+* `x-amz-website-redirect-location`
+
+== Versioning
+
+If a `versionId` subresource is not specified, the operation fetches the most recent version of the object in a versioned bucket. If the current version of the object is a delete marker, a "Not Found" status is returned with the `x-amz-delete-marker` response header set to `true`.
+
+== Request headers for server-side encryption with customer-provided encryption keys (SSE-C)
+
+Use all three of these headers if the object is encrypted with a unique key that you provided.
+
+* `x-amz-server-side-encryption-customer-algorithm`: Specify `AES256`.
+* `x-amz-server-side-encryption-customer-key`: Specify your encryption key for the object.
+* `x-amz-server-side-encryption-customer-key-MD5`: Specify the MD5 digest of the object's encryption key.
+
+CAUTION: The encryption keys you provide are never stored. If you lose an encryption key, you lose the corresponding object. Before using customer-provided keys to secure object data, review the considerations in link:using-server-side-encryption.html[Use server-side encryption].
+
+== HeadObject responses for Cloud Storage Pool objects
+
+If the object is stored in a link:../ilm/what-cloud-storage-pool-is.html[Cloud Storage Pool], the following response headers are returned:
+
+* `x-amz-storage-class: GLACIER`
+* `x-amz-restore`
+
+The response headers provide information about the state of an object as it is moved to a Cloud Storage Pool, optionally transitioned to a non-retrievable state, and restored.
+
+[cols="1a,1a" options="header"]
+|===
+| State of object| Response to HeadObject
+
+| Object ingested into StorageGRID but not yet evaluated by ILM, or object stored in a traditional storage pool or using erasure coding
+| `200 OK` (No special response header is returned.)
+
+| Object in Cloud Storage Pool but not yet transitioned to a non-retrievable state
+|`200 OK`
+
+`x-amz-storage-class: GLACIER`
+
+`x-amz-restore: ongoing-request="false", expiry-date="Sat, 23 July 20 2030 00:00:00 GMT"`
+
+Until the object is transitioned to a non-retrievable state, the value for `expiry-date` is set to some distant time in the future. The exact time of transition is not controlled by the StorageGRID system.
+
+| Object has transitioned to non-retrievable state, but at least one copy also exists on the grid
+| `200 OK`
+
+`x-amz-storage-class: GLACIER`
+
+`x-amz-restore: ongoing-request="false", expiry-date="Sat, 23 July 20 2030 00:00:00 GMT"`
+
+The value for `expiry-date` is set to some distant time in the future.
+
+*Note*: If the copy on the grid is not available (for example, a Storage Node is down), you must issue a link:post-object-restore.html[RestoreObject] request to restore the copy from the Cloud Storage Pool before you can successfully retrieve the object.
+
+| Object transitioned to a non-retrievable state, and no copy exists on the grid
+| `200 OK`
+
+`x-amz-storage-class: GLACIER`
+
+| Object in process of being restored from a non-retrievable state
+| `200 OK`
+
+`x-amz-storage-class: GLACIER`
+
+`x-amz-restore: ongoing-request="true"`
+
+| Object fully restored to the Cloud Storage Pool
+| `200 OK`
+
+`x-amz-storage-class: GLACIER`
+
+`x-amz-restore: ongoing-request="false", expiry-date="Sat, 23 July 20 2018 00:00:00 GMT"`
+
+The `expiry-date` indicates when the object in the Cloud Storage Pool will be returned to a non-retrievable state.
+
+|===
+
+=== Multipart or segmented objects in Cloud Storage Pool
+
+If you uploaded a multipart object or if StorageGRID split a large object into segments, StorageGRID determines whether the object is available in the Cloud Storage Pool by sampling a subset of the object's parts or segments. In some cases, a HeadObject request might incorrectly return `x-amz-restore: ongoing-request="false"` when some parts of the object have already been transitioned to a non-retrievable state or when some parts of the object have not yet been restored.
+
+== HeadObject and cross-grid replication
+If you are using link:../admin/grid-federation-overview.html[grid federation] and link:../tenant/grid-federation-manage-cross-grid-replication.html[cross-grid replication] is enabled for a bucket, the S3 client can verify an object's replication status by issuing a HeadObject request. The response includes the StorageGRID-specific `x-ntap-sg-cgr-replication-status` response header, which will have one of the following values:
+
+[cols="1a,2a" options="header"]
+|===
+| Grid| Replication status 
+
+| Source
+| * *COMPLETED*: The replication was successful.
+* *PENDING*: The object hasn't been replicated yet.
+* *FAILURE*: The replication failed with a permanent failure. A user must resolve the error.
+
+| Destination
+| *REPLICA*: The object was replicated from the source grid.
+
+|===
+
+NOTE: StorageGRID does not support the `x-amz-replication-status` header.
+
+// 2024 JULY 1, SGRIDDOC-48
+// 2024 MAY 23, SGWS-31243

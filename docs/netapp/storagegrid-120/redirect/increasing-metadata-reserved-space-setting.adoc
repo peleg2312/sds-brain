@@ -1,0 +1,4 @@
+---
+permalink: upgrade/increasing-metadata-reserved-space-setting.html
+redirect: storagegrid/admin/increasing-metadata-reserved-space-setting.html
+---

@@ -1,0 +1,13 @@
+//shared in ilm/advantages-disadvantages-of-ingest-options.adoc and s3/consistency-controls.adoc//
+Suppose you have a two-site grid with the following ILM rule and the following consistency:
+
+* *ILM rule*: Create two object copies, one at the local site and one at a remote site. Use Strict ingest behavior.
+* *consistency*: Strong-global (object metadata is immediately distributed to all sites).
+
+When a client stores an object to the grid, StorageGRID makes both object copies and distributes metadata to both sites before returning success to the client.
+
+The object is fully protected against loss at the time of the ingest successful message. For example, if the local site is lost shortly after ingest, copies of both the object data and the object metadata still exist at the remote site. The object is fully retrievable.
+
+If you instead used the same ILM rule and the strong-site consistency, the client might receive a success message after object data is replicated to the remote site but before object metadata is distributed there. In this case, the level of protection of object metadata does not match the level of protection for object data. If the local site is lost shortly after ingest, object metadata is lost. The object can't be retrieved.
+
+The inter-relationship between consistency and ILM rules can be complex. Contact NetApp if you need assistance.

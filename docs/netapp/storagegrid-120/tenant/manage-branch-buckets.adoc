@@ -1,0 +1,137 @@
+---
+permalink: tenant/manage-branch-buckets.html
+sidebar: sidebar
+keywords: how to create branch bucket
+summary: "Use the Tenant Manager to create and view details for branch buckets."
+---
+= Manage StorageGRID branch buckets
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Use the Tenant Manager to create and view details for branch buckets. 
+
+.Before you begin
+
+* You've signed in to the Tenant Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You belong to a user group that has the Root access or link:tenant-management-permissions.html[Manage all buckets permission]. These permissions override the permissions settings in group or bucket policies. 
+* The base bucket you want to create a branch from has link:../tenant/changing-bucket-versioning.html[versioning enabled].
+* You're the owner of the base bucket.
+
+.About this task
+
+Note the following information for branch buckets:
+
+* Permissions to set S3 Object Lock properties of buckets or objects can be granted by link:../s3/use-access-policies.html[bucket policy or group policy].
+
+* If you suspend versioning on the base bucket, the contents of the base bucket will no longer be visible in its branch buckets.
+
+CAUTION: After you configure and create a branch bucket, you can't change the configuration.
+
+== Create branch bucket
+
+.Steps
+
+. Select *View buckets* from the dashboard, or select  *STORAGE (S3)* > *Buckets*.
+
+. Select the bucket you want to create a branch from (the "base bucket").
+
+. On the bucket details page, select *Branches* > *Create branch bucket*.
++
+The *Create branch bucket* button is disabled if the base bucket doesn't have versioning enabled.
+
+== Enter details
+
+.Steps
+
+. Enter details for the branch bucket.
++
+[cols="1a,3a" options="header"]
+|===
+
+| Field | Description
+
+| Branch bucket name
+| A name for the branch bucket that complies with these rules:
+
+* Must be unique across each StorageGRID system (not just unique within the tenant account).
+* Must be DNS compliant.
+* Must contain at least 3 and no more than 63 characters.
+* Each label must start and end with a lowercase letter or a number and can only use lowercase letters, numbers, and hyphens.
+* Must not contain periods in virtual hosted style requests. Periods will cause problems with server wildcard certificate verification.
+
+For more information, see the https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html[Amazon Web Services (AWS) documentation on bucket naming rules^].
+
+*Note*: You can't change the name after creating the branch bucket.
+
+| Region (can't modify for branch buckets)
+| The branch bucket's region.
+
+The branch bucket's region must match the region for the base bucket, so this field is disabled for branch buckets.
+
+| Before time
+| The cutoff time for object versions created in the base bucket to be accessible from the branch bucket. The branch bucket provides access to object versions created earlier than Before time.
+
+Before time must be a date and time that has passed. It can't be a future date.
+
+| Branch bucket type
+|
+* *Read-write*: You can add or delete objects or object versions in the branch bucket.
+
+* *Read-only*: You can't modify objects in the branch bucket.
+
+*Note*: You can set the branch bucket type to read-only only if the branch bucket is empty. If the type for an existing branch bucket is set to read-write and you haven't written to it, you can change the type to read-only.
+|===
+
+. Select *Continue*.
+
+== Manage object settings (optional)
+
+The object settings for a branch bucket don't affect the object versions in the base bucket.
+
+.Steps
+
+. If the global S3 Object Lock setting is enabled, optionally enable S3 Object Lock for the branch bucket. To enable S3 Object Lock, the branch bucket must be a read-write bucket.
++
+Enable S3 Object Lock for a branch bucket only if you need to keep objects for a fixed amount of time, for example, to meet certain regulatory requirements. S3 Object Lock is a permanent setting that helps you prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely. 
++
+CAUTION: After the S3 Object Lock setting is enabled for a bucket, it can't be disabled. Anyone with the correct permissions can add objects to the branch bucket that can't be changed. You might not be able to delete these objects or the branch bucket itself.
+
+. If you selected *Enable S3 Object Lock*, optionally enable *Default retention* for the branch bucket.
++
+NOTE: Your grid administrator must give you permission to link:../tenant/using-s3-object-lock.html[use specific features of S3 Object Lock].
++
+When *Default retention* is enabled, new objects added to the branch bucket will be automatically protected from being deleted or overwritten. The *Default retention* setting does not apply to objects that have their own retention periods.
+
+.. If *Default retention* is enabled, specify a *Default retention mode* for the branch bucket.
++
+include::../_include/bucket-governance-compliance.adoc[]
+
+.. If *Default retention* is enabled, specify the *Default retention period* for the branch bucket.
++
+The *Default retention period* indicates how long new objects added to the branch bucket should be retained, starting from the time they are ingested. Specify a value that is less than or equal to the maximum retention period for the tenant, as set by the grid administrator.
++
+A _maximum_ retention period, which can be a value from 1 day to 100 years, is set when the grid administrator creates the tenant. When you set a _default_ retention period, it can't exceed the value set for the maximum retention period. If needed, ask your grid administrator to increase or decrease the maximum retention period.
+
+. Optionally, select *Enable capacity limit*.
++
+Capacity limit is the maximum capacity available for the branch bucket. This value represents a logical amount (object size), not a physical amount (size on disk).
++
+If no limit is set, the capacity for the branch bucket is unlimited. Refer to link:../tenant/understanding-tenant-manager-dashboard.html#bucket-capacity-usage[Capacity limit usage] for more information.
++
+NOTE: This setting applies only to objects directly ingested into the branch bucket, and not to the objects that are visible from the base bucket through the branch bucket.
+
+. Optionally, select *Enable object count limit*.
++
+Object count limit is the maximum number of objects the branch bucket can contain. This value represents a logical amount (object count). If no limit is set, the object count is unlimited.
++
+NOTE: This setting applies only to objects directly ingested into the branch bucket, and not to the objects that are visible from the base bucket through the branch bucket.
+
+. Select *Create bucket*.
++
+The branch bucket is created and added to the table on the Buckets page.
+
+. Optionally, select *Go to bucket details page* to link:viewing-s3-bucket-details.html[view branch bucket details] and perform additional configuration.
++
+On the Bucket details page, some configuration options related to the modification of objects are disabled for read-only buckets.
+

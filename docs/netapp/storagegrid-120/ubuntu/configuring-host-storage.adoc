@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/configuring-host-storage.html
+redirect: storagegrid/swnodes/configuring-host-storage.html
+---

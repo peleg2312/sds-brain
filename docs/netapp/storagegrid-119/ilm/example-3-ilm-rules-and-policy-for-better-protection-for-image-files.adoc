@@ -1,0 +1,79 @@
+---
+permalink: ilm/example-3-ilm-rules-and-policy-for-better-protection-for-image-files.html
+sidebar: sidebar
+keywords: example ILM rule, information lifecycle rule examples
+summary: 'You can use the following example rules and policy to ensure that images greater than 1 MB are erasure-coded and that two copies are made of smaller images.'
+---
+= Example 3: ILM rules and policy for better protection for image files
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can use the following example rules and policy to ensure that images greater than 1 MB are erasure-coded and that two copies are made of smaller images.
+
+CAUTION: The following ILM rules and policy are only examples. There are many ways to configure ILM rules. Before activating a new policy, simulate it to confirm it will work as intended to protect content from loss.
+
+== ILM rule 1 for example 3: Use EC for image files greater than 1 MB
+
+This example ILM rule uses advanced filtering to erasure code all image files greater than 1 MB.
+
+NOTE: Erasure coding is best suited for objects greater than 1 MB. Don't use erasure coding for objects smaller than 200 KB to avoid the overhead of managing very small erasure-coded fragments.
+
+[cols="1a,2a" options="header"]
+|===
+| Rule definition| Example value
+
+| Rule name
+| EC Image Files > 1 MB
+
+| Reference time
+| Ingest time
+
+| Advanced filter for Object size
+| Object size greater than 1 MB
+
+| Advanced filters for Key
+| 
+* Ends with .jpg
+* Ends with .png
+
+| Placements
+| Create a 2+1 erasure-coded copy using three sites
+|===
+
+image::../media/policy_3_rule_1_ec_images_adv_filtering.png[ILM rule 1 for example 3: Use EC for image files greater than 1 MB]
+
+Because this rule is configured as the first rule in the policy, the erasure-coding placement instruction only applies to .jpg and .png files that are greater than 1 MB.
+
+== ILM rule 2 for example 3: Create 2 replicated copies for all remaining image files
+
+This example ILM rule uses advanced filtering to specify that smaller image files be replicated. Because the first rule in the policy has already matched image files greater than 1 MB, this rule applies to image files that are 1 MB or smaller.
+
+[cols="1a,2a" options="header"]
+|===
+| Rule definition| Example value
+
+|Rule name
+|2 Copies for Image Files
+
+|Reference time
+|Ingest time
+
+|Advanced filters for Key
+|
+* Ends with .jpg
+* Ends with .png
+
+| Placements
+| Create 2 replicated copies in two storage pools
+|===
+
+== ILM policy for example 3: Better protection for image files
+
+This example ILM policy includes three rules:
+
+* The first rule erasure codes all image files greater than 1 MB.
+* The second rule creates two copies of any remaining image files (that is, images that are 1 MB or smaller).
+* The default rule applies to all remaining objects (that is, any non-image files).
+
+image::../media/policy_3_configured_policy.png[ILM policy for example 3: Better protection for image files]

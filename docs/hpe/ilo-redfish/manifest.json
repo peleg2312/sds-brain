@@ -1,0 +1,18 @@
+{
+  "hpe-ilorest-usage.md": {
+    "title": "HPE iLOrest usage",
+    "url": "https://servermanagementportal.ext.hpe.com/docs/redfishclients/ilorest-userguide/usage"
+  },
+  "hpe-ilorest.md": {
+    "title": "HPE iLOrest overview",
+    "url": "https://servermanagementportal.ext.hpe.com/docs/redfishclients/ilorest-userguide"
+  },
+  "hpe-redfish-concepts.md": {
+    "title": "HPE Redfish concepts",
+    "url": "https://servermanagementportal.ext.hpe.com/docs/concepts"
+  },
+  "hpe-redfish-services.md": {
+    "title": "HPE Redfish service references",
+    "url": "https://servermanagementportal.ext.hpe.com/docs/redfishservices"
+  }
+}

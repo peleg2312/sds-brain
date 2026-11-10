@@ -1,0 +1,4 @@
+//used in what-storage-node-is and convert-to-data-only-node
+Using a Storage Node exclusively for data can make sense if your Storage Nodes have differing performance characteristics. For example, to potentially increase performance, you could have data-only, high-capacity spinning-disk Storage Nodes accompanied by metadata-only high-performance Storage Nodes.
+
+Additionally, you can get more metadata capacity by removing low-RAM nodes from Cassandra, which increases the per-node metadata capacity limit. Refer to link:../admin/managing-object-metadata-storage.html[Manage object metadata storage].

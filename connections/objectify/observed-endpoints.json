@@ -1,0 +1,26 @@
+{
+  "evidence": "User-provided Objectify Swagger screenshot, 2026-11-09",
+  "confidence": "observed_in_screenshot_only",
+  "openapi_link_shown": "/openapi.json",
+  "contract_known": false,
+  "notes": [
+    "Literal route spelling is transcribed from the image; obj_acc is not assumed to be a path placeholder.",
+    "HTTP GET alone does not establish absence of side effects.",
+    "No authentication, parameters, response schemas, or customer-scope guarantees are visible."
+  ],
+  "endpoints": [
+    {"method": "GET", "path": "/back", "label": "Get Backend", "disposition": "candidate_pending_contract_review"},
+    {"method": "POST", "path": "/account", "label": "Create Account", "disposition": "blocked_write"},
+    {"method": "GET", "path": "/account/obj_acc", "label": "Get Account", "disposition": "candidate_pending_contract_review"},
+    {"method": "DELETE", "path": "/account/obj_acc", "label": "Delete Account", "disposition": "blocked_write"},
+    {"method": "GET", "path": "/account/obj_acc/epg", "label": "Get Account Epg", "disposition": "candidate_pending_contract_review"},
+    {"method": "PATCH", "path": "/account/obj_acc/resize", "label": "Resize Account", "disposition": "blocked_write"},
+    {"method": "PATCH", "path": "/account/obj_acc/regenerate", "label": "Regenerate Account", "disposition": "blocked_write"},
+    {"method": "PATCH", "path": "/account/obj_acc/reconsider", "label": "Reconsider Account", "disposition": "blocked_write"},
+    {"method": "GET", "path": "/account/parlay", "label": "Parlay Account", "disposition": "blocked_ambiguous_semantics"},
+    {"method": "PATCH", "path": "/account/obj_acc/recount", "label": "Recount Account", "disposition": "blocked_write"},
+    {"method": "PATCH", "path": "/account/obj_acc/modify", "label": "Modify Account", "disposition": "blocked_write"},
+    {"method": "PATCH", "path": "/account/obj_acc/update_decommission", "label": "Update Decommission Account Status", "disposition": "blocked_write"},
+    {"method": "GET", "path": "/getAllSink", "label": "Get Accounts List", "disposition": "candidate_requires_per_record_customer_and_cluster_checks"}
+  ]
+}

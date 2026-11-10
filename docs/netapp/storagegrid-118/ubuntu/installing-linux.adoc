@@ -1,0 +1,28 @@
+---
+permalink: ubuntu/installing-linux.html
+sidebar: sidebar
+keywords: how to install Linux
+summary: 'You must install StorageGRID on all Ubuntu or Debian grid hosts. For a list of supported versions, use the NetApp Interoperability Matrix Tool.'
+---
+= Install Linux
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You must install StorageGRID on all Ubuntu or Debian grid hosts. For a list of supported versions, use the NetApp Interoperability Matrix Tool.
+
+NOTE: Ensure that your operating system is upgraded to Linux kernel 4.15 or higher.
+
+.Steps
+
+. Install Linux on all physical or virtual grid hosts according to the distributor's instructions or your standard procedure.
++
+NOTE: Don't install any graphical desktop environments. When installing Ubuntu, you must select *standard system utilities*. Selecting *OpenSSH server* is recommended to enable ssh access to your Ubuntu hosts. All other options can remain cleared.
+
+. Ensure that all hosts have access to Ubuntu or Debian package repositories.
+. If swap is enabled:
+ .. Run the following command: `$ sudo swapoff --all`
+ .. Remove all swap entries from `/etc/fstab` to persist the settings.
++
+
+NOTE: Failing to disable swap entirely can severely lower performance.

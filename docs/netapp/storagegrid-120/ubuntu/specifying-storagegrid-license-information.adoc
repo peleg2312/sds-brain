@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/specifying-storagegrid-license-information.html
+redirect: storagegrid/swnodes/specifying-storagegrid-license-information.html
+---

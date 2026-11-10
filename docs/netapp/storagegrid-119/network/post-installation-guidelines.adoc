@@ -1,0 +1,22 @@
+---
+permalink: network/post-installation-guidelines.html
+sidebar: sidebar
+keywords: networking after installation, dhcp networking
+summary: 'After completing grid node deployment and configuration, follow these guidelines for DHCP addressing and network configuration changes.'
+---
+= Post-installation guidelines
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+After completing grid node deployment and configuration, follow these guidelines for DHCP addressing and network configuration changes.
+
+* If DHCP was used to assign IP addresses, configure a DHCP reservation for each IP address on the networks being used.
++
+You can only set up DHCP during the deployment phase. You can't set up DHCP during configuration.
++
+CAUTION: Nodes reboot when the Grid Network configuration is changed by DHCP, which can cause outages if a DHCP change affects multiple nodes at the same time.
+
+* You must use the Change IP procedures if you want to change IP addresses, subnet masks, and default gateways for a grid node. See link:../maintain/configuring-ip-addresses.html[Configure IP addresses].
+
+* If you make networking configuration changes, including routing and gateway changes, client connectivity to the primary Admin Node and other grid nodes might be lost. Depending on the networking changes applied, you might need to reestablish these connections.

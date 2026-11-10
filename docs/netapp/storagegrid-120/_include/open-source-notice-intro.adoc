@@ -1,0 +1,3 @@
+== Open source
+
+Notice files provide information about third-party copyright and licenses used in NetApp software.

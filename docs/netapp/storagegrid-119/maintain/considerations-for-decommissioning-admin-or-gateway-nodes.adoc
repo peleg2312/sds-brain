@@ -1,0 +1,36 @@
+---
+permalink: maintain/considerations-for-decommissioning-admin-or-gateway-nodes.html
+sidebar: sidebar
+keywords: storagegrid, decommission admin node, decommission gateway node
+summary: 'Review the considerations for decommissioning an Admin Node or Gateway Node.'
+---
+= Considerations for decommissioning Admin or Gateway Nodes
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Review the considerations for decommissioning an Admin Node or Gateway Node.
+
+== Considerations for Admin Node
+
+* You can't decommission the primary Admin Node.
+
+* You can't decommission an Admin Node if one of its network interfaces is part of a high availability (HA) group. You must first remove the network interfaces from the HA group. See the instructions for link:../admin/managing-high-availability-groups.html[managing HA groups].
+
+* As required, you can safely change ILM policies while decommissioning an Admin Node.
+
+* If you decommission an Admin Node and single sign-on (SSO) is enabled for your StorageGRID system, you must remember to remove the node's relying party trust from Active Directory Federation Services (AD FS).
+
+* If you use link:../admin/grid-federation-overview.html[grid federation], ensure that the IP address of the node you are decommissioning was not specified for a grid federation connection.
+
+* When you decommission a disconnected Admin Node, you will lose the audit logs from that node; however, these logs should also exist on the primary Admin Node.
+
+== Considerations for Gateway Node
+
+* You can't decommission a Gateway Node if one of its network interfaces is part of a high availability (HA) group. You must first remove the network interfaces from the HA group. See the instructions for link:../admin/managing-high-availability-groups.html[managing HA groups].
+
+* As required, you can safely change ILM policies while decommissioning a Gateway Node.
+
+* If you use link:../admin/grid-federation-overview.html[grid federation], ensure that the IP address of the node you are decommissioning was not specified for a grid federation connection.
+
+* You can safely decommission a Gateway Node while it is disconnected.

@@ -1,0 +1,5 @@
+---
+permalink: ilm/creating-proposed-ilm-policy.html
+redirect: storagegrid/ilm/creating-ilm-policy.html
+---
+// 2024-10-18, SGRIDOC108

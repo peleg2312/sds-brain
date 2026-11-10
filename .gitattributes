@@ -1,0 +1,5 @@
+# two people adding notes at the same moment: keep both sides instead of a conflict
+knowledge/*.md merge=union
+knowledge/**/*.md merge=union
+# the vendored Grafana archives are binary
+connections/grafana/vendor/* binary

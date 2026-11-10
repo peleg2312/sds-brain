@@ -1,0 +1,5 @@
+---
+permalink: admin/kms-removing.html
+redirect: storagegrid/admin/kms-viewing-details.html
+---
+// 2024-10-18, SGRIDOC108

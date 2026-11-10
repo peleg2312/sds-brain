@@ -1,0 +1,30 @@
+{
+  "enabled": false,
+  "context": {
+    "customer_id": "UNCONFIGURED",
+    "cluster_id": "UNCONFIGURED",
+    "environment": "UNCONFIGURED"
+  },
+  "base_url": null,
+  "authentication": {
+    "type": "unconfigured",
+    "token_env": null,
+    "header_name": null
+  },
+  "tls": {"ca_file": null},
+  "contract": {
+    "reviewed": false,
+    "openapi_file": null,
+    "openapi_sha256": null,
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "upstream_context_scoped": false,
+    "listing_scope_verified": false
+  },
+  "limits": {
+    "timeout_seconds": 10,
+    "max_response_bytes": 1048576,
+    "max_records": 50
+  },
+  "operations": {}
+}

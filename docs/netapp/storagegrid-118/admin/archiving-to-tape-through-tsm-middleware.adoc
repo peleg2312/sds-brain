@@ -1,0 +1,29 @@
+---
+permalink: admin/archiving-to-tape-through-tsm-middleware.html
+sidebar: sidebar
+keywords: tivoli storage manager, tsm server, archive node, tape
+summary: 'You can configure an Archive Node to target a Tivoli Storage Manager \(TSM\) server that provides a logical interface for storing and retrieving object data to random or sequential access storage devices, including tape libraries.'
+---
+= Archive to tape through TSM middleware
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can configure an Archive Node to target a Tivoli Storage Manager (TSM) server that provides a logical interface for storing and retrieving object data to random or sequential access storage devices, including tape libraries.
+
+The Archive Node's ARC service acts as a client to the TSM server, using Tivoli Storage Manager as middleware for communicating with the archival storage system.
+
+[CAUTION]
+====
+Support for Archive Nodes is deprecated and will be removed in a future release. Moving objects from an Archive Node to an external archival storage system through the S3 API has been replaced by ILM Cloud Storage Pools, which offer more functionality. 
+
+The Cloud Tiering - Simple Storage Service (S3) option is also deprecated. If you are currently using an Archive Node with this option, link:../admin/migrating-objects-from-cloud-tiering-s3-to-cloud-storage-pool.html[migrate your objects to a Cloud Storage Pool] instead.
+
+Additionally, you should remove Archive Nodes from the active ILM policy in StorageGRID 11.7 or earlier. Removing object data stored on Archive Nodes will simplify future upgrades. See link:../ilm/working-with-ilm-rules-and-ilm-policies.html[Working with ILM rules and ILM policies].
+
+====
+== TSM management classes
+
+Management classes defined by the TSM middleware outline how the TSMʹs backup and archive operations function, and can be used to specify rules for content that are applied by the TSM server. Such rules operate independently of the StorageGRID system's ILM policy, and must be consistent with the StorageGRID system's requirement that objects are stored permanently and are always available for retrieval by the Archive Node. After object data is sent to a TSM server by the Archive Node, the TSM lifecycle and retention rules are applied while the object data is stored to tape managed by the TSM server.
+
+The TSM management class is used by the TSM server to apply rules for data location or retention after objects are sent to the TSM server by the Archive Node. For example, objects identified as database backups (temporary content that can be overwritten with newer data) could be treated differently than application data (fixed content that must be retained indefinitely).

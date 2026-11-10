@@ -1,0 +1,18 @@
+---
+permalink: troubleshoot/object-store-storage-volume-failures.html
+sidebar: sidebar
+keywords: how to confirm object location, object metadata lookup
+summary: "The underlying storage on a Storage Node is divided into object stores. Object stores are also known as storage volumes."
+---
+= Learn about object store failures for storage volumes in StorageGRID
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The underlying storage on a Storage Node is divided into object stores. Object stores are also known as storage volumes.
+
+You can view object store information for each Storage Node. Select *Nodes* > *_Storage Node_* > *Storage*.
+
+image:nodes_page_storage_nodes_storage_tables.png[Nodes Page Storage Node Storage Tables]
+
+Depending on the nature of the failure, faults with a storage volume might be reflected in link:../monitor/alerts-reference.html[storage volume alerts]. If a storage volume fails, you should repair the failed storage volume to restore the Storage Node to full functionality as soon as possible. If necessary, you can go to the *Configuration* tab and link:../maintain/checking-storage-state-after-recovering-storage-volumes.html[place the Storage Node in a read‐only state] so that the StorageGRID system can use it for data retrieval while you prepare for a full recovery of the server.

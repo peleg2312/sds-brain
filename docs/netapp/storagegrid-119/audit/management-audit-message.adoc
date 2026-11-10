@@ -1,0 +1,24 @@
+---
+permalink: audit/management-audit-message.html
+sidebar: sidebar
+keywords: storagegrid, audit, message, management, user request, user requests
+summary: 'The Management category logs user requests to the Management API.'
+---
+= Management audit message
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The Management category logs user requests to the Management API.
+
+[cols="1a,3a,1a" options="header"]
+|===
+| Code
+| Message title and description
+| See
+
+| MGAU
+| Management API audit message: A log of user requests.
+| link:mgau-management-audit-message.html[MGAU: Management audit message]
+
+|===

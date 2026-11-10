@@ -1,0 +1,4 @@
+---
+permalink: s3/accessing-and-reviewing-audit-logs.html
+redirect: storagegrid-118/s3/s3-operations-tracked-in-audit-logs.html
+---

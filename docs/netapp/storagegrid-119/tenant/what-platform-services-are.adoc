@@ -1,0 +1,4 @@
+---
+permalink: tenant/what-platform-services-are.html
+redirect: storagegrid/tenant/considerations-for-platform-services.html
+---

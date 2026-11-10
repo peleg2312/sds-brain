@@ -1,0 +1,25 @@
+//These are the shared steps for identity federation openldap guidelines in the tenant manager and the grid manager//
+
+
+If you want to use an OpenLDAP server for identity federation, you must configure specific settings on the OpenLDAP server.
+
+CAUTION: For identity sources that aren't ActiveDirectory or Azure, StorageGRID will not automatically block S3 access to users who are disabled externally. To block S3 access, delete any S3 keys for the user or remove the user from all groups.
+
+=== Memberof and refint overlays
+
+The memberof and refint overlays should be enabled. For more information, see the instructions for reverse group membership maintenance in the 
+http://www.openldap.org/doc/admin24/index.html[OpenLDAP documentation: Version 2.4 Administrator's Guide^].
+
+=== Indexing
+
+You must configure the following OpenLDAP attributes with the specified index keywords:
+
+* `olcDbIndex: objectClass eq`
+* `olcDbIndex: uid eq,pres,sub`
+* `olcDbIndex: cn eq,pres,sub`
+* `olcDbIndex: entryUUID eq`
+
+In addition, ensure the fields mentioned in the help for Username are indexed for optimal performance.
+
+See the information about reverse group membership maintenance in the
+http://www.openldap.org/doc/admin24/index.html[OpenLDAP documentation: Version 2.4 Administrator's Guide^].

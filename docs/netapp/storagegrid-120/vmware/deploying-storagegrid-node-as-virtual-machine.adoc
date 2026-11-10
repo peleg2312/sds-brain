@@ -1,0 +1,4 @@
+---
+permalink: vmware/deploying-storagegrid-node-as-virtual-machine.html
+redirect: storagegrid/swnodes/deploying-storagegrid-node-as-virtual-machine.html
+---

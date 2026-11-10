@@ -1,0 +1,4 @@
+---
+permalink: s3/benefits-of-active-idle-and-concurrent-http-connections.html
+redirect: storagegrid-118/admin/benefits-of-active-idle-and-concurrent-http-connections.html
+---

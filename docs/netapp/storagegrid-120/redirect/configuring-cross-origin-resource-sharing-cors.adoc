@@ -1,0 +1,6 @@
+---
+permalink: tenant/configuring-cross-origin-resource-cors.html
+redirect: storagegrid/tenant/configuring-cross-origin-resource-sharing-for-buckets-and-objects.html
+---
+
+// 2025 MAR 24, SGWS-33919 

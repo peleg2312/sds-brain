@@ -1,0 +1,15 @@
+[cols="1a,3a" options="header"]
+|===
+| Permission | If selected...
+
+| Allow platform services
+| The tenant can use S3 platform services such as CloudMirror. See link:../admin/manage-platform-services-for-tenants.html[Manage platform services for S3 tenant accounts].
+
+| Use own identity source 
+| The tenant can configure and manage its own identity source for federated groups and users. This option is disabled if you have link:../admin/configuring-sso.html[configured SSO] for your StorageGRID system.
+
+| Allow S3 Select
+| The tenant can issue S3 SelectObjectContent API requests to filter and retrieve object data. See link:../admin/manage-s3-select-for-tenant-accounts.html[Manage S3 Select for tenant accounts].
+
+*Important*: SelectObjectContent requests can decrease load-balancer performance for all S3 clients and all tenants. Enable this feature only when required and only for trusted tenants.
+|===

@@ -1,0 +1,4 @@
+---
+permalink: vmware/post-installation-guidelines.html
+redirect: storagegrid/swnodes/post-installation-guidelines.html
+---

@@ -1,0 +1,22 @@
+{
+  "ibm-ceph-architecture.md": {
+    "title": "IBM Storage Ceph Concepts and Architecture Guide REDP-5721",
+    "url": "https://www.redbooks.ibm.com/redpapers/pdfs/redp5721.pdf"
+  },
+  "ibm-ceph-master-reference.md": {
+    "title": "IBM Storage Ceph Master Troubleshooting and Operations Reference Guide",
+    "url": "https://www.ibm.com/support/pages/node/7239015"
+  },
+  "ibm-ceph-recovery.md": {
+    "title": "Differences between backfill, recovery and peering",
+    "url": "https://www.ibm.com/support/pages/node/7176025"
+  },
+  "ibm-ceph-throttling.md": {
+    "title": "Managing backfill, recovery and rebalancing throttles",
+    "url": "https://www.ibm.com/support/pages/node/6963280"
+  },
+  "ibm-ceph-version-matrix.md": {
+    "title": "Red Hat and IBM Storage Ceph releases and corresponding package versions",
+    "url": "https://www.ibm.com/support/pages/what-are-red-hat-and-ibm-storage-ceph-releases-and-corresponding-ceph-package-versions"
+  }
+}

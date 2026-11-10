@@ -1,0 +1,696 @@
+---
+permalink: monitor/alerts-reference.html
+sidebar: sidebar
+keywords: alerts reference
+summary: 'This reference lists the default alerts that appear in the Grid Manager. Recommended actions are in the alert message you receive.'
+---
+= Alerts reference
+:icons: font
+:imagesdir: ../media/
+
+// Update _this_ file using automatically generated content. See SG IE instructions in Confluence.
+
+[.lead]
+This reference lists the default alerts that appear in the Grid Manager. Recommended actions are in the alert message you receive.
+
+As required, you can create custom alert rules to fit your system management approach.
+
+Some of the default alerts use link:commonly-used-prometheus-metrics.html[Prometheus metrics].
+
+== Appliance alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Appliance battery expired
+| The battery in the appliance's storage controller has expired.
+
+| Appliance battery failed
+| The battery in the appliance's storage controller has failed.
+
+| Appliance battery has insufficient learned capacity
+| The battery in the appliance's storage controller has insufficient learned capacity.
+
+| Appliance battery near expiration
+| The battery in the appliance's storage controller is nearing expiration.
+
+| Appliance battery removed
+| The battery in the appliance's storage controller is missing.
+
+| Appliance battery too hot
+| The battery in the appliance's storage controller is overheated.
+
+| Appliance BMC communication error
+| Communication with the baseboard management controller (BMC) has been lost.
+
+| Appliance boot device fault detected
+| A problem was detected with the boot device in the appliance.
+
+| Appliance cache backup device failed
+| A persistent cache backup device has failed.
+
+| Appliance cache backup device insufficient capacity
+| There is insufficient cache backup device capacity.
+
+| Appliance cache backup device write-protected
+| A cache backup device is write-protected.
+
+| Appliance cache memory size mismatch
+| The two controllers in the appliance have different cache sizes.
+
+| Appliance CMOS battery fault
+| A problem was detected with the CMOS battery in the appliance.
+
+| Appliance compute controller chassis temperature too high
+| The temperature of the compute controller in a StorageGRID appliance has exceeded a nominal threshold.
+
+| Appliance compute controller CPU temperature too high
+| The temperature of the CPU in the compute controller in a StorageGRID appliance has exceeded a nominal threshold.
+
+| Appliance compute controller needs attention
+| A hardware fault has been detected in the compute controller of a StorageGRID appliance.
+
+| Appliance compute controller power supply A has a problem
+| Power supply A in the compute controller has a problem.
+
+| Appliance compute controller power supply B has a problem
+| Power supply B in the compute controller has a problem.
+
+| Appliance compute hardware monitor service stalled
+| The service that monitors storage hardware status has stalled.
+
+| Appliance DAS drive exceeding limit for data written per day
+| An excessive amount of data is being written to a drive each day, which might void its warranty.
+
+| Appliance DAS drive fault detected
+| A problem was detected with a direct-attached storage (DAS) drive in the appliance.
+
+| Appliance DAS drive locator light on
+| The drive locator light for one or more direct-attached storage (DAS) drives in an appliance Storage Node is on.
+
+| Appliance DAS drive rebuilding
+| A direct-attached storage (DAS) drive is rebuilding. This is expected if it was recently replaced or removed/reinserted.
+
+| Appliance fan fault detected
+| A problem with a fan unit in the appliance was detected.
+
+| Appliance Fibre Channel fault detected
+| A Fibre Channel link problem has been detected between the appliance storage controller and compute controller
+
+| Appliance Fibre Channel HBA port failure
+| A Fibre Channel HBA port is failing or has failed.
+
+| Appliance flash cache drives non-optimal
+| The drives used for the SSD cache are non-optimal.
+
+| Appliance interconnect/battery canister removed
+| The interconnect/battery canister is missing.
+
+| Appliance LACP port missing
+| A port on a StorageGRID appliance is not participating in the LACP bond.
+
+| Appliance NIC fault detected
+| A problem with a network interface card (NIC) in the appliance was detected.
+
+| Appliance overall power supply degraded
+| The power of a StorageGRID appliance has deviated from the recommended operating voltage.
+
+| Appliance SSD critical warning
+| An appliance SSD is reporting a critical warning.
+
+| Appliance storage controller A failure
+| Storage controller A in a StorageGRID appliance has failed.
+
+| Appliance storage controller B failure
+| Storage controller B in a StorageGRID appliance has failed.
+
+| Appliance storage controller drive failure
+| One or more drives in a StorageGRID appliance has failed or is not optimal.
+
+| Appliance storage controller hardware issue
+| SANtricity software is reporting "Needs attention" for a component in a StorageGRID appliance.
+
+| Appliance storage controller power supply A failure
+| Power supply A in a StorageGRID appliance has deviated from the recommended operating voltage.
+
+| Appliance storage controller power supply B failure
+| Power supply B in a StorageGRID appliance has deviated from the recommended operating voltage.
+
+| Appliance storage hardware monitor service stalled
+| The service that monitors storage hardware status has stalled.
+
+| Appliance storage shelves degraded
+| The status of one of the components in the storage shelf for a storage appliance is degraded.
+
+| Appliance temperature exceeded
+| The nominal or maximum temperature for the appliance's storage controller has been exceeded.
+
+| Appliance temperature sensor removed
+| A temperature sensor has been removed.
+
+| Appliance UEFI secure boot error
+| An appliance has not been booted securely.
+
+| Disk I/O is very slow
+| Very slow disk I/O might be impacting grid performance.
+
+| Storage appliance fan fault detected
+| A problem with a fan unit in the storage controller for an appliance was detected.
+
+| Storage appliance storage connectivity degraded
+| There is a problem with one or more connections between the compute controller and storage controller.
+
+| Storage device inaccessible
+| A storage device cannot be accessed.
+|===
+
+== Audit and syslog alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Audit logs are being added to the in-memory queue
+| Node cannot send logs to the local syslog server and the in-memory queue is filling up.
+
+| External syslog server forwarding error
+| Node cannot forward logs to the external syslog server.
+
+| Large audit queue
+| The disk queue for audit messages is full. If this condition is not addressed, S3 or Swift operations might fail.
+
+| Logs are being added to the on-disk queue
+| Node cannot forward logs to the external syslog server and the on-disk queue is filling up.
+|===
+
+== Bucket alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| FabricPool bucket has unsupported bucket consistency setting
+| A FabricPool bucket uses the Available or Strong-site consistency level, which is not supported.
+
+| FabricPool bucket has unsupported versioning setting
+| A FabricPool bucket has versioning or S3 Object Lock enabled, which are not supported.
+|===
+
+== Cassandra alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Cassandra auto-compactor error
+| The Cassandra auto-compactor has experienced an error.
+
+| Cassandra auto-compactor metrics out of date
+| The metrics that describe the Cassandra auto-compactor are out of date.
+
+| Cassandra communication error
+| The nodes that run the Cassandra service are having trouble communicating with each other.
+
+| Cassandra compactions overloaded
+| The Cassandra compaction process is overloaded.
+
+| Cassandra oversize write error
+| An internal StorageGRID process sent a write request to Cassandra that was too large.
+
+| Cassandra repair metrics out of date
+| The metrics that describe Cassandra repair jobs are out of date.
+
+| Cassandra repair progress slow
+| The progress of Cassandra database repairs is slow.
+
+| Cassandra repair service not available
+| The Cassandra repair service is not available.
+
+| Cassandra table corruption
+| Cassandra has detected table corruption.  Cassandra automatically restarts if it detects table corruption.
+|===
+
+== Cloud Storage Pool alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Cloud Storage Pool connectivity error
+| The health check for Cloud Storage Pools detected one or more new errors.
+
+| IAM Roles Anywhere end-entity certification expiration
+| IAM Roles Anywhere end-entity certificate is about to expire.
+|===
+
+== Cross-grid replication alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Cross-grid replication permanent failure
+| A cross-grid replication error occurred that requires user intervention to resolve.
+
+| Cross-grid replication resources unavailable
+| Cross-grid replication requests are pending because a resource is unavailable.
+|===
+
+== DHCP alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| DHCP lease expired
+| The DHCP lease on a network interface has expired.
+
+| DHCP lease expiring soon
+| The DHCP lease on a network interface is expiring soon.
+
+| DHCP server unavailable
+| The DHCP server is unavailable.
+|===
+
+== Debug and trace alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Debug performance impact
+| When debug mode is enabled, system performance might be negatively impacted.
+
+| Trace configuration enabled
+| When trace configuration is enabled, system performance might be negatively impacted.
+|===
+
+== Email and AutoSupport alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| AutoSupport message failed to send
+| The most recent AutoSupport message failed to send.
+
+| Domain name resolution failure
+| The StorageGRID node has been unable to resolve domain names.
+
+| Email notification failure
+| The email notification for an alert could not be sent.
+
+| SNMP inform errors
+| Errors sending SNMP inform notifications to a trap destination.
+
+| SSH or console login detected
+| In the past 24 hours, a user has logged in with Web Console or SSH.
+|===
+
+== Erasure coding (EC) alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| EC rebalance failure
+| The EC rebalance procedure has failed or has been stopped.
+
+| EC repair failure
+| A repair job for EC data has failed or has been stopped.
+
+| EC repair stalled
+| A repair job for EC data has stalled.
+
+| Erasure-coded fragment verification error
+| Erasure-coded fragments can no longer be verified. Corrupt fragments might not be repaired.
+|===
+
+== Expiration of certificates alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Admin Proxy CA certificate expiration
+| One or more certificates in the admin proxy server CA bundle is about to expire.
+
+| Expiration of client certificate
+| One or more client certificates are about to expire.
+
+| Expiration of global server certificate for S3 and Swift
+| The global server certificate for S3 and Swift is about to expire.
+
+| Expiration of load balancer endpoint certificate
+| One or more load balancer endpoint certificates are about to expire.
+
+| Expiration of server certificate for Management interface
+| The server certificate used for the management interface is about to expire.
+
+| External syslog CA certificate expiration
+| The certificate authority (CA) certificate used to sign the external syslog server certificate is about to expire.
+
+| External syslog client certificate expiration
+| The client certificate for an external syslog server is about to expire.
+
+| External syslog server certificate expiration
+| The server certificate presented by the external syslog server is about to expire.
+|===
+
+== Grid Network alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Grid Network MTU mismatch
+| The MTU setting for the Grid Network interface (eth0) differs significantly across nodes in the grid.
+|===
+
+== Grid federation alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Expiration of grid federation certificate
+| One or more grid federation certificates are about to expire.
+
+| Grid federation connection failure
+| The grid federation connection between the local and remote grid is not working.
+|===
+
+== High usage or high latency alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| High Java heap use
+| A high percentage of Java heap space is being used.
+
+| High latency for metadata queries
+| The average time for Cassandra metadata queries is too long.
+|===
+
+== Identity federation alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Identity federation synchronization failure
+| Unable to synchronize federated groups and users from the identity source.
+
+| Identity federation synchronization failure for a tenant
+| Unable to synchronize federated groups and users from the identity source configured by a tenant.
+|===
+
+== Information lifecycle management (ILM) alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| ILM placement unachievable
+| A placement instruction in an ILM rule cannot be achieved for certain objects.
+
+| ILM scan rate low
+| The ILM scan rate is set to less than 100 objects/second.
+|===
+
+== Key management server (KMS) alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| KMS CA certificate expiration
+| The certificate authority (CA) certificate used to sign the key management server (KMS) certificate is about to expire.
+
+| KMS client certificate expiration
+| The client certificate for a key management server is about to expire
+
+| KMS configuration failed to load
+| The configuration for the key management server exists but failed to load.
+
+| KMS connectivity error
+| An appliance node could not connect to the key management server for its site.
+
+| KMS encryption key name not found
+| The configured key management server does not have an encryption key that matches the name provided.
+
+| KMS encryption key rotation failed
+| All appliance volumes were successfully decrypted, but one or more volumes could not rotate to the latest key.
+
+| KMS is not configured
+| No key management server exists for this site.
+
+| KMS key failed to decrypt an appliance volume
+| One or more volumes on an appliance with node encryption enabled could not be decrypted with the current KMS key.
+
+| KMS server certificate expiration
+| The server certificate used by the key management server (KMS) is about to expire.
+
+| KMS server connectivity failure
+| An appliance node could not connect to one or more servers in the key management server cluster for its site.
+|===
+
+== Load balancer alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Elevated zero-request load balancer connections
+| An elevated percentage of connections to load balancer endpoints disconnected without performing requests.
+|===
+
+== Local clock offset alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Local clock large time offset
+| The offset between local clock and Network Time Protocol (NTP) time is too large.
+|===
+
+== Low memory or low space alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Low audit log disk capacity
+| The space available for audit logs is low. If this condition is not addressed, S3 or Swift operations might fail.
+
+| Low available node memory
+| The amount of RAM available on a node is low.
+
+| Low free space for storage pool
+| The space available for storing object data in the Storage Node is low.
+
+| Low installed node memory
+| The amount of installed memory on a node is low.
+
+| Low metadata storage
+| The space available for storing object metadata is low.
+
+| Low metrics disk capacity
+| The space available for the metrics database is low.
+
+| Low object data storage
+| The space available for storing object data is low.
+
+| Low read-only watermark override
+| The storage volume soft read-only watermark override is less than the minimum optimized watermark for a Storage Node.
+
+| Low root disk capacity
+| The space available on the root disk is low.
+
+| Low system data capacity
+| The space available for /var/local is low. If this condition is not addressed, S3 or Swift operations might fail.
+
+| Low tmp directory free space
+| The space available in the /tmp directory is low.
+|===
+
+== Node or node network alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Admin Network receive usage
+| The receive usage on the Admin Network is high.
+
+| Admin Network transmit usage
+| The transmit usage on the Admin Network is high.
+
+| Firewall configuration failure
+| Failed to apply firewall configuration.
+
+| Management interface endpoints in fallback mode
+| All management interface endpoints have been falling back to the default ports for too long.
+
+| Node network connectivity error
+| Errors have occurred while transferring data between nodes.
+
+| Node network reception frame error
+| A high percentage of the network frames received by a node had errors.
+
+| Node not in sync with NTP server
+| The node is not in sync with the network time protocol (NTP) server.
+
+| Node not locked with NTP server
+| The node is not locked to a network time protocol (NTP) server.
+
+| Non-appliance node network down
+| One or more network devices are down or disconnected.
+
+| Services appliance link down on Admin Network
+| The appliance interface to the Admin Network (eth1) is down or disconnected.
+
+| Services appliance link down on Admin Network port 1
+| The Admin Network port 1 on the appliance is down or disconnected.
+
+| Services appliance link down on Client Network
+| The appliance interface to the Client Network (eth2) is down or disconnected.
+
+| Services appliance link down on network port 1
+| Network port 1 on the appliance is down or disconnected.
+
+| Services appliance link down on network port 2
+| Network port 2 on the appliance is down or disconnected.
+
+| Services appliance link down on network port 3
+| Network port 3 on the appliance is down or disconnected.
+
+| Services appliance link down on network port 4
+| Network port 4 on the appliance is down or disconnected.
+
+| Storage appliance link down on Admin Network
+| The appliance interface to the Admin Network (eth1) is down or disconnected.
+
+| Storage appliance link down on Admin Network port 1
+| The Admin Network port 1 on the appliance is down or disconnected.
+
+| Storage appliance link down on Client Network
+| The appliance interface to the Client Network (eth2) is down or disconnected.
+
+| Storage appliance link down on network port 1
+| Network port 1 on the appliance is down or disconnected.
+
+| Storage appliance link down on network port 2
+| Network port 2 on the appliance is down or disconnected.
+
+| Storage appliance link down on network port 3
+| Network port 3 on the appliance is down or disconnected.
+
+| Storage appliance link down on network port 4
+| Network port 4 on the appliance is down or disconnected.
+
+| Storage Node not in desired storage state
+| The LDR service on a Storage Node cannot transition to the desired state because of an internal error or volume related issue
+
+| TCP connection usage
+| The number of TCP connections on this node is approaching the maximum number that can be tracked.
+
+| Unable to communicate with node
+| One or more services are unresponsive, or the node cannot be reached.
+
+| Unexpected node reboot
+| A node rebooted unexpectedly within the last 24 hours.
+|===
+
+== Object alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Object existence check failed
+| The object existence check job has failed.
+
+| Object existence check stalled
+| The object existence check job has stalled.
+
+| Objects lost
+| One or more objects have been lost from the grid.
+
+| S3 PUT object size too large
+| A client is attempting a PUT Object operation that exceeds S3 size limits.
+
+| Unidentified corrupt object detected
+| A file was found in replicated object storage that could not be identified as a replicated object.
+|===
+
+== Platform services alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Platform Services pending request capacity low
+| The number of Platform Services pending requests is approaching capacity.
+
+| Platform services unavailable
+| Too few Storage Nodes with the RSM service are running or available at a site.
+|===
+
+== Storage volume alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Storage volume needs attention
+| A storage volume is offline and needs attention.
+
+| Storage volume needs to be restored
+| A storage volume has been recovered and needs to be restored.
+
+| Storage volume offline
+| A storage volume has been offline for more than 5 minutes.
+
+| Storage volume remount attempted
+| A storage volume was offline and triggered an automatic remount. This could indicate a drive issue or filesystem errors.
+
+| Volume Restoration failed to start replicated data repair
+| Replicated data repair for a repaired volume couldn't be started automatically.
+|===
+
+== StorageGRID services alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| nginx service using backup configuration
+| The configuration of the nginx service is invalid. The previous configuration is now being used.
+
+| nginx-gw service using backup configuration
+| The configuration of the nginx-gw service is invalid. The previous configuration is now being used.
+
+| Reboot required to disable FIPS
+| The security policy does not require FIPS mode, but the NetApp Cryptographic Security Module is enabled.
+
+| Reboot required to enable FIPS
+| The security policy requires FIPS mode, but the NetApp Cryptographic Security Module is disabled.
+
+| SSH service using backup configuration
+| The configuration of the SSH service is invalid. The previous configuration is now being used.
+|===
+
+== Tenant alerts
+
+[cols="1a,2a" options="header"]
+|===
+| Alert name| Description
+
+| Tenant quota usage high
+| A high percentage of quota space is being used. This rule is disabled by default because it might cause too many notifications.
+|===
+// 2024-10-17, SGRIDOC107

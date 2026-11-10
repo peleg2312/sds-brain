@@ -1,0 +1,5 @@
+---
+permalink: swift/configuring-security-for-rest-api.html
+redirect: storagegrid/admin/security-for-clients.html
+---
+// 2024-10-18, SGRIDOC108

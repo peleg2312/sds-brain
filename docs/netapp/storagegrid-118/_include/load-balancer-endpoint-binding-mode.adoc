@@ -1,0 +1,20 @@
+[cols="1a,3a" options="header"]
+|===
+| Mode | Description
+
+| Global (default)
+| Clients can access the endpoint using the IP address of any Gateway Node or Admin Node, the virtual IP (VIP) address of any HA group on any network, or a corresponding FQDN.
+
+Use the *Global* setting (default) unless you need to restrict the accessibility of this endpoint.
+
+| Virtual IPs of HA groups
+| Clients must use a virtual IP address (or corresponding FQDN) of an HA group to access this endpoint.
+
+Endpoints with this binding mode can all use the same port number, as long as the HA groups you select for the endpoints don't overlap.
+
+| Node interfaces
+| Clients must use the IP addresses (or corresponding FQDNs) of selected node interfaces to access this endpoint.
+
+| Node type
+| Based on the type of node you select, clients must use either the IP address (or corresponding FQDN) of any Admin Node or the IP address (or corresponding FQDN) of any Gateway Node to access this endpoint.
+|===

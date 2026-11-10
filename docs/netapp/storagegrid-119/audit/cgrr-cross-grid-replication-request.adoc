@@ -1,0 +1,58 @@
+---
+permalink: audit/cgrr-cross-grid-replication-request.html
+sidebar: sidebar
+keywords: cgrr, cross-grid replication request, audit message,
+summary: 'This message is generated when StorageGRID attempts a cross-grid replication operation to replicate objects between buckets in a grid federation connection.'
+---
+= CGRR: Cross-Grid Replication Request
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+This message is generated when StorageGRID attempts a cross-grid replication operation to replicate objects between buckets in a grid federation connection.
+
+[cols="1a,1a,4a" options="header"]
+|===
+| Code| Field| Description
+
+| CSIZ
+| Object Size
+| The size of the object in bytes.
+
+The CSIZ attribute was introduced in StorageGRID 11.8. As a result, cross-grid replication requests spanning a StorageGRID 11.7 to 11.8 upgrade might have an inaccurate total object size.
+
+| S3AI
+| S3 tenant account ID
+| The ID of the tenant account that owns the bucket from which the object is being replicated.
+
+| GFID
+| Grid federation connection ID
+| The ID of the grid federation connection being used for cross-grid replication.
+
+| OPER
+| CGR operation
+| The type of cross-grid replication operation that was attempted:
+
+* 0 = Replicate object
+* 1 = Replicate multipart object
+* 2 = Replicate delete marker
+ 
+| S3BK
+| S3 bucket 
+| The S3 bucket name.
+
+| S3KY
+| S3 Key
+| The S3 key name, not including the bucket name.
+
+| VSID
+| Version ID
+| The version ID of the specific version of an object that was being replicated.
+
+| RSLT
+| Result Code
+| Returns successful (SUCS) or general error (GERR).
+
+|===
+
+// 2023 SEP 25, SGWS-27585

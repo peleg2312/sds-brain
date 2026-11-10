@@ -1,0 +1,26 @@
+---
+permalink: network/appliance-nodes.html
+sidebar: sidebar
+keywords: networking for appliance, port bond mode
+summary: 'You can configure the network ports on StorageGRID appliances to use the port bond modes that meet your requirements for throughput, redundancy, and failover.'
+---
+= Appliance nodes
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can configure the network ports on StorageGRID appliances to use the port bond modes that meet your requirements for throughput, redundancy, and failover.
+
+The 10/25-GbE ports on the StorageGRID appliances can be configured in Fixed or Aggregate bond mode for connections to the Grid Network and Client Network.
+
+The 1-GbE Admin Network ports can be configured in Independent or Active-Backup mode for connections to the Admin Network.
+
+See the information about port bond modes for your appliance:
+
+* https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/gathering-installation-information-sg6100.html#port-bond-modes[Port bond modes (SG6160)^]
+* https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/gathering-installation-information-sg6100.html#port-bond-modes[Port bond modes (SGF6112)^]
+* https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/gathering-installation-information-sg6000.html#port-bond-modes[Port bond modes (SG6000-CN controller)^]
+* https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/gathering-installation-information-sg5800.html#port-bond-modes[Port bond modes (SG5800 controller)^]
+* https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/gathering-installation-information-sg5700.html#port-bond-modes[Port bond modes (E5700SG controller)^]
+* https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/gathering-installation-information-sg110-and-sg1100.html#port-bond-modes[Port bond modes (SG110 and SG1100)^]
+* https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/gathering-installation-information-sg100-and-sg1000.html#port-bond-modes[Port bond modes (SG100 and SG1000)^]

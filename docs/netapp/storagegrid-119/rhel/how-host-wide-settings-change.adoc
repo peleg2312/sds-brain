@@ -1,0 +1,14 @@
+---
+permalink: rhel/how-host-wide-settings-change.html
+sidebar: sidebar
+keywords: how to install on red hat linux
+summary: 'On bare metal systems, StorageGRID makes some changes to host-wide `sysctl` settings.'
+---
+= How host-wide settings change during installation
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+On bare metal systems, StorageGRID makes some changes to host-wide `sysctl` settings.
+
+include::../_include/how-host-wide-settings-change-rhel-ub.adoc[]

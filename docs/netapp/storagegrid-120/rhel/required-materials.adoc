@@ -1,0 +1,4 @@
+---
+permalink: rhel/required-materials.html
+redirect: storagegrid/swnodes/required-materials.html
+---

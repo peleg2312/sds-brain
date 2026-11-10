@@ -1,0 +1,40 @@
+---
+permalink: upgrade/obtaining-required-materials-for-software-upgrade.html
+sidebar: sidebar
+keywords: upgrade, requirements, rhel, red hat, linux, ubuntu, debian
+summary: 'Before you begin the software upgrade, obtain all required materials.'
+---
+= Obtain the required materials for a software upgrade
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Before you begin the software upgrade, obtain all required materials.
+
+[cols="1a,3a" options="header"]
+|===
+| Item| Notes
+
+|Service laptop
+|The service laptop must have:
+
+* Network port
+* SSH client (for example, PuTTY)
+
+| link:../admin/web-browser-requirements.html[Supported web browser]
+|Browser support typically changes for each StorageGRID release. Make sure your browser is compatible with the new StorageGRID version.
+
+|Provisioning passphrase
+|The passphrase is created and documented when the StorageGRID system is first installed. The provisioning passphrase is not listed in the `Passwords.txt` file.
+
+|Linux RPM or DEB archive
+|If any nodes are deployed on Linux hosts, you must link:linux-installing-rpm-or-deb-package-on-all-hosts.html[download and install the RPM or DEB package on all hosts] before you start the upgrade.
+
+*Important*: Ensure that your operating system is upgraded to Linux kernel 4.15 or higher.
+    
+|StorageGRID documentation
+|* link:../release-notes/index.html[Release notes] for StorageGRID 11.8 (sign in required). Be sure to read these carefully before starting the upgrade. 
+* https://kb.netapp.com/hybrid/StorageGRID/Maintenance/StorageGRID_11.8_software_upgrade_resolution_guide[StorageGRID software upgrade resolution guide^] for the major version you are upgrading to (sign in required)
+
+* Other https://docs.netapp.com/us-en/storagegrid-118/index.html[StorageGRID 11.8 documentation^], as required.
+|===

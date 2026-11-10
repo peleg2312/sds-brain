@@ -1,0 +1,4 @@
+---
+permalink: vmware/index.html
+redirect: storagegrid/swnodes/index.html
+---

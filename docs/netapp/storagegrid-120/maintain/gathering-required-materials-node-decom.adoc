@@ -1,0 +1,31 @@
+---
+permalink: maintain/gathering-required-materials-node-decom.html
+sidebar: sidebar
+keywords: storagegrid, node decommission, decommission
+summary: "Before performing a grid node decommission, you must obtain the following information."
+---
+= Gather required materials for StorageGRID node decommission
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Before performing a grid node decommission, you must obtain the following information.
+
+[cols="1a,2a" options="header"]
+|===
+| Item| Notes
+|Recovery package `.zip` file
+|You must link:downloading-recovery-package.html[download the most recent recovery package] `.zip` file (`sgws-recovery-package-_id-revision_.zip`). You can use the recovery package file to restore the system if a failure occurs.
+
+|`Passwords.txt` file
+|This file contains the passwords required to access grid nodes on the command line and is included in the recovery package.
+
+|Provisioning passphrase
+|The passphrase is created and documented when the StorageGRID system is first installed. The provisioning passphrase is not in the `Passwords.txt` file.
+
+|Description of StorageGRID system's topology before decommissioning
+|If available, obtain any documentation that describes the system's current topology.
+|===
+.Related information
+
+link:../admin/web-browser-requirements.html[Web browser requirements]

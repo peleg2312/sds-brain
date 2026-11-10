@@ -1,0 +1,15 @@
+---
+permalink: maintain/recovering-from-gateway-node-failures.html
+sidebar: sidebar
+keywords: recover, gateway node failure, workflow
+summary: 'You must complete a sequence of tasks in exact order to recover from a Gateway Node failure.'
+---
+= Recover from Gateway Node failures: Workflow
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You must complete a sequence of tasks in exact order to recover from a Gateway Node failure.
+
+image::../media/overview_api_gateway_node_recovery.png[Overview flowchart of Gateway Node recovery]
+

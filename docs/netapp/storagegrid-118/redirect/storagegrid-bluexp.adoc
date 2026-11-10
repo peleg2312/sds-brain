@@ -1,0 +1,4 @@
+---
+permalink: storagegrid-bluexp.html
+redirect: storagegrid-console.html
+---

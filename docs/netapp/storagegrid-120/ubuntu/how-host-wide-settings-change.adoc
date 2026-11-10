@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/how-host-wide-settings-change.html
+redirect: storagegrid/swnodes/how-host-wide-settings-change.html
+---

@@ -1,0 +1,26 @@
+{
+  "grafana-dashboard-export.md": {
+    "title": "Grafana dashboard sharing and export",
+    "url": "https://grafana.com/docs/grafana/latest/visualizations/dashboards/share-dashboards-panels/"
+  },
+  "grafana-elasticsearch.md": {
+    "title": "Grafana Elasticsearch data source",
+    "url": "https://grafana.com/docs/grafana/latest/datasources/elasticsearch/"
+  },
+  "grafana-es-query.md": {
+    "title": "Grafana Elasticsearch query editor",
+    "url": "https://grafana.com/docs/grafana/latest/datasources/elasticsearch/query-editor/"
+  },
+  "grafana-mcp.md": {
+    "title": "grafana-mcp",
+    "url": "https://github.com/grafana/mcp-grafana/blob/v2.2.0/README.md"
+  },
+  "grafana-prometheus.md": {
+    "title": "Grafana Prometheus data source",
+    "url": "https://grafana.com/docs/grafana/latest/datasources/prometheus/"
+  },
+  "grafana-service-accounts.md": {
+    "title": "Grafana service accounts",
+    "url": "https://grafana.com/docs/grafana/latest/administration/service-accounts/"
+  }
+}

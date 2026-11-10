@@ -1,0 +1,50 @@
+---
+permalink: monitor/information-you-should-monitor-regularly.html
+sidebar: sidebar
+keywords: when to monitor, what to monitor
+summary: 'Even though the StorageGRID system can continue to operate when errors occur or parts of the grid are unavailable, you should monitor and address potential issues before they affect the grid’s efficiency or availability.'
+---
+= What and when to monitor
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Even though the StorageGRID system can continue to operate when errors occur or parts of the grid are unavailable, you should monitor and address potential issues before they affect the grid's efficiency or availability.
+
+.Before you begin
+
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have link:../admin/admin-group-permissions.html[specific access permissions].
+
+.About monitoring tasks
+
+A busy system generates large amounts of information. The following list provides guidance about the most important information to monitor on an ongoing basis.
+
+[cols="1a,1a" options="header"]
+|===
+| What to monitor| Frequency
+
+| link:monitoring-system-health.html[System health status]
+| Daily
+
+| Rate at which link:monitoring-storage-capacity.html[Storage Node object and metadata capacity] is being consumed
+| Weekly
+
+| link:monitoring-information-lifecycle-management.html[Information lifecycle management operations]
+| Weekly
+
+| link:monitoring-network-connections-and-performance.html[Networking and system resources]
+| Weekly
+
+| link:monitoring-tenant-activity.html[Tenant activity]
+| Weekly
+
+| link:monitoring-object-ingest-and-retrieval-rates.html[S3 client operations]
+| Weekly
+
+| link:monitoring-load-balancing-operations.html[Load balancing operations]
+| After the initial configuration and after any configuration changes
+
+| link:grid-federation-monitor-connections.html[Grid federation connections]
+| Weekly
+|===

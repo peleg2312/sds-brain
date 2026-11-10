@@ -1,0 +1,299 @@
+---
+permalink: admin/kms-managing.html
+sidebar: sidebar
+keywords: manage kms, manage key management server, view kms, view key management server, edit kms, edit key management server, view encrypted nodes, remove kms, remove key management server
+summary: 'Managing a key management server \(KMS\) involves viewing or editing details, managing certificates, viewing encrypted nodes, and removing a KMS when it is no longer needed.'
+---
+= Manage a KMS
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Managing a key management server (KMS) involves viewing or editing details, managing certificates, viewing encrypted nodes, and removing a KMS when it is no longer needed.
+
+.Before you begin
+
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have the link:admin-group-permissions.html[required access permission].
+
+== View KMS details
+
+You can view information about each key management server (KMS) in your StorageGRID system, including key details and the current status of the server and client certificates.
+
+.Steps
+
+. Select *CONFIGURATION* > *Security* > *Key management server*.
++
+The Key management server page appears and shows the following information:
+
+* The Configuration details tab lists any key management servers that are configured.
+* The Encrypted nodes tab lists any nodes that have node encryption enabled.
+
+. To view the details for a specific KMS and perform operations on that KMS, select the name of the KMS. The details page for the KMS lists the following information:
++
+[cols="1a,3a" options="header"]
+|===
+| Field| Description
+
+| Manages keys for
+| The StorageGRID site associated with the KMS.
+
+This field displays the name of a specific StorageGRID site or *Sites not managed by another KMS (default KMS).*
+
+| Hostname
+| The fully qualified domain name or IP address of the KMS.
+
+If there is a cluster of two key management servers, the fully qualified domain name or IP address of both servers are listed. If there are more than two key management servers in a cluster, the fully qualified domain name or IP address of the first KMS is listed along with the number of additional key management servers in the cluster.
+
+For example: `10.10.10.10 and 10.10.10.11` or `10.10.10.10 and 2 others`.
+
+To view all hostnames in a cluster, select a KMS and select *Edit* or *Actions* > *Edit*.
+|===
+
++
+. Select a tab on the KMS details page to view the following information:
++
+[cols="1a,1a,3a" options="header"]
+|===
+| Tab| Field| Description
+
+.3+| Key details
+| Key name
+| The key alias for the StorageGRID client in the KMS.
+
+| Key UID
+| The unique identifier of the latest version of the key.
+
+| Last modified
+| The date and time of the latest version of the key.
+
+.2+| Server certificate
+| Metadata
+| The metadata for the certificate, such as serial number, expiration date and time, and the certificate PEM.
+
+| Certificate PEM
+| The contents of the PEM (privacy enhanced mail) file for the certificate.
+
+.2+| Client certificate
+| Metadata
+| The metadata for the certificate, such as serial number, expiration date and time, and the certificate PEM.
+
+| Certificate PEM
+| The contents of the PEM (privacy enhanced mail) file for the certificate.
+|===
+
+. [[rotate-key]]As often as required by your organization's security practices, select *Rotate key*, or use the KMS software, to create a new version of the key.
++
+When key rotation is successful, the Key UID and Last modified fields are updated.
++
+[CAUTION]
+====
+If you rotate the encryption key using the KMS software, rotate it from the last used version of the key to a new version of the same key. Don't rotate to an entirely different key.
+
+Never attempt to rotate a key by changing the key name (alias) for the KMS. StorageGRID requires all previously used key versions (as well as any future ones) to be accessible from the KMS with the same key alias. If you change the key alias for a configured KMS, StorageGRID might not be able to decrypt your data.
+====
+
+== Manage certificates
+
+Promptly address any server or client certificate issues. If possible, replace certificates before they expire.
+
+CAUTION: You must address any certificate issues as soon as possible to maintain data access.
+
+.Steps
+
+. Select *CONFIGURATION* > *Security* > *Key management server*.
+
+. In the table, look at the value for Certificate expiration for each KMS.
+
+. If Certificate expiration for any KMS is Unknown, wait up to 30 minutes and then refresh your web browser.
+
+. If the Certificate expiration column indicates that a certificate has expired or is nearing expiration, select the KMS to go to the KMS details page.
+
+.. Select *Server certificate* and verify the value for the "Expires on" field.
+
+.. To replace the certificate, select *Edit certificate* to upload a new certificate.
+
+.. Repeat these sub-steps and select *Client certificate* instead of Server certificate.
+
+. When the *KMS CA certificate expiration*, *KMS client certificate expiration*, and *KMS server certificate expiration* alerts are triggered, note the description of each alert and perform the recommended actions.
++
+It might take StorageGRID as long as 30 minutes to get updates to the certificate expiration. Refresh your web browser to see the current values.
+
+NOTE: If you get a status of *Server certificate status is unknown*, ensure your KMS allows obtaining a server certificate without requiring a client certificate.
+
+== View encrypted nodes
+
+You can view information about the appliance nodes in your StorageGRID system that have the *Node Encryption* setting enabled.
+
+.Steps
+
+. Select *CONFIGURATION* > *Security* > *Key management server*.
++
+The Key Management Server page appears. The Configuration Details tab shows any key management servers that have been configured.
+
+. From the top of the page, select the *Encrypted nodes* tab.
++
+The Encrypted nodes tab lists the appliance nodes in your StorageGRID system that have the *Node Encryption* setting enabled.
+
+. Review the information in the table for each appliance node.
++
+[cols="1a,3a" options="header"]
+|===
+| Column| Description
+
+| Node name
+| The name of the appliance node.
+
+| Node type
+| The type of node: Storage, Admin, or Gateway.
+
+| Site
+| The name of the StorageGRID site where the node is installed.
+
+| KMS name
+| The descriptive name of the KMS used for the node.
+
+If no KMS is listed, select the Configuration details tab to add a KMS.
+
+link:kms-adding.html[Add a key management server (KMS)]
+
+| Key UID
+| The unique ID of the encryption key used to encrypt and decrypt data on the appliance node. To view an entire key UID, select the text.
+
+A dash (--) indicates the key UID is unknown, possibly because of a connection issue between the appliance node and the KMS.
+
+| Status
+| The status of the connection between the KMS and the appliance node. If the node is connected, the timestamp updates every 30 minutes. It can take several minutes for the connection status to update after the KMS configuration changes.
+
+*Note:* Refresh your web browser to see the new values.
+|===
+
+. If the Status column indicates a KMS issue, address the issue immediately.
++
+During normal KMS operations, the status will be *Connected to KMS*. If a node is disconnected from the grid, the node connection state is shown (Administratively Down or Unknown).
++
+Other status messages correspond to StorageGRID alerts with the same names:
++
+* KMS configuration failed to load
+* KMS connectivity error
+* KMS encryption key name not found
+* KMS encryption key rotation failed
+* KMS key failed to decrypt an appliance volume
+* KMS is not configured
+
++
+Perform the recommended actions for these alerts.
+
+CAUTION: You must address any issues immediately to ensure that your data is fully protected.
+
+== Edit a KMS
+
+You might need to edit the configuration of a key management server, for example, if a certificate is about to expire.
+
+.Before you begin
+
+* If you plan to update the site selected for a KMS, you have reviewed the link:kms-considerations-for-changing-for-site.html[considerations for changing the KMS for a site].
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have the link:admin-group-permissions.html[Root access permission].
+
+.Steps
+
+. Select *CONFIGURATION* > *Security* > *Key management server*.
++
+The Key management server page appears and shows all key management servers that have been configured.
++
+
+. Select the KMS you want to edit, and select *Actions* > *Edit*.
++
+You can also edit a KMS by selecting the KMS name in the table and selecting *Edit* on the KMS details page.
+
+. Optionally, update the details in *Step 1 (KMS details)* of the Edit a Key Management Server wizard.
++
+
+[cols="1a,3a" options="header"]
+|===
+| Field| Description
+
+| KMS name
+| A descriptive name to help you identify this KMS. Must be between 1 and 64 characters.
+| Key name
+| The exact key alias for the StorageGRID client in the KMS. Must be between 1 and 255 characters.
+
+You only need to edit the key name in rare cases. For example, you must edit the key name if the alias is renamed in the KMS or if all versions of the previous key have been copied to the version history of the new alias.
+
+| Manages keys for
+| 
+If you are editing a site-specific KMS and you don't already have a default KMS, optionally select *Sites not managed by another KMS (default KMS)*. This selection converts a site-specific KMS to the default KMS, which will apply to all sites that don't have a dedicated KMS and to any sites added in an expansion.
+
+*Note:* If you are editing a site-specific KMS, you can't select another site. If you are editing the default KMS, you can't select a specific site.
+
+| Port
+| The port the KMS server uses for Key Management Interoperability Protocol (KMIP) communications. Defaults to 5696, which is the KMIP standard port.
+| Hostname
+| 
+The fully qualified domain name or IP address for the KMS.
+
+*Note:* The Subject Alternative Name (SAN) field of the server certificate must include the FQDN or IP address you enter here. Otherwise, StorageGRID will not be able to connect to the KMS or to all servers in a KMS cluster.
+|===
+
+. If you are configuring a KMS cluster, select *Add another hostname* to add a hostname for each server in the cluster.
+
+. Select *Continue*.
++
+Step 2 (Upload server certificate) of the Edit a Key Management Server wizard appears.
+
+. If you need to replace the server certificate, select *Browse* and upload the new file.
+. Select *Continue*.
++
+Step 3 (Upload client certificates) of the Edit a Key Management Server wizard appears.
+
+. If you need to replace the client certificate and the client certificate private key, select *Browse* and upload the new files.
+. Select *Test and save*.
++
+The connections between the key management server and all node-encrypted appliance nodes at the affected sites are tested. If all node connections are valid and the correct key is found on the KMS, the key management server is added to the table on the Key Management Server page.
+
+. If an error message appears, review the message details, and select *OK*.
++
+For example, you might receive a 422: Unprocessable Entity error if the site you selected for this KMS is already managed by another KMS, or if a connection test failed.
+
+. If you need to save the current configuration before resolving the connection errors, select *Force save*.
++
+CAUTION: Selecting *Force save* saves the KMS configuration, but it does not test the external connection from each appliance to that KMS. If there is an issue with the configuration, you might not be able to reboot appliance nodes that have node encryption enabled at the affected site. You might lose access to your data until the issues are resolved.
++
+The KMS configuration is saved.
+
+. Review the confirmation warning, and select *OK* if you are sure you want to force save the configuration.
++
+The KMS configuration is saved, but the connection to the KMS is not tested.
+
+== Remove a key management server (KMS)
+
+You might want to remove a key management server in some cases. For example, you might want to remove a site-specific KMS if you have decommissioned the site.
+
+.Before you begin
+
+* You have reviewed the link:kms-considerations-and-requirements.html[considerations and requirements for using a key management server].
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have the link:admin-group-permissions.html[Root access permission].
+
+.About this task
+
+You can remove a KMS in these cases:
+
+* You can remove a site-specific KMS if the site has been decommissioned or if the site includes no appliance nodes with node encryption enabled.
+* You can remove the default KMS if a site-specific KMS already exists for each site that has appliance nodes with node encryption enabled.
+
+.Steps
+
+. Select *CONFIGURATION* > *Security* > *Key management server*.
++
+The Key management server page appears and shows all key management servers that have been configured.
+. Select the KMS you want to remove, and select *Actions* > *Remove*.
++
+You can also remove a KMS by selecting the KMS name in the table and selecting *Remove* from the KMS details page.
+. Confirm the following is true:
+* You are removing a site-specific KMS for a site that has no appliance node with node encryption enabled.
+* You are removing the default KMS, but a site-specific KMS already exists for each site with node encryption. 
+. Select *Yes*.
++
+The KMS configuration is removed.

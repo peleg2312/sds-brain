@@ -1,0 +1,4 @@
+---
+permalink: admin/kms-viewing-details.html
+redirect: admin/kms-managing.html
+---

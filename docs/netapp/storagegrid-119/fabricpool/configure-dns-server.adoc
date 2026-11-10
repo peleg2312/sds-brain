@@ -1,0 +1,29 @@
+---
+permalink: fabricpool/configure-dns-server.html
+sidebar: sidebar
+keywords: dns, vip, virtual ip, fqdn, server name 
+summary: 'After configuring high availability groups, load balancer endpoints, and S3 domain names, you must ensure that the DNS includes the necessary entries for StorageGRID.'
+---
+= Configure the DNS server
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+After configuring high availability groups, load balancer endpoints, and S3 endpoint domain names, you must ensure that the DNS includes the necessary entries for StorageGRID. You must include a DNS entry for each name in the security certificate and for each IP address you might use.
+
+See link:../admin/managing-load-balancing.html[Considerations for load balancing].
+
+== DNS entries for StorageGRID server name
+
+Add DNS entries to associate the StorageGRID server name (fully qualified domain name) to each StorageGRID IP address you will use.
+The IP addresses you enter in the DNS depend on whether you are using an HA group of load-balancing nodes:
+
+* If you have configured an HA group, ONTAP will connect to the virtual IP addresses of that HA group.
+
+* If you aren't using an HA group, ONTAP can connect to the StorageGRID Load Balancer service using the IP address of any Gateway Node or Admin Node.
+
+* If the server name resolves to more than one IP address, ONTAP establishes client connections with all IP addresses (up to a maximum of 16 IP addresses). The IP addresses are picked up in a round-robin method when connections are established.
+
+== DNS entries for virtual hosted-style requests
+
+If you have defined link:../admin/configuring-s3-api-endpoint-domain-names.html[S3 endpoint domain names] and you will use virtual hosted-style requests, add DNS entries for all required S3 endpoint domain names, including any wildcard names.

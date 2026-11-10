@@ -1,0 +1,35 @@
+---
+permalink: admin/controlling-storagegrid-access.html
+sidebar: sidebar
+keywords: administrator access, single sign on, sso, users, groups, client certificates, passwords, passphrase
+summary: 'You control who can access StorageGRID and which tasks users can perform by creating or importing groups and users and assigning permissions to each group. Optionally, you can enable single sign-on \(SSO\), create client certificates, and change grid passwords.'
+---
+= Control StorageGRID access
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You control who can access StorageGRID and which tasks users can perform by creating or importing groups and users and assigning permissions to each group. Optionally, you can enable single sign-on (SSO), create client certificates, and change grid passwords.
+
+== Control access to the Grid Manager
+
+You determine who can access the Grid Manager and the Grid Management API by importing groups and users from an identity federation service or by setting up local groups and local users.
+
+Using link:using-identity-federation.html[identity federation] makes setting up link:managing-admin-groups.html[groups] and link:managing-users.html[users] faster, and it allows users to sign in to StorageGRID using familiar credentials. You can configure identity federation if you use Active Directory, OpenLDAP, or Oracle Directory Server.
+
+NOTE: Contact technical support if you want to use another LDAP v3 service.
+
+You determine which tasks each user can perform by assigning different link:admin-group-permissions.html[permissions] to each group. For example, you might want users in one group to be able to manage ILM rules and users in another group to perform maintenance tasks. A user must belong to at least one group to access the system.
+
+Optionally, you can configure a group to be read-only. Users in a read-only group can only view settings and features. They can't make any changes or perform any operations in the Grid Manager or Grid Management API.
+
+== Enable single sign-on
+
+The StorageGRID system supports single sign-on (SSO) using the Security Assertion Markup Language 2.0 (SAML 2.0) standard. After you link:configuring-sso.html[configure and enable SSO], all users must be authenticated by an external identity provider before they can access the Grid Manager, the Tenant Manager, the Grid Management API, or the Tenant Management API. Local users can't sign in to StorageGRID.
+
+== Change provisioning passphrase
+
+The provisioning passphrase is required for many installation and maintenance procedures, and for downloading the StorageGRID Recovery Package. The passphrase is also required to download backups of the grid topology information and encryption keys for the StorageGRID system. You can link:changing-provisioning-passphrase.html[change the passphrase] as required.
+
+== Change node console passwords
+Each node in your grid has a unique node console password, which you need to log in to the node as "admin" using SSH, or to the root user on a VM/physical console connection. As needed, you can link:change-node-console-password.html[change the node console password] for each node.

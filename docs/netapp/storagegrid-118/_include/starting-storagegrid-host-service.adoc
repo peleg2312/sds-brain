@@ -1,0 +1,27 @@
+//shared section for Red Hat, Ubuntu, and Maintain//
+.Steps
+
+. Run the following commands on each host:
++
+----
+sudo systemctl enable storagegrid
+sudo systemctl start storagegrid
+----
+
+. Run the following command to ensure the deployment is proceeding:
++
+----
+sudo storagegrid node status node-name
+----
+
+. If any node returns a status of "Not Running" or "Stopped," run the following command:
++
+----
+sudo storagegrid node start node-name
+----
+
+. If you have previously enabled and started the StorageGRID host service (or if you are unsure if the service has been enabled and started), also run the following command:
++
+----
+sudo systemctl reload-or-restart storagegrid
+----

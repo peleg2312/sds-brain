@@ -1,0 +1,25 @@
+---
+permalink: admin/identifying-primary-admin-node.html
+sidebar: sidebar
+keywords: primary admin node, configuration management node
+summary: 'The primary Admin Node provides more functionality than non-primary Admin Nodes. For example, some maintenance procedures must be performed using the primary Admin Node.'
+---
+= Identify the primary Admin Node
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The primary Admin Node provides more functionality than non-primary Admin Nodes. For example, some maintenance procedures must be performed using the primary Admin Node.
+
+For more information about Admin Nodes, see link:../primer/what-admin-node-is.html[What is an Admin Node].
+
+.Before you begin
+
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have link:admin-group-permissions.html[specific access permissions].
+
+.Steps
+. Select *NODES*.
+. Enter *primary* in the search box.
++
+In the search results, identify the node with "Primary Admin Node" displayed in the Type column. One primary Admin Node should be listed.

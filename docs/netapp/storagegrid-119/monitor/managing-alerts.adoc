@@ -1,0 +1,33 @@
+---
+permalink: monitor/managing-alerts.html
+sidebar: sidebar
+keywords: alert rules, managing alerts, alerts, alert notifications. edit alert rules
+summary: 'The alert system provides an easy-to-use interface for detecting, evaluating, and resolving the issues that can occur during StorageGRID operation.'
+---
+= Manage alerts
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The alert system provides an easy-to-use interface for detecting, evaluating, and resolving the issues that can occur during StorageGRID operation.
+
+Alerts are triggered at specific severity levels when alert rule conditions evaluate as true. When an alert is triggered, the following actions occur:
+
+* An alert severity icon is shown on the dashboard in the Grid Manager, and the count of Current Alerts is incremented.
+* The alert is shown on the *NODES* summary page and on the *NODES* > *_node_* > *Overview* tab.
+* An email notification is sent, assuming you have configured an SMTP server and provided email addresses for the recipients.
+* An Simple Network Management Protocol (SNMP) notification is sent, assuming you have configured the StorageGRID SNMP agent.
+
+You can create custom alerts, edit or disable alerts, and manage alert notifications.
+
+To learn more:
+
+* Review the video: https://netapp.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=2eea81c5-8323-417f-b0a0-b1ff008506c1[Video: Alerts overview^]
++
+image::../media/video-screenshot-alert-overview-118.png[link="https://netapp.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=2eea81c5-8323-417f-b0a0-b1ff008506c1" alt="Video: Alerts overview", window=_blank]
+
+* Review the video: https://netapp.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=54af90c4-9a38-4136-9621-b1ff008604a3[Video: Custom alerts^]
++
+image::../media/video-screenshot-alert-create-custom-118.png[link="https://netapp.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=54af90c4-9a38-4136-9621-b1ff008604a3" alt="Video: Custom alerts", window=_blank]
+
+* See the link:alerts-reference.html[Alerts reference].

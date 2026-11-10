@@ -1,0 +1,30 @@
+---
+permalink: monitor/manage-io-prioritization.html
+sidebar: sidebar
+keywords: ec repair priority, ec purge priority
+summary: "Input/output (I/O) prioritization allows you to change the relative priorities for I/O operations on the grid."
+---
+= Change I/O prioritization in StorageGRID
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Input/output (I/O) prioritization allows you to change the relative priorities for I/O operations on the grid. 
+
+By default, client PUT and GET I/O traffic is given the highest priority over background activities such as purging erasure-coded (EC) data and EC repair. By increasing the priority of purging erasure-coded (EC) data and EC repair activities, these tasks can possibly complete faster. The effectiveness of I/O prioritization changes is impacted by the rate of client requests, network traffic fluctuations, and other ongoing network tasks. 
+
+.Before you begin
+
+* Review the I/O prioritization page, to determine which options might impact your grid.
+* Assess whether the ongoing client traffic can safely handle longer wait times or client timeouts.
+* Be prepared to monitor the effect of the prioritization change and adjust as necessary. These changes are implemented quickly but their effect might need hours to become visible.
+
+.Steps
+
+. Select *Support* > *I/O prioritization*.
+. (Optional) Change the EC purge and repair priority, for background operations that purge EC data, from their default values.
++
+NOTE: Use the default low EC purge and repair priority for grids that have RAID-based nodes.
+
+. Select *Save*.
+. Monitor the link:../monitor/commonly-used-prometheus-metrics.html#where-are-prometheus-metrics-used[metrics] to assess the effect of prioritization changes.

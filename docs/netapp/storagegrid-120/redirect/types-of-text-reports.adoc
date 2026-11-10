@@ -1,0 +1,4 @@
+---
+permalink: monitor/types-of-text-reports.html
+redirect: storagegrid/landing-monitor-troubleshoot/index.html
+---

@@ -1,0 +1,4 @@
+---
+permalink: maintain/rebooting-grid-node.html
+redirect: storagegrid-118/maintain/grid-node-procedures.html
+---

@@ -1,0 +1,137 @@
+---
+permalink: admin/grid-federation-create-connection.html
+sidebar: sidebar
+keywords: grid federation, create connection, configure connection
+summary: 'You can create a grid federation connection between two StorageGRID systems if you want to clone tenant details and replicate object data.'
+---
+= Create grid federation connections
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can create a grid federation connection between two StorageGRID systems if you want to clone tenant details and replicate object data.
+
+As shown in the figure, creating a grid federation connection includes steps on both grids. You add the connection on one grid and complete it on the other grid. You can start from either grid.
+
+image::../media/grid-federation-create-connection.png[graphic overview of steps to create a connection on two grids]
+
+.Before you begin
+
+* You have reviewed the link:grid-federation-overview.html[considerations and requirements] for configuring grid federation connections. 
+* If you plan to use fully qualified domain names (FQDNs) for each grid instead of IP or VIP addresses, you know which names to use and you have confirmed that the DNS server for each grid has the appropriate entries.
+* You are using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have Root access permission and the provisioning passphrase for both grids.
+
+== Add connection
+
+Perform these steps on either of the two StorageGRID systems.
+
+.Steps
+
+. Sign in to the Grid Manager from the primary Admin Node on either grid.
+
+. Select *CONFIGURATION* > *System* > *Grid federation*.
+
+. Select *Add connection*.
+
+. Enter details for the connection.
++
+[cols="1a,2a" options="header"]
+|===
+| Field| Description
+
+|Connection name
+|A unique name to help you recognize this connection, for example, "Grid 1-Grid 2."
+
+|FQDN or IP for this grid
+|One of the following:
+
+* The FQDN of the grid you are currently signed into
+* A VIP address of an HA group on this grid
+* An IP address of an Admin Node or Gateway Node on this grid. The IP can be on any network that the destination grid can reach.
+
+|Port
+|The port you want to use for this connection. You can enter any unused port number from 23000 to 23999.
+
+Both grids in this connection will use the same port. You must ensure that no node in either grid uses this port for other connections.
+
+|Certificate valid days for this grid
+|The number of days you want the security certificates for this grid in the connection to be valid. The default value is 730 days (2 years), but you can enter any value from 1 to 762 days.
+
+StorageGRID automatically generates client and server certificates for each grid when you save the connection.
+
+|Provisioning passphrase for this grid
+|The provisioning passphrase for the grid you are signed in to.
+
+|FQDN or IP for the other grid
+|One of the following:
+
+* The FQDN of the grid you want to connect to
+* A VIP address of an HA group on the other grid
+* An IP address of an Admin Node or Gateway Node on the other grid. The IP can be on any network that the source grid can reach.
+
+|===
+
+. Select *Save and continue*.
+
+. For the Download verification file step, select *Download verification file*.
++
+After the connection is completed on the other grid, you can no longer download the verification file from either grid.
+
+. Locate the downloaded file (`_connection-name_.grid-federation`), and save it to a safe location.
++
+CAUTION: This file contains secrets (masked as `***`) and other sensitive details and must be securely stored and transmitted.
+
+. Select *Close* to return to the Grid federation page. 
+
+. Confirm that the new connection is shown and that its *Connection status* is *Waiting to connect*.
+
+. Provide the `_connection-name_.grid-federation` file to the grid admin for the other grid.
+
+== Complete connection
+
+Perform these steps on the StorageGRID system you are connecting to (the other grid).
+
+.Steps
+
+. Sign in to the Grid Manager from the primary Admin Node.
+
+. Select *CONFIGURATION* > *System* > *Grid federation*.
+
+. Select *Upload verification file* to access the Upload page. 
+
+. Select *Upload verification file*. Then, browse to and select the file that was downloaded from the first grid (`_connection-name_.grid-federation`).
++
+The details for the connection are shown.
+
+. Optionally, enter a different number of valid days for the security certificates for this grid. The *Certificate valid days* entry defaults to the value you entered on the first grid, but each grid can use different expiration dates.
++
+In general, use the same number of days for the certificates on both sides of the connection. 
++
+CAUTION: If the certificates on either end of the connection expire, the connection will stop working and replications will be pending until the certificates are updated.
+
+. Enter the provisioning passphrase for the grid you are currently signed in to.
+
+. Select *Save and test*.
++
+The certificates are generated and the connection is tested. If the connection is valid, a success message appears and the new connection is listed on the Grid federation page. The *Connection status* will be *Connected*.
++
+If an error message appears, address any issues. See link:grid-federation-troubleshoot.html[Troubleshoot grid federation errors].
+
+. Go to the Grid federation page on the first grid and refresh the browser. Confirm that the *Connection status* is now *Connected*.
+
+. After the connection has been established, securely delete all copies of the verification file.
++
+If you edit this connection, a new verification file will be created. The original file can't be reused.
+
+.After you finish
+
+* Review the considerations for link:grid-federation-manage-tenants.html[managing permitted tenants].
+
+* link:creating-tenant-account.html[Create one or more new tenant accounts], assign the *Use grid federation connection* permission, and select the new connection. 
+
+* link:grid-federation-manage-connection.html[Manage the connection] as required. You can edit connection values, test a connection, rotate connection certificates, or remove a connection.
+
+* link:../monitor/grid-federation-monitor-connections.html[Monitor the connection] as part of your normal StorageGRID monitoring activities.
+
+* link:grid-federation-troubleshoot.html[Troubleshoot the connection], including resolving any alerts and errors related to account clone and cross-grid replication.

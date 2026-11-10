@@ -1,0 +1,22 @@
+---
+permalink: upgrade/index.html
+sidebar: sidebar
+keywords: storagegrid software upgrade
+summary: 'Use these instructions to upgrade a StorageGRID system to a new release.'
+---
+= Upgrade StorageGRID software
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Use these instructions to upgrade a StorageGRID system to a new release.
+
+When you perform the upgrade, all nodes in your StorageGRID system are upgraded.
+
+== Before you begin
+Review these topics to learn about the new features and enhancements in StorageGRID 11.9, determine whether any features have been deprecated or removed, and find out about changes to StorageGRID APIs.
+
+* link:whats-new.html[What's new in StorageGRID 11.9]
+* link:removed-or-deprecated-features.html[Removed or deprecated features]
+* link:changes-to-grid-management-api.html[Changes to the Grid Management API]
+* link:changes-to-tenant-management-api.html[Changes to the Tenant Management API]

@@ -1,0 +1,27 @@
+---
+permalink: tenant/using-s3-object-lock.html
+sidebar: sidebar
+keywords: how to use s3 object lock
+summary: 'You can use S3 Object Lock if buckets and objects must comply with regulatory requirements for retention.'
+---
+= Use S3 Object Lock to retain objects
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can use S3 Object Lock if buckets and objects must comply with regulatory requirements for retention.
+
+NOTE: Your grid administrator must give you permission to use specific features of S3 Object Lock.
+
+include::../_include/s3-object-lock-what-is.adoc[]
+
+== S3 Object Lock tasks
+
+include::../_include/s3-object-lock-tasks.adoc[]
+
+include::../_include/s3-object-lock-requirements.adoc[]
+
+== Can I still manage legacy Compliant buckets?
+
+The S3 Object Lock feature replaces the Compliance feature that was available in previous StorageGRID versions. If you created compliant buckets using a previous version of StorageGRID, you can continue to manage the settings of these buckets; however, you can no longer create new compliant buckets. For instructions, see 
+https://kb.netapp.com/Advice_and_Troubleshooting/Hybrid_Cloud_Infrastructure/StorageGRID/How_to_manage_legacy_Compliant_buckets_in_StorageGRID_11.5[NetApp Knowledge Base: How to manage legacy Compliant buckets in StorageGRID 11.5^].

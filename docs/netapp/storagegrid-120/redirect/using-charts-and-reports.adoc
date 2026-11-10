@@ -1,0 +1,4 @@
+---
+permalink: monitor/using-charts-and-reports.html
+redirect: storagegrid/landing-monitor-troubleshoot/index.html
+---

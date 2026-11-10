@@ -1,0 +1,269 @@
+---
+permalink: admin/what-is-autosupport.html
+sidebar: sidebar
+keywords: autosupport, technical support, storagegrid health, system status, Active IQ
+summary: 'The AutoSupport feature enables StorageGRID to send health and status packages to NetApp technical support.'
+---
+= What is AutoSupport?
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The AutoSupport feature enables StorageGRID to send health and status packages to NetApp technical support.
+
+Using AutoSupport can significantly speed up problem determination and resolution. Technical support can also monitor the storage needs of your system and help you determine if you need to add new nodes or sites. Optionally, you can configure AutoSupport packages to be sent to one additional destination.
+
+StorageGRID has two types of AutoSupport:
+
+* *StorageGRID AutoSupport* reports StorageGRID software issues. Enabled by default when you first install StorageGRID. You can link:configure-autosupport-grid-manager.html[change the default AutoSupport configuration] if needed.
++
+NOTE: If StorageGRID AutoSupport is not enabled, a message appears on the Grid Manager dashboard. The message includes a link to the AutoSupport configuration page. If you close the message, it will not appear again until your browser cache is cleared, even if AutoSupport remains disabled.
+
+* *Appliance hardware AutoSupport* reports StorageGRID appliance issues. You must link:configure-autosupport-grid-manager.html#autosupport-for-appliances[configure hardware AutoSupport on each appliance].
+
+== What is Active IQ?
+
+include::../_include/autosupport-activeiq.adoc[]
+
+== Information included in AutoSupport package
+
+An AutoSupport package contains the following files and details.
+
+[cols="2a,2a,3a" options="header"]
+|===
+| File name| Fields| Description
+
+| AUTOSUPPORT-HISTORY.XML
+| AutoSupport Sequence Number +
+Destination for this AutoSupport +
+Status of Delivery +
+Delivery Attempts +
+AutoSupport Subject +
+Delivery URI +
+Last error +
+AutoSupport PUT Filename +
+Time of Generation +
+Autosupport Compressed Size +
+Autosupport Decompressed Size +
+Total Collection Time (ms)
+| AutoSupport history file.
+
+| AUTOSUPPORT.XML
+| Node +
+Protocol to contact support +
+Support URL for HTTP/HTTPS +
+Support Address +
+AutoSupport OnDemand State +
+AutoSupport OnDemand Server URL +
+AutoSupport OnDemand Polling Interval
+| AutoSupport status file. Provides details of protocol used, technical support URL and address, polling interval, and OnDemand AutoSupport if enabled or disabled.
+
+| BUCKETS.XML
+| Bucket ID +
+Account ID +
+Build Version +
+Location Constraint Configuration +
+Compliance Enabled +
+Compliance Configuration +
+S3 Object Lock Enabled +
+S3 Object Lock Configuration +
+Consistency Configuration +
+CORS Enabled +
+CORS Configuration +
+Last Access Time Enabled +
+Policy Enabled +
+Policy Configuration +
+Notifications Enabled +
+Notifications Configuration +
+Cloud Mirror Enabled +
+Cloud Mirror Configuration +
+Search Enabled +
+Search Configuration +
+Bucket Tagging Enabled +
+Bucket Tagging Configuration +
+Versioning Configuration
+| Provides configuration details and statistics at the bucket level. Example of bucket configurations include platform services, compliance, and bucket consistency.
+
+| GRID-CONFIGURATIONS.XML
+| Attribute ID +
+Attribute Name +
+Value +
+Index +
+Table ID +
+Table Name
+| Grid-wide configuration information file. Contains information about grid certificates, metadata reserved space, grid-wide configuration settings (compliance, S3 Object Lock, object compression, alerts, syslog, and ILM configuration), erasure-coding profile details, DNS name, and link:../primer/nodes-and-services.html#storagegrid-services[NMS name].
+
+| GRID-SPEC.XML
+| Grid specifications, raw XML
+| Used for configuring and deploying StorageGRID. Contains grid specifications, NTP server IP, DNS server IP, network topology, and hardware profiles of the nodes.
+
+| GRID-TASKS.XML
+| Node +
+Service Path +
+Attribute ID +
+Attribute name +
+Value +
+Index +
+Table ID +
+Table name
+| Grid tasks (maintenance procedures) status file. Provides details of the grid's active, terminated, completed, failed, and pending tasks.
+
+| GRID.JSON
+| Grid +
+Revision +
+Software Version +
+Description +
+License +
+Passwords +
+DNS +
+NTP +
+Sites +
+Nodes
+| Grid information.
+
+| ILM-CONFIGURATION.XML
+| Attribute ID +
+Attribute Name +
+Value +
+Index +
+Table ID +
+Table Name
+| List of attributes for ILM configurations.
+
+| ILM-STATUS.XML
+| Node +
+Service path +
+Attribute ID +
+Attribute name +
+Value +
+Index +
+Table ID +
+Table name
+| ILM metrics information file. Contains ILM evaluation rates for each node and grid-wide metrics.
+
+| ILM.XML
+| ILM raw XML
+| ILM active policy file. Contains details about the active ILM policies, such as storage pool ID, ingest behavior, filters, rules, and description.
+
+| LOG.TGZ
+| _n/a_
+| Downloadable log file. Contains `bycast-err.log` and `servermanager.log` from each node.
+
+| MANIFEST.XML
+| Collection order +
+AutoSupport content filename for this data +
+Description of this data item +
+Number of bytes collected +
+Time spent collecting +
+Status of this data item +
+Description of the error +
+AutoSupport content type for this data +
+| Contains AutoSupport metadata and brief descriptions of all AutoSupport files.
+
+| NMS-ENTITIES.XML
+| Attribute index +
+Entity OID +
+Node ID +
+Device model ID +
+Device model version +
+Entity name
+| Group and service entities in the link:../primer/nodes-and-services.html#storagegrid-services[NMS tree]. Provides grid topology details. The node can be determined based on the services running on the node.
+
+| OBJECTS-STATUS.XML
+| Node +
+Service path +
+Attribute ID +
+Attribute name +
+Value +
+Index +
+Table ID +
+Table name
+| Object status, including background scan status, active transfer, transfer rate, total transfers, delete rate, corrupted fragments, lost objects, missing objects, repair attempted, scan rate, estimated scan period, and repair completion status.
+
+| SERVER-STATUS.XML
+| Node +
+Service path +
+Attribute ID +
+Attribute name +
+Value +
+Index +
+Table ID +
+Table name
+| Server configurations. Contains these details for each node: platform type, operating system, installed memory, available memory, storage connectivity, storage appliance chassis serial number, storage controller failed drive count, compute controller chassis temperature, compute hardware, compute controller serial number, power supply, drive size, and drive type.
+
+| SERVICE-STATUS.XML
+| Node +
+Service path +
+Attribute ID +
+Attribute name +
+Value +
+Index +
+Table ID +
+Table name
+| Service node information file. Contains details such as allocated table space, free table space, Reaper metrics of the database, segment repair duration, repair job duration, auto job restarts, and auto job termination.
+
+| STORAGE-GRADES.XML
+| Storage grade ID +
+Storage grade name +
+Storage node ID +
+Storage node path
+| Storage grade definitions file for each Storage Node.
+
+| SUMMARY-ATTRIBUTES.XML
+| Group OID +
+Group Path +
+Summary attribute ID +
+Summary attribute name +
+Value +
+Index +
+Table ID +
+Table name
+| High-level system status data that summarizes StorageGRID usage information. Provides details such as name of grid, names of sites, number of Storage Nodes per grid and per site, license type, license capacity and usage, software support terms, and details of S3 operations.
+
+| SYSTEM-ALERTS.XML
+| Name +
+Severity +
+Node name +
+Alert Status +
+Site name +
+Alert triggered time +
+Alert resolved time +
+Rule ID +
+Node ID +
+Site ID +
+Silenced +
+Other annotations +
+Other labels
+| Current system alerts that indicate potential problems in the StorageGRID system.
+
+| USERAGENTS.XML
+| User agent +
+Number of days +
+Total HTTP requests +
+Total bytes ingested +
+Total bytes retrieved +
+PUT requests +
+GET requests +
+DELETE requests +
+HEAD requests +
+POST requests +
+OPTIONS requests +
+Average request time (ms) +
+Average PUT request time (ms) +
+Average GET request time (ms) +
+Average DELETE request time (ms) +
+Average HEAD request time (ms) +
+Average POST request time (ms) +
+Average OPTIONS request time (ms)
+| Statistics based on the application user agents. For example, the number of PUT/GET/DELETE/HEAD operations per user agent and total bytes size of each operation.
+
+| X-HEADER-DATA
+| X-Netapp-asup-generated-on +
+X-Netapp-asup-hostname +
+X-Netapp-asup-os-version +
+X-Netapp-asup-serial-num +
+X-Netapp-asup-subject +
+X-Netapp-asup-system-id +
+X-Netapp-asup-model-name +
+| AutoSupport header data.
+|===

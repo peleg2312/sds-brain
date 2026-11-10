@@ -1,0 +1,165 @@
+# redhat-okp-mcp
+
+The searchable derivative redacts credential-shaped documentation examples and/or normalizes PDF glyph artifacts. Original bytes and transformation counts are preserved in vendor-sources.
+
+# okp-mcp
+
+[![CI](https://github.com/rhel-lightspeed/okp-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/rhel-lightspeed/okp-mcp/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/rhel-lightspeed/okp-mcp/badge)](https://scorecard.dev/viewer/?uri=github.com/rhel-lightspeed/okp-mcp)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Python: 3.12+](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
+
+MCP server for the Red Hat Offline Knowledge Portal (OKP). Bridges LLM tool calls to the OKP Solr index so agents can search RHEL documentation, CVEs, errata, solutions, and articles.
+
+## Quickstart
+
+Install dependencies:
+
+```
+uv sync
+```
+
+Run locally (stdio transport, default):
+
+```
+uv run okp-mcp
+```
+
+Run with HTTP transport:
+
+```
+uv run okp-mcp --transport streamable-http --port 8000
+```
+
+## Configuration
+
+Settings come from CLI arguments and `MCP_*` environment variables. CLI args take precedence.
+
+| Setting | Env var | Default | Description |
+|---------|---------|---------|-------------|
+| `--transport` | `MCP_TRANSPORT` | `streamable-http` | `stdio`, `sse`, or `streamable-http` |
+| `--host` | `MCP_HOST` | `0.0.0.0` | Bind address for HTTP transports |
+| `--port` | `MCP_PORT` | `8000` | Bind port for HTTP transports |
+| `--log-level` | `MCP_LOG_LEVEL` | `INFO` | Python log level |
+| `--solr-url` | `MCP_SOLR_URL` | `http://localhost:8983` | Base URL of the Solr instance |
+| `--glitchtip-dsn` | `MCP_GLITCHTIP_DSN` | unset | Optional GlitchTip/Sentry DSN for exception reporting |
+
+Run `okp-mcp --help` for the full list.
+
+## Running Locally
+
+Run the OKP Solr index and MCP server together using a podman pod.
+
+### Prerequisites
+
+- [Podman](https://podman.io/) installed
+- Authenticated to `registry.redhat.io` (`podman login registry.redhat.io`)
+- An OKP access key from <https://access.redhat.com/offline/access>
+
+### 1. Create a pod
+
+The pod groups both containers into a shared network namespace so they communicate via `localhost`. Ports are exposed at the pod level.
+
+```bash
+podman pod create --name okp -p 8983:8983 -p 8000:8000
+```
+
+### 2. Start the OKP Solr index
+
+```bash
+podman run -d --pod okp --name redhat-okp \
+  -e ACCESS_KEY=<your-access-key> \
+  -e SOLR_JETTY_HOST=0.0.0.0 \
+  registry.redhat.io/offline-knowledge-portal/rhokp-rhel9:latest
+```
+
+The first start downloads and indexes content (~10 GB image, may take several minutes). Watch progress with:
+
+```bash
+podman logs -f redhat-okp
+```
+
+Wait until you see `Started Solr server on port 8983`. Subsequent starts of the same container (`podman pod stop okp` / `podman pod start okp`) are faster because the index is cached. Removing the pod (`podman pod rm -f okp`) deletes the container and its index — the next `podman run` will re-index the content. To persist the index across recreations, add a named volume: `-v okp-solr-data:/opt/solr/server/solr/portal/data`.
+
+### 3. Start the MCP server
+
+```bash
+podman run -d --pod okp --name okp-mcp \
+  -e MCP_TRANSPORT=streamable-http \
+  -e MCP_SOLR_URL=http://localhost:8983 \
+  quay.io/redhat-user-workloads/rhel-lightspeed-tenant/rhel-knowledge-bridge
+```
+
+### 4. Verify
+
+> **Note:** The `-4` flag forces IPv4. On some systems (e.g. Fedora 43), `localhost` resolves to `::1` (IPv6), which causes a "Connection reset by peer" error. Use `-4` to avoid this.
+
+Confirm Solr has data:
+
+```bash
+curl -s -4 "http://localhost:8983/solr/portal/select?q=*:*&rows=0" | python3 -m json.tool
+```
+
+You should see `numFound` with a large number of documents (600k+).
+
+Confirm the MCP server responds:
+
+```bash
+curl -s -4 -N -X POST http://localhost:8000/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc": "2.0", "method": "initialize", "params": {"protocolVersion": "2025-11-25", "capabilities": {}, "clientInfo": {"name": "test", "version": "1.0"}}, "id": 1}'
+```
+
+You should see a response with `serverInfo.name: "RHEL OKP Knowledge Base"`.
+
+### Cleanup
+
+```bash
+podman pod rm -f okp
+```
+
+### Alternative: systemd quadlets
+
+For a systemd-managed setup with automatic restart, boot persistence, and journald logging, see [`quadlet/README.md`](https://github.com/rhel-lightspeed/okp-mcp/blob/a4469e1365789d1619a9d2276fa0ed2e80ee18b3/quadlet/README.md).
+
+### Alternative: podman-compose
+
+A `podman-compose.yml` is included for development use. It builds from source and is useful for local iteration, but note that `podman-compose` is not supported on RHEL.
+
+```bash
+OKP_ACCESS_KEY=<your-access-key> podman-compose up -d
+```
+
+## Development
+
+Install dev dependencies and pre-commit hooks:
+
+```
+uv sync --group dev
+pre-commit install
+```
+
+Run the full CI suite locally:
+
+```
+make ci
+```
+
+Individual targets:
+
+```
+make lint        # ruff check
+make format      # ruff format
+make typecheck   # ty check
+make radon       # cyclomatic complexity gate (A/B only)
+make test        # pytest with coverage
+```
+
+## Functional Tests
+
+Functional test scenarios are defined in `tests/functional_cases.py`. They are gated behind the `functional` pytest marker and deselected by default. Run them with `uv run pytest -m functional -v` (requires a running Solr instance).
+
+## License
+
+See [LICENSE](https://github.com/rhel-lightspeed/okp-mcp/blob/a4469e1365789d1619a9d2276fa0ed2e80ee18b3/LICENSE) for details.

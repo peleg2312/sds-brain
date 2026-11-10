@@ -1,0 +1,4 @@
+---
+permalink: vmware/automating-grid-node-deployment-in-vmware-vsphere.html
+redirect: storagegrid/swnodes/automating-grid-node-deployment-in-vmware-vsphere.html
+---

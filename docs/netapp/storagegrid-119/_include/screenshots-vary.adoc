@@ -1,0 +1,1 @@
+NOTE: The screenshots shown are examples. Your results might vary depending on your StorageGRID version.

@@ -1,0 +1,173 @@
+---
+permalink: primer/what-storage-node-is.html
+sidebar: sidebar
+keywords: what is a storage node, how many storage nodes
+summary: 'Storage Nodes manage and store object data and metadata. Storage Nodes include the services and processes required to store, move, verify, and retrieve object data and metadata on disk.'
+---
+= What is a Storage Node?
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Storage Nodes manage and store object data and metadata. Storage Nodes include the services and processes required to store, move, verify, and retrieve object data and metadata on disk.
+
+Each site in your StorageGRID system must have at least three Storage Nodes.
+
+== Types of Storage Nodes
+During installation, you can select the type of Storage Node you want to install. These types are available for software-based Storage Nodes and for appliance-based Storage Nodes that support the feature:
+
+* Combined data and metadata Storage Node
+* Metadata-only Storage Node
+* Data-only Storage Node
+
+You can select the Storage Node type in these situations:
+
+* When initially installing a Storage Node
+* When you add a Storage Node during StorageGRID system expansion
+
+NOTE: You can't change the type after the Storage Node installation is complete.
+
+Data and metadata Storage Node (combined)::
+By default, all new Storage Nodes will store both object data and metadata. This type of Storage Node is called a _combined_ Storage Node.
+
+Metadata-only Storage Node::
+Using a Storage Node exclusively for metadata can make sense if your grid stores a very large number of small objects. Installing dedicated metadata capacity provides a better balance between the space needed for a very large number of small objects and the space needed for the metadata for those objects. Additionally, metadata-only Storage Nodes hosted on high-performance appliances can increase performance.
+
+Metadata-only Storage Nodes have specific hardware requirements:
+
+* When using StorageGRID appliances, metadata-only nodes can be configured only on SGF6112 appliances with twelve 1.9 TB or twelve 3.8 TB drives.
+* When using software-based nodes, metadata-only node resources must match the existing Storage Nodes resources. For example: 
+** If the existing StorageGRID site is using SG6000 or SG6100 appliances, the software-based metadata-only nodes must meet the following minimum requirements:
+*** 128 GB RAM
+*** 8 core CPU
+*** 8 TB SSD or equivalent storage for the Cassandra database (rangedb/0)
+** If the existing StorageGRID site is using virtual Storage Nodes with 24 GB RAM, 8 core CPU, and 3 TB or 4TB of metadata storage, the software-based metadata-only nodes should use similar resources (24 GB RAM, 8 core CPU, and 4TB of metadata storage (rangedb/0). 
+* When adding a new StorageGRID site, the new site total metadata capacity should, at minimum, match existing StorageGRID sites and new site resources should match the Storage Nodes at existing StorageGRID sites.
+
+When installing metadata-only nodes, the grid must also contain a minimum number of nodes for data storage:
+
+* For a single-site grid, configure at least two combined or data-only Storage Nodes. 
+* For a multi-site grid, configure at least one combined or data-only Storage Node _per site_.
+
+NOTE: Although metadata-only Storage Nodes contain the <<ldr-service,LDR service>> and can process S3 client requests, StorageGRID performance might not increase.
+
+Data-only Storage Node::
+Using a Storage Node exclusively for data can make sense if your Storage Nodes have differing performance characteristics. For example, to potentially increase performance, you could have data-only, high-capacity spinning-disk Storage Nodes accompanied by metadata-only high-performance Storage Nodes.
+
+When installing data-only nodes, the grid must contain the following:
+
+* A minimum of two combined or data-only Storage Nodes _per grid_
+* At least one combined or data-only Storage Node _per site_
+* A minimum of three combined or metadata-only Storage Nodes _per site_
+
+== Primary services for Storage Nodes
+The following table shows the primary services for Storage Nodes; however, this table does not list all node services.
+
+NOTE: Some services, such as the ADC service and the RSM service, typically exist only on three Storage Nodes at each site.
+
+[cols="1a,3a" options="header"]
+|===
+| Service| Key function
+
+| Account (acct)
+| Manages tenant accounts.
+
+| Administrative Domain Controller (ADC)
+| Maintains topology and grid-wide configuration.
+
+*Note*: Data-only Storage Nodes don't host the ADC service.
+
+// Start snippet: collapsible block
+.Details
+[%collapsible]
+====
+
+The Administrative Domain Controller (ADC) service authenticates grid nodes and their connections with each other. The ADC service is hosted on a minimum of three Storage Nodes at a site.
+
+The ADC service maintains topology information including the location and availability of services. When a grid node requires information from another grid node or an action to be performed by another grid node, it contacts an ADC service to find the best grid node to process its request. In addition, the ADC service retains a copy of the StorageGRID deployment's configuration bundles, allowing any grid node to retrieve current configuration information. 
+
+To facilitate distributed and islanded operations, each ADC service synchronizes certificates, configuration bundles, and information about services and topology with the other ADC services in the StorageGRID system.
+
+In general, all grid nodes maintain a connection to at least one ADC service. This ensures that grid nodes are always accessing the latest information. When grid nodes connect, they cache other grid nodes' certificates, enabling systems to continue functioning with known grid nodes even when an ADC service is unavailable. New grid nodes can only establish connections by using an ADC service.
+
+The connection of each grid node lets the ADC service gather topology information. This grid node information includes the CPU load, available disk space (if it has storage), supported services, and the grid node's site ID. Other services ask the ADC service for topology information through topology queries. The ADC service responds to each query with the latest information received from the StorageGRID system.
+
+====
+
+| Cassandra
+| Stores and protects object metadata.
+
+*Note*: Data-only Storage Nodes don't host the Cassandra service.
+
+| Cassandra Reaper
+| Performs automatic repairs of object metadata.
+
+*Note*: Data-only Storage Nodes don't host the Cassandra Reaper service.
+
+| Chunk
+| Manages erasure-coded data and parity fragments.
+
+| Data Mover (dmv)
+| Moves data to Cloud Storage Pools.
+
+| Distributed Data Store (DDS)
+| Monitors object metadata storage. 
+
+// Start snippet: collapsible block
+.Details
+[%collapsible]
+====
+
+Each Storage Node includes the Distributed Data Store (DDS) service. This service interfaces with the Cassandra database to perform background tasks on the object metadata stored in the StorageGRID system.
+
+The DDS service tracks the total number of objects ingested into the StorageGRID system as well as the total number of objects ingested through each of the system's supported interfaces (S3). 
+
+====
+
+| Identity (idnt)
+| Federates user identities from LDAP and Active Directory.
+
+| [[ldr-service]]Local Distribution Router (LDR)
+| Processes object storage protocol requests and manages object data on disk. 
+
+.Details
+[%collapsible]
+====
+
+Each _combined_, _data-only_, and _metadata-only_ Storage Node includes the Local Distribution Router (LDR) service. This service handles content transport functions, including data storage, routing, and request handling. The LDR service does most of the StorageGRID system's hard work by handling data transfer loads and data traffic functions.
+
+The LDR service handles the following tasks:
+
+* Queries
+* Information lifecycle management (ILM) activity
+* Object deletion
+* Object data storage
+* Object data transfers from another LDR service (Storage Node)
+* Data storage management
+* S3 protocol interface
+
+The LDR service also maps each S3 object to its unique UUID.
+
+Object stores::
+
+The underlying data storage of an LDR service is divided into a fixed number of object stores (also known as storage volumes). Each object store is a separate mount point.
++
+The object stores in a Storage Node are identified by a hexadecimal number from 0000 to 002F, which is known as the volume ID. Space is reserved in the first object store (volume 0) for object metadata in a Cassandra database; any remaining space on that volume is used for object data. All other object stores are used exclusively for object data, which includes replicated copies and erasure-coded fragments.
++
+To ensure even space usage for replicated copies, object data for a given object is stored to one object store based on available storage space. When an object store fills to capacity, the remaining object stores continue to store objects until there is no more room on the Storage Node.
+
+Metadata protection::
+
+StorageGRID stores object metadata in a Cassandra database, which interfaces with the LDR service.
++
+To ensure redundancy and thus protection against loss, three copies of object metadata are maintained at each site. This replication is non-configurable and performed automatically. For details, see link:../admin/managing-object-metadata-storage.html[Manage object metadata storage].
+
+====
+
+
+| Replicated State Machine (RSM)
+| Ensures that S3 platform services requests are sent to their respective endpoints.
+
+| Server Status Monitor (SSM)
+| Monitors the operating system and underlying hardware.
+|===

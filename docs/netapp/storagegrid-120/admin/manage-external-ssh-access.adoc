@@ -1,0 +1,35 @@
+---
+permalink: admin/manage-external-ssh-access.html
+sidebar: sidebar
+keywords: security, external, ssh, access
+summary: "Manage SSH protection by blocking or allowing external SSH access."
+---
+= Manage external SSH access in StorageGRID
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Manage SSH access for inbound traffic into the grid by blocking or allowing external access. Managing SSH external access doesn't have an impact on traffic between nodes in the grid. 
+
+.Before you begin
+
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have link:admin-group-permissions.html[Root access permission].
+
+.About this task 
+
+To enhance system security, external SSH access is blocked by default. If you need to perform tasks that require inbound SSH access, such as troubleshooting, temporarily allow external access. When you've finished the task, block external access.
+
+.Steps
+. Select *Configuration* > *Security* > *Security settings*.
+. Select the *Block SSH* tab.
+. Use the *Block inbound SSH access* option to manage external SSH access:
+.. Select the checkbox to block access (default).
+.. Unselect the checkbox to allow access.
++
+NOTE: Requires access on port 22 between the service laptop and all other grid nodes. Remove access on port 22 when you complete the maintenance task.
+
+. Select *Save*.
+
+// 2025 NOV 4, SGRIDDOC-199 and 202
+// 2025 APR 22, SGWS-35048

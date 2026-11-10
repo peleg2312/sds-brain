@@ -1,0 +1,5 @@
+---
+permalink: s3/accessing-and-reviewing-audit-logs.html
+redirect: storagegrid/s3/s3-operations-tracked-in-audit-logs.html
+---
+// 2024-10-18, SGRIDOC108

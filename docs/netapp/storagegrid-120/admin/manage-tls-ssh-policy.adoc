@@ -1,0 +1,147 @@
+---
+permalink: admin/manage-tls-ssh-policy.html
+sidebar: sidebar
+keywords: TLS and SSH policy, secure connection, FIPS, Common Criteria
+summary: "The TLS and SSH policy determines which protocols and ciphers are used to establish secure TLS connections with client applications and secure SSH connections to internal StorageGRID services."
+---
+= Manage the TLS and SSH policy in StorageGRID
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The TLS and SSH policy determines which protocols and ciphers are used to establish secure TLS connections with client applications and secure SSH connections to internal StorageGRID services.
+
+The security policy controls how TLS and SSH encrypt data in motion. In general, use the Modern compatibility (default) policy, unless your system needs to be Common Criteria-compliant or you need to use other ciphers.
+
+NOTE: Some StorageGRID services have not been updated to use the ciphers in these policies.
+
+.Before you begin
+
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have the link:admin-group-permissions.html[Root access permission].
+
+[[select-a-security-policy]]
+== Select a security policy
+
+.Steps
+. Select *Configuration* > *Security* > *Security settings*.
++ 
+The *TLS and SSH policies* tab shows the available policies. The currently active policy is noted by a green check mark on the policy tile.
++
+image:securitysettings_tls_ssh_policies_current.png[TLS and SSH policies]
+
+. Review the tabs to learn about the available policies.
++
+[role="tabbed-block"]
+====
+
+
+.Modern compatibility (default)
+--
+Use the default policy if you need strong encryption and you don't have special requirements. This policy is compatible with most TLS and SSH clients. 
+--
+
+.Legacy compatibility
+--
+Use the Legacy compatibility policy if you need additional compatibility options for older clients. The additional options in this policy might make it less secure than the Modern compatibility policy.
+--
+
+.Common Criteria
+--
+Use the Common Criteria policy if you require Common Criteria certification.
+--
+
+.FIPS strict
+--
+Use the FIPS strict policy if you require Common Criteria certification and need to use the NetApp Cryptographic Security Module (NCSM) 3.0.8 or NetApp StorageGRID Kernel Crypto API 6.1.129-1-ntap1-amd64 module for external client connections to load balancer endpoints, Tenant Manager, and Grid Manager. Using this policy might reduce performance.
+
+The NCSM 3.0.8 and NetApp StorageGRID Kernel Crypto API 6.1.129-1-ntap1-amd64 module are used in the following operations:
+
+* NCSM
+** TLS connections between the following services: ADC, AMS, CMN, DDS, LDR, SSM, NMS, mgmt-api, nginx, nginx-gw, and cache-svc
+** TLS connections between clients and the nginx-gw service (load balancer endpoints)
+** TLS connections between clients and the LDR service
+** Object content encryption for SSE-S3, SSE-C, and the Stored object encryption setting
+** SSH connections
+
++
+For more information, refer to NIST Cryptographic Algorithm Validation Program link:https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4838[Certificate #4838^].
+
+* NetApp StorageGRID Kernel Crypto API module
++
+The NetApp StorageGRID Kernel Crypto API module is present only on VM and StorageGRID appliance platforms.
+
+** Entropy collection
+** Node encryption
+
++
+For more information, refer to NIST Cryptographic Algorithm Validation Program link:https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&product=NetApp+StorageGRID+Kernel+Crypto+API&productType=-1&ipp=50[Certificates #A6242 through #A6257^] and link:https://csrc.nist.gov/projects/cryptographic-module-validation-program/entropy-validations/certificate/223[Entropy Certificate #E223^].
+
+*Note*: After you select this policy, link:../maintain/rolling-reboot-procedure.html[perform a rolling reboot] for all nodes to activate the NCSM. Use *Maintenance* > *Rolling reboot* to initiate and monitor reboots.
+--
+.Custom
+--
+Create a custom policy if you need to apply your own ciphers.
+
+Optionally, if your StorageGRID has FIPS 140 cryptography requirements, enable the FIPS mode feature to use the NCSM 3.0.8 and NetApp StorageGRID Kernel Crypto API 6.1.129-1-ntap1-amd64 module:
+
+.. Set the `fipsMode` parameter to `true`.
+
+.. When prompted, link:../maintain/rolling-reboot-procedure.html[perform a rolling reboot] for all nodes to activate the cryptography modules. Use *Maintenance* > *Rolling reboot* to initiate and monitor reboots.
+
+.. Select *Support* > *Diagnostics* to view the active FIPS module versions.
+
+--
+====
+
+. To see details about each policy's ciphers, protocols, and algorithms, select *View details*. 
+
+. To change the current policy, select *Use policy*.
++
+A green check mark appears next to *Current policy* on the policy tile.
+
+== Create a custom security policy
+
+You can create a custom policy if you need to apply your own ciphers.
+
+.Steps
+
+. From the tile of the policy that is the most similar to the custom policy you want to create, select *View details*.
+
+. Select *Copy to clipboard*, and then select *Cancel*.
++
+image:securitysettings-custom-security-policy-copy.png[copying an existing policy to create a custom policy]
+
+. From the *Custom policy* tile, select *Configure and use*.
+
+. Paste the JSON you copied and make any changes required.
+
+. Select *Use policy*.
++
+A green check mark appears next to *Current policy* on the Custom policy tile.
+. Optionally, select *Edit configuration* to make more changes to the new custom policy.
+
+[[temporarily-revert-to-default-security-policy]]
+== Temporarily revert to the default security policy
+
+If you configured a custom security policy, you might not be able to sign in to the Grid Manager if the configured TLS policy is incompatible with the link:global-certificate-types.html[configured server certificate].
+
+You can temporarily revert to the default security policy.
+
+.Steps
+
+. Log in to an Admin Node:
+.. Enter the following command: `ssh admin@_Admin_Node_IP_`
+.. Enter the password listed in the `Passwords.txt` file.
+.. Enter the following command to switch to root: `su -`
+.. Enter the password listed in the `Passwords.txt` file.
++
+When you are logged in as root, the prompt changes from `$` to `#`.
+
+. Run the following command:
++
+`restore-default-cipher-configurations`
+. From a web browser, access the Grid Manager on the same Admin Node.
+. Follow the steps in <<select-a-security-policy,Select a security policy>> to configure the policy again.
+
+// 2025 JUN 5, SGWS-35312

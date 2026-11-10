@@ -1,0 +1,6 @@
+---
+permalink: tenant/managing-local-users.html
+redirect: storagegrid/tenant/manage-users.html
+---
+
+// 2025 JULY 16, SGRIDDOC-175

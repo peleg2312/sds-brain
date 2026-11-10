@@ -1,0 +1,5 @@
+---
+permalink: network/client-network-requirements.html
+redirect: storagegrid/network/network-specific-requirements.html
+---
+// 2024-10-18, SGRIDOC108

@@ -1,0 +1,120 @@
+---
+permalink: audit/s3-select-request.html
+sidebar: sidebar
+keywords: storagegrid, audit, message, S3SL, S3 Select request 
+summary: 'This message indicates a user initiated an S3 Select job.'
+---
+= S3SL: S3 Select request
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+This message logs a completion after an S3 Select request has been returned to the client. The S3SL message can include error message and error code details. The request might not have been successful.
+
+[cols="1a,1a,4a" options="header"]
+|===
+| Code| Field| Description
+a|
+BYSC
+a|
+Bytes Scanned
+a|
+Number of bytes scanned (received) from Storage Nodes.
+
+BYSC and BYPR are likely to be different if the object is compressed. If the object is compressed BYSC would have the compressed byte count and BYPR would be the bytes after decompression.
+a|
+BYPR
+a|
+Bytes Processed
+a|
+Number of bytes processed. Indicates how many bytes of "Bytes Scanned" were actually processed or acted upon by an S3 Select job.
+a|
+BYRT
+a|
+Bytes Returned
+a|
+Number of bytes that an S3 Select job returned to the client.
+a|
+REPR
+a|
+Records Processed
+a|
+Number of records or rows that an S3 Select job received from Storage Nodes.
+a|
+RERT
+a|
+Records Returned
+a|
+Number of records or rows an S3 Select job returned to the client.
+
+a|
+JOFI
+a|
+Job Finished
+a|
+Indicates if the S3 Select job finished processing or not. If this is false, then the job failed to finish and the error fields will likely have data in them. The client might have received partial results, or no results at all.
+
+a|
+REID
+a|
+Request ID	
+a|
+Identifier for the S3 Select request.
+
+a|
+EXTM
+a|
+Execution Time
+a|
+The time, in seconds, it took for the S3 Select Job to complete.
+
+a|
+ERMG
+a|
+Error Message	
+a|
+Error message that the S3 Select job generated.
+
+a|
+ERTY
+a|
+Error Type	
+a|
+Error type that the S3 Select job generated.
+
+a|
+ERST
+a|
+Error Stacktrace	
+a|
+Error Stacktrace that the S3 Select job generated.	
+
+a|
+S3BK
+a|
+S3 bucket	
+a|
+The S3 bucket name.	
+
+a|
+S3AK
+a|
+S3 Access Key ID (request sender)	
+a|
+The S3 access key ID for the user that sent the request.
+
+a|
+S3AI
+a|
+S3 tenant account ID (request sender)	
+a|
+The tenant account ID of the user who sent the request. 
+
+a|
+S3KY
+a|
+S3 Key
+a|
+The S3 key name, not including the bucket name.
+
+|===

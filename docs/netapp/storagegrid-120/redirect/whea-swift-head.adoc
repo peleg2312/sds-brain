@@ -1,0 +1,4 @@
+---
+permalink: audit/wget-swift-get.html
+redirect: storagegrid-118/audit/wget-swift-get.html
+---

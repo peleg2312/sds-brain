@@ -1,0 +1,171 @@
+---
+permalink: admin/configure-autosupport-grid-manager.html
+sidebar: sidebar
+keywords: how to configure autosupport, what is autosupport-on-demand
+summary: 'By default, the StorageGRID AutoSupport feature is enabled when you first install StorageGRID. However, you must configure hardware AutoSupport on each appliance. As needed, you can change the AutoSupport configuration.'
+---
+= Configure AutoSupport
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+By default, the StorageGRID AutoSupport feature is enabled when you first install StorageGRID. However, you must configure hardware AutoSupport on each appliance. As needed, you can change the AutoSupport configuration.
+
+If you want to change the configuration of StorageGRID AutoSupport, make your changes only on the primary Admin Node. You must <<autosupport-for-appliances,configure hardware AutoSupport>> on each appliance.
+
+.Before you begin
+
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have the link:admin-group-permissions.html[Root access permission].
+* If you will use HTTPS for sending AutoSupport packages, you have provided outbound internet access to the primary Admin Node, either directly or link:configuring-admin-proxy-settings.html[using a proxy server] (inbound connections not required).
+* If HTTP is selected on the StorageGRID AutoSupport page, you have link:configuring-admin-proxy-settings.html[configured a proxy server] to forward AutoSupport packages as HTTPS. NetApp's AutoSupport servers will reject packages sent using HTTP.
+
+* If you will use SMTP as the protocol for AutoSupport packages, you have configured an SMTP mail server.
+
+.About this task
+
+You can use any combination of the following options to send AutoSupport packages to technical support:
+
+* *Weekly*: Automatically send AutoSupport packages once per week. Default setting: Enabled.
+* *Event-triggered*: Automatically send AutoSupport packages every hour or when significant system events occur. Default setting: Enabled.
+* *On Demand*: Allow technical support to request that your StorageGRID system send AutoSupport packages automatically, which is useful when they are actively working an issue (requires HTTPS AutoSupport transmission protocol). Default setting: Disabled.
+* *User-triggered*: Manually send AutoSupport packages at any time.
+
+== [[specify-protocol-for-autosupport-packages]]Specify the protocol for AutoSupport packages
+
+You can use any of the following protocols for sending AutoSupport packages:
+
+* *HTTPS*: This is the default and recommended setting for new installations. This protocol uses port 443. If you want to <<Enable AutoSupport on Demand,enable the AutoSupport on Demand feature>>, you must use HTTPS.
+* *HTTP*: If you select HTTP, you must configure a proxy server to forward AutoSupport packages as HTTPS. NetApp's AutoSupport servers reject packages sent using HTTP. This protocol uses port 80. 
+* *SMTP*: Use this option if you want AutoSupport packages to be emailed.
+
+The protocol you set is used for sending all types of AutoSupport packages.
+
+.Steps
+
+. Select *SUPPORT* > *Tools* > *AutoSupport* > *Settings*.
+
+. Select the protocol you want to use to send AutoSupport packages.
+
+. If you selected *HTTPS*, select whether to use a NetApp support certificate (TLS certificate) to secure the connection to the technical support server.
+ ** *Verify certificate* (default): Ensures that the transmission of AutoSupport packages is secure. The NetApp support certificate is already installed with the StorageGRID software.
+ ** *Do not verify certificate*: Select this option only when you have a good reason not to use certificate validation, such as when there is a temporary problem with a certificate.
+
+. Select *Save*. All weekly, user-triggered, and event-triggered packages are sent using the selected protocol.
+
+== Disable weekly AutoSupport
+
+By default, the StorageGRID system is configured to send an AutoSupport package to technical support once a week.
+
+To determine when the weekly AutoSupport package will be sent, go to the *AutoSupport* > *Results* tab. In the *Weekly AutoSupport* section, look at the value for *Next Scheduled Time*. 
+
+You can disable the automatic sending of weekly AutoSupport packages at any time.
+
+.Steps
+
+. Select *SUPPORT* > *Tools* > *AutoSupport* > *Settings*.
+. Clear the *Enable Weekly AutoSupport* checkbox.
+. Select *Save*.
+
+== Disable event-triggered AutoSupport
+
+By default, the StorageGRID system is configured to send an AutoSupport package to technical support every hour.
+
+You can disable event-triggered AutoSupport at any time.
+
+.Steps
+
+. Select *SUPPORT* > *Tools* > *AutoSupport* > *Settings*.
+. Clear the *Enable Event-Triggered AutoSupport* checkbox.
+. Select *Save*.
+
+== Enable AutoSupport on Demand
+
+AutoSupport on Demand can assist in solving issues that technical support is actively working on. 
+
+By default, AutoSupport on Demand is disabled. Enabling this feature allows technical support to request that your StorageGRID system send AutoSupport packages automatically. Technical support can also set the polling time interval for AutoSupport on Demand queries.
+
+Technical support can't enable or disable AutoSupport on Demand.
+
+.Steps
+
+. Select *SUPPORT* > *Tools* > *AutoSupport* > *Settings*.
+. Select the *HTTPS* for the protocol.
+. Select the *Enable Weekly AutoSupport* checkbox.
+. Select the *Enable AutoSupport on Demand* checkbox.
+. Select *Save*.
++
+AutoSupport on Demand is enabled, and technical support can send AutoSupport on Demand requests to StorageGRID.
+
+== Disable checks for software updates
+
+By default, StorageGRID contacts NetApp to determine if software updates are available for your system. If a StorageGRID hotfix or new version is available, the new version is shown on the StorageGRID Upgrade page. 
+
+As required, you can optionally disable the check for software updates. For example, if your system does not have WAN access, you should disable the check to avoid download errors.
+
+.Steps
+
+. Select *SUPPORT* > *Tools* > *AutoSupport* > *Settings*.
+. Clear the *Check for software updates* checkbox.
+. Select *Save*.
+
+== Add an additional AutoSupport destination
+
+When you enable AutoSupport, heath and status packages are sent to technical support. You can specify one additional destination for all AutoSupport packages.
+
+To verify or change the protocol used to send AutoSupport packages, see the instructions to <<specify-protocol-for-autosupport-packages,specify the protocol for AutoSupport packages>>.
+
+NOTE: You can't use the SMTP protocol to send AutoSupport packages to an additional destination.
+
+.Steps
+
+. Select *SUPPORT* > *Tools* > *AutoSupport* > *Settings*.
+
+. Select *Enable Additional AutoSupport Destination*.
+
+. Specify the following:
++
+Hostname:: The server hostname or IP address of an additional AutoSupport destination server.
++
+NOTE: You can enter only one additional destination.
+
+Port:: The port used to connect to an additional AutoSupport destination server. The default is port 80 for HTTP or port 443 for HTTPS.
+
+Certificate validation:: Whether a TLS certificate is used to secure the connection to the additional destination.
++
+* Select *Verify certificate* to use certificate validation.
++
+* Select *Do not verify certificate* to send your AutoSupport packages without certificate validation.
++
+Select this choice only when you have a good reason not to use certificate validation, such as when there is a temporary problem with a certificate.
+
+. If you selected *Verify certificate*, do the following:
+.. Browse to the location of the CA certificate.
+.. Upload the CA certificate file.
++
+The CA certificate metadata appears.
+
+. Select *Save*.
++
+All future weekly, event-triggered, and user-triggered AutoSupport packages will be sent to the additional destination.
+
+== [[autosupport-for-appliances]]Configure AutoSupport for appliances
+
+AutoSupport for appliances reports StorageGRID hardware issues, and StorageGRID AutoSupport reports StorageGRID software issues, with one exception: for the SGF6112, StorageGRID AutoSupport reports both hardware and software issues. You must configure AutoSupport on each appliance except the SGF6112, which does not require additional configuration. AutoSupport is implemented differently for services appliances and storage appliances.
+
+You use SANtricity to enable AutoSupport for each storage appliance. You can configure SANtricity AutoSupport during initial appliance setup or after an appliance has been installed:
+
+* For SG6000 and SG5700 appliances, https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/accessing-and-configuring-santricity-system-manager.html[configure AutoSupport in SANtricity System Manager^]
+
+AutoSupport packages from E-Series appliances can be included in StorageGRID AutoSupport if you configure AutoSupport delivery by proxy in link:../admin/sending-eseries-autosupport-messages-through-storagegrid.html[SANtricity System Manager].
+
+StorageGRID AutoSupport does not report hardware issues, such as DIMM or host interface card (HIC) faults. However, some component failures might trigger link:../monitor/alerts-reference.html[hardware alerts]. For StorageGRID appliances with a baseboard management controller (BMC) you can configure email and SNMP traps to report hardware failures:
+
+* https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/setting-up-email-notifications-for-alerts.html[Set up email notifications for BMC alerts^]
+* https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/configuring-snmp-settings-for-bmc.html[Configure SNMP settings for BMC^]
+
+.Related information
+
+https://mysupport.netapp.com/site/global/dashboard[NetApp Support^]
+
+// 2023 NOV 21, SGRIDDOC-29

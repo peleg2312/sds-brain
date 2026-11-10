@@ -1,0 +1,253 @@
+---
+permalink: s3/operations-on-buckets.html
+sidebar: sidebar
+keywords: bucket, buckets, operations on buckets
+summary: 'The StorageGRID system supports a maximum of 1,000 buckets for each S3 tenant account.'
+---
+= Operations on buckets
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The StorageGRID system supports a maximum of 1,000 buckets for each S3 tenant account.
+
+Bucket name restrictions follow the AWS US Standard region restrictions, but you should further restrict them to DNS naming conventions to support S3 virtual hosted-style requests.
+
+See the following for more information:
+
+* https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html[Amazon Simple Storage Service User Guide: Bucket Restrictions and Limitations^]
+
+* link:../admin/configuring-s3-api-endpoint-domain-names.html[Configure S3 endpoint domain names]
+
+The ListObjects (GET Bucket) and ListObjectVersions (GET Bucket object versions) operations support StorageGRID link:consistency-controls.html[consistency values].
+
+You can check whether updates to last access time are enabled or disabled for individual buckets. See 
+link:get-bucket-last-access-time-request.html[GET Bucket last access time].
+
+The following table describes how StorageGRID implements S3 REST API bucket operations. To perform any of these operations, the necessary access credentials must be provided for the account.
+
+[cols="1a,3a" options="header"]
+|===
+| Operation| Implementation
+
+| CreateBucket
+| Creates a new bucket. By creating the bucket, you become the bucket owner.
+
+* Bucket names must comply with the following rules:
+ ** Must be unique across each StorageGRID system (not just unique within the tenant account).
+ ** Must be DNS compliant.
+ ** Must contain at least 3 and no more than 63 characters.
+ ** Can be a series of one or more labels, with adjacent labels separated by a period. Each label must start and end with a lowercase letter or a number and can only use lowercase letters, numbers, and hyphens.
+ ** Must not look like a text-formatted IP address.
+ ** Should not use periods in virtual hosted style requests. Periods will cause problems with server wildcard certificate verification.
+* By default, buckets are created in the `us-east-1` region; however, you can use the `LocationConstraint` request element in the request body to specify a different region. When using the `LocationConstraint` element, you must specify the exact name of a region that has been defined using the Grid Manager or the Grid Management API. Contact your system administrator if you don't know the region name you should use.
++
+*Note*: An error will occur if your CreateBucket request uses a region that has not been defined in StorageGRID.
+
+* You can include the `x-amz-bucket-object-lock-enabled` request header to create a bucket with S3 Object Lock enabled. See link:../s3/use-s3-api-for-s3-object-lock.html[Use S3 REST API to configure S3 Object Lock].
++
+You must enable S3 Object Lock when you create the bucket. You can't add or disable S3 Object Lock after a bucket is created. S3 Object Lock requires bucket versioning, which is enabled automatically when you create the bucket.
+
+
+| DeleteBucket
+| Deletes the bucket.
+
+| DeleteBucketCors
+| Deletes the CORS configuration for the bucket.
+
+| DeleteBucketEncryption
+| Deletes the default encryption from the bucket. Existing encrypted objects remain encrypted, but any new objects added to the bucket aren't encrypted.
+
+| DeleteBucketLifecycle
+| Deletes the lifecycle configuration from the bucket. See link:create-s3-lifecycle-configuration.html[Create S3 lifecycle configuration].
+
+| DeleteBucketPolicy
+| Deletes the policy attached to the bucket.
+
+| DeleteBucketReplication
+| Deletes the replication configuration attached to the bucket.
+
+| DeleteBucketTagging
+| Uses the `tagging` subresource to remove all tags from a bucket.
+
+*Caution*: If a non-default ILM policy tag is set for this bucket, there will be a `NTAP-SG-ILM-BUCKET-TAG` bucket tag with a value assigned to it. Do not issue a DeleteBucketTagging request if there is a `NTAP-SG-ILM-BUCKET-TAG` bucket tag. Instead, issue a PutBucketTagging request with only the `NTAP-SG-ILM-BUCKET-TAG` tag and its assigned value to remove all other tags from the bucket. Do not modify or remove the `NTAP-SG-ILM-BUCKET-TAG` bucket tag.
+
+| GetBucketAcl
+| Returns a positive response and the ID, DisplayName, and Permission of the bucket owner, indicating that the owner has full access to the bucket.
+
+| GetBucketCors
+| Returns the `cors` configuration for the bucket.
+
+| GetBucketEncryption
+| Returns the default encryption configuration for the bucket.
+
+| GetBucketLifecycleConfiguration
+
+(previously named GET Bucket lifecycle)
+
+| Returns the lifecycle configuration for the bucket. See link:create-s3-lifecycle-configuration.html[Create S3 lifecycle configuration].
+
+| GetBucketLocation
+| Returns the region that was set using the `LocationConstraint` element in the CreateBucket request. If the bucket's region is `us-east-1`, an empty string is returned for the region.
+
+| GetBucketNotificationConfiguration 
+
+(previously named GET Bucket notification) 
+
+| Returns the notification configuration attached to the bucket.
+
+| GetBucketPolicy
+| Returns the policy attached to the bucket.
+
+| GetBucketReplication
+| Returns the replication configuration attached to the bucket.
+
+| GetBucketTagging
+| Uses the `tagging` subresource to return all tags for a bucket.
+
+*Caution*: If a non-default ILM policy tag is set for this bucket, there will be a `NTAP-SG-ILM-BUCKET-TAG` bucket tag with a value assigned to it. Do not modify or remove this tag.
+
+| GetBucketVersioning
+| This implementation uses the `versioning` subresource to return the versioning state of a bucket.
+
+* _blank_: Versioning has never been enabled (bucket is "Unversioned")
+* Enabled: Versioning is enabled
+* Suspended: Versioning was previously enabled and is suspended
+
+| GetObjectLockConfiguration
+| Returns the bucket default retention mode and default retention period, if configured.
+
+See link:../s3/use-s3-api-for-s3-object-lock.html[Use S3 REST API to configure S3 Object Lock].
+
+| HeadBucket
+| Determines if a bucket exists and you have permission to access it.
+
+This operation returns:
+
+* `x-ntap-sg-bucket-id`: The UUID of the bucket in UUID format.
+* `x-ntap-sg-trace-id`: The unique trace ID of the associated request.
+
+| ListObjects and ListObjectsV2
+
+(previously named GET Bucket)
+
+| Returns some or all (up to 1,000) of the objects in a bucket. The Storage Class for objects can have either of two values, even if the object was ingested with the `REDUCED_REDUNDANCY` storage class option:
+
+* `STANDARD`, which indicates the object is stored in a storage pool consisting of Storage Nodes.
+* `GLACIER`, which indicates that the object has been moved to the external bucket specified by the Cloud Storage Pool.
+
+If the bucket contains large numbers of deleted keys that have the same prefix, the response might include some `CommonPrefixes` that don't contain keys.
+
+| ListObjectVersions
+
+(previously named GET Bucket Object versions)
+
+| With READ access on a bucket, using this operation with the `versions` subresource lists metadata of all of the versions of objects in the bucket.
+
+| PutBucketCors
+| Sets the CORS configuration for a bucket so that the bucket can service cross-origin requests. Cross-origin resource sharing (CORS) is a security mechanism that allows client web applications in one domain to access resources in a different domain. For example, suppose you use an S3 bucket named `images` to store graphics. By setting the CORS configuration for the `images` bucket, you can allow the images in that bucket to be displayed on the website `+http://www.example.com+`.
+
+| PutBucketEncryption
+| Sets the default encryption state of an existing bucket. When bucket-level encryption is enabled, any new objects added to the bucket are encrypted.StorageGRID supports server-side encryption with StorageGRID-managed keys. When specifying the server-side encryption configuration rule, set the `SSEAlgorithm` parameter to `AES256`, and don't use the `KMSMasterKeyID` parameter.
+
+Bucket default encryption configuration is ignored if the object upload request already specifies encryption (that is, if the request includes the `x-amz-server-side-encryption-*` request header).
+
+| PutBucketLifecycleConfiguration 
+
+(previously named PUT Bucket lifecycle)
+
+| Creates a new lifecycle configuration for the bucket or replaces an existing lifecycle configuration. StorageGRID supports up to 1,000 lifecycle rules in a lifecycle configuration. Each rule can include the following XML elements:
+
+* Expiration (Days, Date, ExpiredObjectDeleteMarker)
+* NoncurrentVersionExpiration (NewerNoncurrentVersions, NoncurrentDays)
+* Filter (Prefix, Tag)
+* Status
+* ID
+
+StorageGRID does not support these actions:
+
+* AbortIncompleteMultipartUpload
+* Transition
+
+See link:create-s3-lifecycle-configuration.html[Create S3 lifecycle configuration]. To understand how the Expiration action in a bucket lifecycle interacts with ILM placement instructions, see link:../ilm/how-ilm-operates-throughout-objects-life.html[How ILM operates throughout an object’s life].
+
+*Note*: Bucket lifecycle configuration can be used with buckets that have S3 Object Lock enabled, but bucket lifecycle configuration is not supported for legacy Compliant buckets.
+
+| PutBucketNotificationConfiguration 
+
+(previously named PUT Bucket notification)
+| Configures notifications for the bucket using the notification configuration XML included in the request body. You should be aware of the following implementation details:
+
+* StorageGRID supports Amazon Simple Notification Service (Amazon SNS) or Kafka topics as destinations. Simple Queue Service (SQS) or Amazon Lambda endpoints aren't supported.
+* The destination for notifications must be specified as the URN of an StorageGRID endpoint. Endpoints can be created using the Tenant Manager or the Tenant Management API.
++
+The endpoint must exist for notification configuration to succeed. If the endpoint does not exist, a `400 Bad Request` error is returned with the code `InvalidArgument`.
+
+* You can't configure a notification for the following event types. These event types are *not* supported.
+ ** `s3:ReducedRedundancyLostObject`
+ ** `s3:ObjectRestore:Completed`
+* Event notifications sent from StorageGRID use the standard JSON format except that they don't include some keys and use specific values for others, as shown in the following list:
+
+** *eventSource*
++
+`sgws:s3`
+
+** *awsRegion*
++
+not included
+
+** *x-amz-id-2*
++
+not included
+
+** *arn*
++
+`urn:sgws:s3:::bucket_name`
+
+| PutBucketPolicy
+| Sets the policy attached to the bucket. See link:bucket-and-group-access-policies.html[Use bucket and group access policies].
+
+
+| PutBucketReplication
+| Configures link:../tenant/understanding-cloudmirror-replication-service.html[StorageGRID CloudMirror replication] for the bucket using the replication configuration XML provided in the request body. For CloudMirror replication, you should be aware of the following implementation details:
+
+* StorageGRID only supports V1 of the replication configuration. This means that StorageGRID does not support the use of the `Filter` element for rules, and follows V1 conventions for deletion of object versions. For details, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/replication-add-config.html[Amazon Simple Storage Service User Guide: Replication configuration^].
+* Bucket replication can be configured on versioned or unversioned buckets.
+* You can specify a different destination bucket in each rule of the replication configuration XML. A source bucket can replicate to more than one destination bucket.
+* Destination buckets must be specified as the URN of StorageGRID endpoints as specified in the Tenant Manager or the Tenant Management API. See link:../tenant/configuring-cloudmirror-replication.html[Configure CloudMirror replication].
++
+The endpoint must exist for replication configuration to succeed. If the endpoint does not exist, the request fails as a `400 Bad Request`. The error message states: `Unable to save the replication policy. The specified endpoint URN does not exist: _URN_.`
+
+* You don't need to specify a `Role` in the configuration XML. This value is not used by StorageGRID and will be ignored if submitted.
+* If you omit the storage class from the configuration XML, StorageGRID uses the `STANDARD` storage class by default.
+* If you delete an object from the source bucket or you delete the source bucket itself, the cross-region replication behavior is as follows:
+ ** If you delete the object or bucket before it has been replicated, the object/bucket is not replicated and you aren't notified.
+ ** If you delete the object or bucket after it has been replicated, StorageGRID follows standard Amazon S3 delete behavior for V1 of cross-region replication.
+
+| PutBucketTagging
+| Uses the `tagging` subresource to add or update a set of tags for a bucket. When adding bucket tags, be aware of the following limitations:
+
+* Both StorageGRID and Amazon S3 support up to 50 tags for each bucket.
+* Tags associated with a bucket must have unique tag keys. A tag key can be up to 128 Unicode characters in length.
+* Tag values can be up to 256 Unicode characters in length.
+* Key and values are case sensitive.
+
+*Caution*: If a non-default ILM policy tag is set for this bucket, there will be a `NTAP-SG-ILM-BUCKET-TAG` bucket tag with a value assigned to it. Make sure that the `NTAP-SG-ILM-BUCKET-TAG` bucket tag is included with the assigned value in all PutBucketTagging requests. Do not modify or remove this tag.
+
+*Note*: This operation will overwrite any current tags the bucket already has. If any existing tags are omitted from the set, those tags will be removed for the bucket.
+
+| PutBucketVersioning
+| Uses the `versioning` subresource to set the versioning state of an existing bucket. You can set the versioning state with one of the following values:
+
+* Enabled: Enables versioning for the objects in the bucket. All objects added to the bucket receive a unique version ID.
+* Suspended: Disables versioning for the objects in the bucket. All objects added to the bucket receive the version ID `null`.
+
+| PutObjectLockConfiguration
+| Configures or removes the bucket default retention mode and default retention period.
+
+If the default retention period is modified, the retain-until-date of existing object versions remains the same and is not recalculated using the new default retention period.
+
+See link:../s3/use-s3-api-for-s3-object-lock.html[Use S3 REST API to configure S3 Object Lock] for detailed information.
+|===
+
+// 2023 SEP 15, SGWS-25330

@@ -1,0 +1,4 @@
+---
+permalink: s3/monitoring-object-ingest-and-retrieval-rates.html
+redirect: storagegrid-118/monitor/monitoring-object-ingest-and-retrieval-rates.html
+---

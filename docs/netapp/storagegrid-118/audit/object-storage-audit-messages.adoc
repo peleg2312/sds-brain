@@ -1,0 +1,86 @@
+---
+permalink: audit/object-storage-audit-messages.html
+sidebar: sidebar
+
+keywords: audit, object storage, object management, object retrieval, node transfer, verification, APCT, ARCB, ARCE, ARCT, AREM, ASCE, ASCT, ATCE, AVCC, BROR, CBSE, CBRE, CGRR, EBDL, EBKR, SCMT, SREM
+summary: 'You should be familiar with audit messages belonging to the object storage audit category. These are events related to the storage and management of objects within the StorageGRID system. These include object storage and retrievals, grid-node to grid-node transfers, and verifications.'
+---
+= Object storage audit messages
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The audit messages belonging to the object storage audit category are used for events related to the storage and management of objects within the StorageGRID system. These include object storage and retrievals, grid-node to grid-node transfers, and verifications.
+
+[cols="1a,2a,1a" options="header"]
+|===
+| Code| Description| See
+
+| APCT
+| Archive Purge from Cloud-Tier: Archived object data is deleted from an external archival storage system, which connects to the StorageGRID through the S3 API.
+| link:apct-archive-purge-from-cloud-tier.html[APCT: Archive Purge from Cloud-Tier]
+
+| ARCB
+| Archive Object Retrieve Begin: The ARC service begins the retrieval of object data from the external archival storage system.
+| link:arcb-archive-object-retrieve-begin.html[ARCB: Archive Object Retrieve Begin]
+
+| ARCE
+| Archive Object Retrieve End: Object data has been retrieved from an external archival storage system, and the ARC service reports the status of the retrieval operation.
+| link:arce-archive-object-retrieve-end.html[ARCE: Archive Object Retrieve End]
+
+| ARCT
+| Archive Retrieve from Cloud-Tier: Archived object data is retrieved from an external archival storage system, which connects to the StorageGRID through the S3 API.
+| link:arct-archive-retrieve-from-cloud-tier.html[ARCT: Archive Retrieve from Cloud-Tier]
+
+| AREM
+| Archive Object Remove: A content block was successfully or unsuccessfully deleted from the external archival storage system.
+| link:arem-archive-object-remove.html[AREM: Archive Object Remove]
+
+| ASCE
+| Archive Object Store End: A content block has been written to the external archival storage system, and the ARC service reports the status of the write operation.
+| link:asce-archive-object-store-end.html[ASCE: Archive Object Store End]
+
+| ASCT
+| Archive Store Cloud-Tier: Object data is stored to an external archival storage system, which connects to the StorageGRID through the S3 API.
+| link:asct-archive-store-cloud-tier.html[ASCT: Archive Store Cloud-Tier]
+
+| ATCE
+| Archive Object Store Begin: Writing a content block to an external archival storage has started.
+| link:atce-archive-object-store-begin.html[ATCE: Archive Object Store Begin]
+
+| AVCC
+| Archive Validate Cloud-Tier Configuration: The account and bucket settings provided were successfully or unsuccessfully validated.
+| link:avcc-archive-validate-cloud-tier-configuration.html[AVCC: Archive Validate Cloud-Tier Configuration]
+
+| BROR
+| Bucket Read Only Request: A bucket entered or exited read-only mode.
+| link:bror-bucket-read-only-request.html[BROR: Bucket Read Only Request]
+
+| CBSE
+| Object Send End: The source entity completed a grid-node to grid-node data transfer operation.
+| link:cbse-object-send-end.html[CBSE: Object Send End]
+
+| CBRE
+| Object Receive End: The destination entity completed a grid-node to grid-node data transfer operation.
+| link:cbre-object-receive-end.html[CBRE: Object Receive End]
+
+| CGRR
+| Cross-Grid Replication Request: StorageGRID attempted a cross-grid replication operation to replicate objects between buckets in a grid federation connection. 
+| link:cgrr-cross-grid-replication-request.html[CGRR: Cross-Grid Replication Request]
+
+| EBDL
+| Empty Bucket Delete: The ILM scanner deleted an object in a bucket that is deleting all objects (performing an empty bucket operation).
+| link:ebdl-empty-bucket-delete.html[EBDL: Empty Bucket Delete]
+
+| EBKR
+| Empty Bucket Request: A user sent a request to turn empty bucket on or off (that is, to delete bucket objects or to stop deleting objects).
+| link:ebkr-empty-bucket-request.html[EBKR: Empty Bucket Request]
+
+| SCMT
+| Object Store Commit: A content block was completely stored and verified, and can now be requested.
+| link:scmt-object-store-commit.html[SCMT: Object Store Commit Request]
+
+| SREM
+| Object Store Remove: A content block was deleted from a grid node, and can no longer be requested directly.
+| link:srem-object-store-remove.html[SREM: Object Store Remove]
+|===

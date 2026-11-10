@@ -1,0 +1,23 @@
+---
+permalink: maintain/checking-storage-state-after-recovering-sga.html
+sidebar: sidebar
+keywords: storagegrid, recovery, node recovery, storage state
+summary: "After recovering an appliance Storage Node, you must verify that the desired state of the appliance Storage Node is set to online and ensure that the state will be online by default whenever the Storage Node server is restarted."
+---
+= Check storage state after recovering a StorageGRID appliance Storage Node
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+After recovering an appliance Storage Node, you must verify that the desired state of the appliance Storage Node is set to online and ensure that the state will be online by default whenever the Storage Node server is restarted.
+
+.Before you begin
+
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* The Storage Node has been recovered, and data recovery is complete.
+
+.Steps
+
+. Select *Nodes* > *_Storage Node_* > *Tasks*.
+. If the *Storage state* drop-down list is set to Read-only or Offline, select *Online*.
+. Select *Save*.

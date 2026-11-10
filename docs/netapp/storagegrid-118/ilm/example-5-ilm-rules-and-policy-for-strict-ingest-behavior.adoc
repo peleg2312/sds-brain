@@ -1,0 +1,103 @@
+---
+permalink: ilm/example-5-ilm-rules-and-policy-for-strict-ingest-behavior.html
+sidebar: sidebar
+keywords: strict ingest example, example ILM rule, information lifecycle rule examples 
+summary: 'You can use a location filter and the Strict ingest behavior in a rule to prevent objects from being saved at a particular data center location.'
+---
+= Example 5: ILM rules and policy for Strict ingest behavior
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can use a location filter and the Strict ingest behavior in a rule to prevent objects from being saved at a particular data center location.
+
+In this example, a Paris-based tenant does not want to store some objects outside of the EU because of regulatory concerns. Other objects, including all objects from other tenant accounts, can be stored at either the Paris data center or the US data center.
+
+CAUTION: The following ILM rules and policy are only examples. There are many ways to configure ILM rules. Before activating a new policy, simulate it to confirm it will work as intended to protect content from loss.
+
+.Related information
+
+* link:data-protection-options-for-ingest.html[Ingest options]
+
+* link:create-ilm-rule-select-ingest-behavior.html[Create ILM rule: Select ingest behavior]
+
+== ILM rule 1 for example 5: Strict ingest to guarantee Paris data center
+
+This example ILM rule uses the Strict ingest behavior to guarantee that objects saved by a Paris-based tenant to S3 buckets with the region set to eu-west-3 region (Paris) are never stored at the US data center.
+
+This rule applies to objects that belong to the Paris tenant and that have the S3 bucket region set to eu-west-3 (Paris).
+
+[cols="1a,2a" options="header"]
+|===
+| Rule definition| Example value
+
+| Tenant account
+| Paris tenant
+
+| Advanced filter
+| Location constraint equals eu-west-3
+
+| Storage pools
+| Site 1 (Paris)
+
+| Rule name
+| Strict ingest to guarantee Paris data center
+
+| Reference time
+| Ingest time
+
+| Placements
+| On Day 0, keep two replicated copies forever in Site 1 (Paris)
+
+| Ingest behavior
+| Strict. Always use this rule's placements on ingest. Ingest fails if it is not possible to store two copies of the object at the Paris data center.
+|===
+
+image::../media/ilm_rule_1_example_5_strict_ingest.png[ILM Rule 1 Example 5 Strict Ingest]
+
+== ILM rule 2 for example 5: Balanced ingest for other objects
+
+This example ILM rule uses the Balanced ingest behavior to provide optimum ILM efficiency for any objects not matched by the first rule. Two copies of all objects matched by this rule will be stored--one at the US data center and one at the Paris data center. If the rule can't be satisfied immediately, interim copies are stored at any available location.
+
+This rule applies to objects that belong to any tenant and any region.
+
+[cols="1a,2a" options="header"]
+|===
+| Rule definition| Example value
+
+| Tenant account
+| Ignore
+
+| Advanced filter
+| _Not specified_
+
+| Storage pools
+| Site 1 (Paris) and Site 2 (US)
+
+| Rule name
+| 2 Copies 2 Data Centers
+
+| Reference time
+| Ingest time
+
+| Placements
+| On Day 0, keep two replicated copies forever at two data centers
+
+| Ingest behavior
+| Balanced. Objects that match this rule are placed according to the rule's placement instructions if possible. Otherwise, interim copies are made at any available location.
+|===
+
+
+== ILM policy for example 5: Combining ingest behaviors
+
+The example ILM policy includes two rules that have different ingest behaviors.
+
+An ILM policy that uses two different ingest behaviors might include ILM rules such as the following:
+
+* Store objects that belong to the Paris tenant and that have the S3 bucket region set to eu-west-3 (Paris) only in the Paris data center. Fail ingest if the Paris data center is not available.
+* Store all other objects (including those that belong to the Paris tenant but that have a different bucket region) in both the US data center and the Paris data center. Make interim copies in any available location if the placement instruction can't be satisfied.
+
+When you simulate the example policy, you expect test objects to be evaluated as follows:
+
+* Any objects that belong to the Paris tenant and that have the S3 bucket region set to eu-west-3 are matched by the first rule and are stored at the Paris data center. Because the first rule uses Strict ingest, these objects are never stored at the US data center. If the Storage Nodes at the Paris data center aren't available, ingest fails.
+* All other objects are matched by the second rule, including objects that belong to the Paris tenant and that don't have the S3 bucket region set to eu-west-3. One copy of each object is saved at each data center. However, because the second rule uses Balanced ingest, if one data center is unavailable, two interim copies are saved at any available location.

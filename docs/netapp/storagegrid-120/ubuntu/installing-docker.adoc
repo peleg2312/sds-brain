@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/installing-docker.html
+redirect: storagegrid/swnodes/configuring-docker-storage-volume.html
+---

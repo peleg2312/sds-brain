@@ -1,0 +1,4 @@
+---
+permalink: admin/viewing-notification-status-and-queues.html
+redirect: storagegrid/admin/what-is-autosupport.html
+---

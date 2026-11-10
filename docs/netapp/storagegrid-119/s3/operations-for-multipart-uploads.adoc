@@ -1,0 +1,65 @@
+---
+permalink: s3/operations-for-multipart-uploads.html
+sidebar: sidebar
+keywords: operations, multipart uploads, uploads, rest API
+summary: 'This section describes how StorageGRID supports operations for multipart uploads.'
+---
+= Operations for multipart uploads
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+This section describes how StorageGRID supports operations for multipart uploads.
+
+The following conditions and notes apply to all multipart upload operations:
+
+* You should not exceed 1,000 concurrent multipart uploads to a single bucket because the results of ListMultipartUploads queries for that bucket might return incomplete results.
+
+* StorageGRID enforces AWS size limits for multipart parts. S3 clients must follow these guidelines:
+ ** Each part in a multipart upload must be between 5 MiB (5,242,880 bytes) and 5 GiB (5,368,709,120 bytes).
+ ** The last part can be smaller than 5 MiB (5,242,880 bytes).
+ ** In general, part sizes should be as large as possible. For example, use part sizes of 5 GiB for a 100 GiB object. Because each part is considered a unique object, using large part sizes reduces StorageGRID metadata overhead.
+ ** For objects smaller than 5 GiB, consider using non-multipart upload instead.
+
+* ILM is evaluated for each part of a multipart object as it is ingested and for the object as a whole when the multipart upload completes, if the ILM rule uses the Balanced or Strict link:../ilm/data-protection-options-for-ingest.html[ingest option]. You should be aware of how this affects object and part placement:
+ ** If ILM changes while an S3 multipart upload is in progress, some parts of the object might not meet current ILM requirements when the multipart upload completes. Any part that is not placed correctly is queued for ILM re-evaluation and moved to the correct location later.
+ ** When evaluating ILM for a part, StorageGRID filters on the size of the part, not the size of the object. This means that parts of an object can be stored in locations that don't meet ILM requirements for the object as a whole. For example, if a rule specifies that all objects 10 GB or larger are stored at DC1 while all smaller objects are stored at DC2, each 1 GB part of a 10-part multipart upload is stored at DC2 at ingest. However, when ILM is evaluated for the object as a whole, all parts of the object are moved to DC1.
+
+* All of the multipart upload operations support StorageGRID link:consistency-controls.html[consistency values].
+
+* When an object is ingested using multipart upload, the link:../admin/what-object-segmentation-is.html[object segmentation threshold (1 GiB)] is not applied.
+
+* As required, you can use link:using-server-side-encryption.html[server-side encryption] with multipart uploads. To use SSE (server-side encryption with StorageGRID-managed keys), you include the `x-amz-server-side-encryption` request header in the CreateMultipartUpload request only. To use SSE-C (server-side encryption with customer-provided keys), you specify the same three encryption key request headers in the CreateMultipartUpload request and in each subsequent UploadPart request.
+
+[cols="2a,3a" options="header"]
+|===
+| Operation| Implementation
+
+
+| AbortMultipartUpload
+| Implemented with all Amazon S3 REST API behavior. Subject to change without notice.
+
+| CompleteMultipartUpload
+| See link:complete-multipart-upload.html[CompleteMultipartUpload]
+
+| CreateMultipartUpload
+
+(previously named Initiate Multipart Upload)
+
+| See link:initiate-multipart-upload.html[CreateMultipartUpload]
+
+| ListMultipartUploads
+| See link:list-multipart-uploads.html[ListMultipartUploads]
+
+| ListParts
+| Implemented with all Amazon S3 REST API behavior. Subject to change without notice.
+
+| UploadPart
+| See link:upload-part.html[UploadPart]
+
+| UploadPartCopy
+| See link:upload-part-copy.html[UploadPartCopy]
+
+|===
+
+// 2024 MAY 15, SGRIDDOC-61

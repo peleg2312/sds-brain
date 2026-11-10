@@ -1,0 +1,5 @@
+---
+permalink: monitor/using-task-tab-to-reboot-grid-node.html
+redirect: storagegrid/monitor/using-task-tab.html
+---
+//2025-02-12, SGGRIDDOC114

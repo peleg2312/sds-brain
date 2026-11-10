@@ -1,0 +1,16 @@
+---
+permalink: network/client-network-requirements.html
+sidebar: sidebar
+keywords: client network
+summary: 'The Client Network is optional. If you plan to configure a Client Network, note the following considerations.'
+---
+= Client Network requirements
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The Client Network is optional. If you plan to configure a Client Network, note the following considerations.
+
+The Client Network is designed to support traffic from S3 and Swift clients. If configured, the Client Network gateway becomes the node's default gateway.
+
+If you use a Client Network, you can help secure StorageGRID from hostile attacks by accepting inbound client traffic only on explicitly configured load balancer endpoints. See link:../admin/manage-firewall-controls.html[Manage firewall controls] and link:../admin/configuring-load-balancer-endpoints.html[Configure load balancer endpoints].

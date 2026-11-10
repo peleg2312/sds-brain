@@ -1,0 +1,5 @@
+---
+permalink: monitor/configuring-syslog-server.html
+redirect: storagegrid/monitor/configure-audit-messages.html
+---
+// 2024-10-18, SGRIDOC108

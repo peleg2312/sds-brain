@@ -1,0 +1,4 @@
+---
+permalink: rhel/validating-storagegrid-configuration.html
+redirect: storagegrid/swnodes/validating-storagegrid-configuration.html
+---

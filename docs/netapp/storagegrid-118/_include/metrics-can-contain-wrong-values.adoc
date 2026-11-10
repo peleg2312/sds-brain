@@ -1,0 +1,3 @@
+// used in viewing-nodes-page and viewing-storage-tab
+
+NOTE: When a node is not connected to the grid, such as during upgrade or a disconnected state, certain metrics might be unavailable or excluded from site and grid totals. After a node reconnects to the grid, wait several minutes for the values to stabilize.

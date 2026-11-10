@@ -1,0 +1,61 @@
+---
+permalink: admin/controlling-access-through-firewalls.html
+sidebar: sidebar
+keywords: firewall access, firewall ports, external firewall
+summary: 'You can open or close specific ports at the external firewall.'
+---
+= Control access at external firewall
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can open or close specific ports at the external firewall.
+
+You can control access to the user interfaces and APIs on StorageGRID Admin Nodes by opening or closing specific ports at the external firewall. For example, you might want to prevent tenants from being able to connect to the Grid Manager at the firewall, in addition to using other methods to control system access. 
+
+If you want to configure the StorageGRID internal firewall, see link:../admin/configure-firewall-controls.html[Configure internal firewall].
+
+[cols="1a,1a,2a" options="header"]
+|===
+| Port| Description| If port is open...
+a|
+443
+a|
+Default HTTPS port for Admin Nodes
+a|
+Web browsers and management API clients can access the Grid Manager, the Grid Management API, the Tenant Manager, and the Tenant Management API.
+
+*Note:* Port 443 is also used for some internal traffic.
+
+a|
+8443
+a|
+Restricted Grid Manager port on Admin Nodes
+a|
+
+* Web browsers and management API clients can access the Grid Manager and the Grid Management API using HTTPS.
+* Web browsers and management API clients can't access the Tenant Manager or the Tenant Management API.
+* Requests for internal content will be rejected.
+
+a|
+9443
+a|
+Restricted Tenant Manager port on Admin Nodes
+a|
+
+* Web browsers and management API clients can access the Tenant Manager and the Tenant Management API using HTTPS.
+* Web browsers and management API clients can't access the Grid Manager or the Grid Management API.
+* Requests for internal content will be rejected.
+
+|===
+
+TIP: Single sign-on (SSO) is not available on the restricted Grid Manager or Tenant Manager ports. You must use the default HTTPS port (443) if you want users to authenticate with single sign-on.
+
+.Related information
+
+* link:signing-in-to-grid-manager.html[Sign in to the Grid Manager]
+
+* link:creating-tenant-account.html[Create tenant account]
+
+* link:../network/external-communications.html[External communications]
+

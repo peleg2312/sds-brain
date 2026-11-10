@@ -1,0 +1,25 @@
+---
+permalink: tenant/deleting-group.html
+sidebar: sidebar
+keywords: how to delete tenant group
+summary: 'You can delete a group from the system. Any users who belong only to that group will no longer be able to sign in to the Tenant Manager or use the tenant account.'
+---
+= Delete group
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can delete a group from the system. Any users who belong only to that group will no longer be able to sign in to the Tenant Manager or use the tenant account.
+
+.Before you begin
+
+* You are signed in to the Tenant Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You belong to a user group that has the Root access permission. See link:tenant-management-permissions.html[Tenant management permissions].
+
+.Steps
+. Select *ACCESS MANAGEMENT* > *Groups*.
+
+. Select the checkbox for each group you want to delete.
+. Select *Actions* > *Delete group*.
+
+. Select *Delete group*. 

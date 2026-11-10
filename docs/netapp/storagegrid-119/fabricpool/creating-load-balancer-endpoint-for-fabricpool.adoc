@@ -1,0 +1,104 @@
+---
+permalink: fabricpool/creating-load-balancer-endpoint-for-fabricpool.html
+sidebar: sidebar
+keywords: fabricPool, load balancer, endpoint, load balancing, create, creating, certificate
+summary: 'StorageGRID uses a load balancer to manage the workload from client applications, such as FabricPool. Load balancing maximizes speed and connection capacity across multiple Storage Nodes.'
+---
+= Create a load balancer endpoint for FabricPool
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+StorageGRID uses a load balancer to manage the workload from client applications, such as FabricPool. Load balancing maximizes speed and connection capacity across multiple Storage Nodes. 
+
+When configuring StorageGRID for use with FabricPool, you must configure a load balancer endpoint and upload or generate a load balancer endpoint certificate, which is used to secure the connection between ONTAP and StorageGRID. 
+
+To use the FabricPool setup wizard to complete this task, go to link:use-fabricpool-setup-wizard-steps.html[Access and complete the FabricPool setup wizard].
+
+
+.Before you begin
+
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have the link:../admin/admin-group-permissions.html[Root access permission].
+* You have reviewed the general link:../admin/managing-load-balancing.html[considerations for load balancing] as well as the link:best-practices-for-load-balancing.html[best practices for load balancing for FabricPool].
+
+.Steps
+. Select *CONFIGURATION* > *Network* > *Load balancer endpoints*.
+
+. Select *Create*.
+
+. For the *Enter endpoint details* step, complete the following fields.
++
+[cols="1a,2a" options="header"]
+|===
+|Field| Description
+
+|Name
+|A descriptive name for the endpoint.
+
+|Port
+|The StorageGRID port you want to use for load balancing. This field defaults to 10433 for the first endpoint you create, but you can enter any unused external port. If you enter 80 or 443, the endpoint is configured only on Gateway Nodes. These ports are reserved on Admin Nodes.
+
+*Note:* Ports used by other grid services aren't permitted. See the 
+link:../network/internal-grid-node-communications.html[Network port reference].
+
+You will provide this number to ONTAP when you attach StorageGRID as a FabricPool cloud tier.
+
+|Client type
+|Select *S3*.
+
+|Network protocol
+|Select *HTTPS*.
+
+*Note*: Communicating with StorageGRID without TLS encryption is supported but not recommended.
+
+|===
+
+. For the *Select binding mode* step, specify the binding mode. The binding mode controls how the endpoint is accessed using any IP address or using specific IP addresses and network interfaces.
++
+include::../_include/load-balancer-endpoint-binding-mode.adoc[]
+
+
+. For the *Tenant access* step, select one of the following:
++
+[cols="1a,2a" options="header"]
+|===
+|Field| Description
+
+|Allow all tenants (default)
+|All tenant accounts can use this endpoint to access their buckets. 
+
+
+*Allow all tenants* is almost always the appropriate option for the load balancer endpoint used for FabricPool. 
+
+You must select this option if you have not yet created any tenant accounts. 
+
+|Allow selected tenants
+|Only the selected tenant accounts can use this endpoint to access their buckets.
+
+|Block selected tenants
+|The selected tenant accounts can't use this endpoint to access their buckets. All other tenants can use this endpoint.
+
+|===
+
+
+. For the *Attach certificate* step, select one of the following:
++
+[cols="1a,2a" options="header"]
+|===
+|Field| Description
+
+|Upload certificate (recommended)
+|Use this option to upload a CA-signed server certificate, certificate private key, and optional CA bundle.
+
+|Generate certificate
+|Use this option to generate a self-signed certificate. See link:../admin/configuring-load-balancer-endpoints.html[Configure load balancer endpoints] for details of what to enter.
+
+|Use StorageGRID S3 certificate
+|This option is available only if you have already uploaded or generated a custom version of the StorageGRID global certificate. See link:../admin/configuring-custom-server-certificate-for-storage-node.html[Configure S3 API certificates] for details.
+
+|===
+
+. Select *Create*.
+
+NOTE: Changes to an endpoint certificate can take up to 15 minutes to be applied to all nodes.

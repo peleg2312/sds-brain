@@ -1,0 +1,26 @@
+---
+permalink: admin/using-multiple-admin-nodes.html
+sidebar: sidebar
+keywords: admin nodes, more than one admin node, multiple admin nodes
+summary: 'A StorageGRID system can include multiple Admin Nodes to enable you to continuously monitor and configure your StorageGRID system even if one Admin Node fails.'
+---
+= Use multiple Admin Nodes
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+A StorageGRID system can include multiple Admin Nodes to enable you to continuously monitor and configure your StorageGRID system even if one Admin Node fails.
+
+If an Admin Node becomes unavailable, attribute processing continues, alerts are still triggered, and email notifications and AutoSupport packages are still sent. However, having multiple Admin Nodes does not provide failover protection except for notifications and AutoSupport packages.
+
+image::../media/admin_node_redundancy.png[Admin Node redundancy diagram]
+
+There are two options for continuing to view and configure the StorageGRID system if an Admin Node fails:
+
+* Web clients can reconnect to any other available Admin Node.
+* If a system administrator has configured a high availability group of Admin Nodes, web clients can continue to access the Grid Manager or the Tenant Manager using the virtual IP address of the HA group. See link:managing-high-availability-groups.html[Manage high availability groups].
+
++
+NOTE: When using an HA group, access is interrupted if the active Admin Node fails. Users must sign in again after the virtual IP address of the HA group fails over to another Admin Node in the group.
+
+Some maintenance tasks can only be performed using the primary Admin Node. If the primary Admin Node fails, it must be recovered before the StorageGRID system is fully functional again.

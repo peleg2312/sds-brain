@@ -1,0 +1,4 @@
+---
+permalink: swift/monitoring-and-auditing-operations.html
+redirect: storagegrid-118/swift/swift-operations-tracked-in-audit-logs.html
+---

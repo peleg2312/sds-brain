@@ -1,0 +1,99 @@
+---
+permalink: upgrade/how-your-system-is-affected-during-upgrade.html
+sidebar: sidebar
+keywords: upgrade, firmware, appliance, alert
+summary: 'Learn how your StorageGRID system will be affected during upgrade.'
+---
+= How your system is affected during the upgrade
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Learn how your StorageGRID system will be affected during upgrade.
+
+== StorageGRID upgrades are non-disruptive
+
+The StorageGRID system can ingest and retrieve data from client applications throughout the upgrade process. If you approve all nodes of the same type to upgrade (for example, Storage Nodes), the nodes are brought down one at a time, so there is no time when all grid nodes or all grid nodes of a certain type are unavailable.
+
+To allow for continued availability, ensure that your ILM policy contains rules that specify storing multiple copies of each object. You must also ensure that all external S3 clients are configured to send requests to one of the following:
+
+* A high availability (HA) group virtual IP address
+* A high availability third-party load balancer
+* Multiple Gateway Nodes for each client
+* Multiple Storage Nodes for each client
+
+== Client applications might experience short-term disruptions
+
+The StorageGRID system can ingest and retrieve data from client applications throughout the upgrade process; however, client connections to individual Gateway Nodes or Storage Nodes might be disrupted temporarily if the upgrade needs to restart services on those nodes. Connectivity will be restored after the upgrade process completes and services resume on the individual nodes.
+
+You might need to schedule downtime to apply an upgrade if loss of connectivity for a short period is not acceptable. You can use selective approval to schedule when certain nodes are updated.
+
+NOTE: You can use multiple gateways and high availability (HA) groups to provide automatic failover during the upgrade process. See the instructions for link:../admin/configure-high-availability-group.html[configuring high availability groups].
+
+== Appliance firmware is upgraded
+
+During the StorageGRID 11.9 upgrade:
+
+* All StorageGRID appliance nodes are automatically upgraded to StorageGRID Appliance Installer firmware version 3.9.
+*	SG6060 and SGF6024 appliances are automatically upgraded to BIOS firmware version 3B08.EX and BMC firmware version 4.00.07.
+*	SG100 and SG1000 appliances are automatically upgraded to BIOS firmware version 3B13.EC and BMC firmware version 4.74.07.
+*	SGF6112, SG6160, SG110 and SG1100 appliances are automatically upgraded to BMC firmware version 3.16.07.
+
+== ILM policies are handled differently according to their status
+
+*	The active policy will remain the same after upgrade.
+* Only the latest 10 historical policies are preserved on upgrade.
+* If there is a proposed policy, it will be deleted during upgrade.
+
+== Alerts might be triggered
+
+Alerts might be triggered when services start and stop and when the StorageGRID system is operating as a mixed-version environment (some grid nodes running an earlier version, while others have been upgraded to a later version). Other alerts might be triggered after the upgrade completes. 
+
+For example, you might see the *Unable to communicate with node* alert when services are stopped, or you might see the *Cassandra communication error* alert when some nodes have been upgraded to StorageGRID 11.9 but other nodes are still running StorageGRID 11.8. In general, these alerts will clear when the upgrade completes.
+
+The *ILM placement unachievable* alert might be triggered when Storage Nodes are stopped during the upgrade to StorageGRID 11.9. This alert might persist for 1 day after the upgrade completes.
+
+After the upgrade completes, you can review any upgrade-related alerts by selecting *Recently resolved alerts* or *Current alerts* from the Grid Manager dashboard.
+
+== Many SNMP notifications are generated
+
+Be aware that a large number of SNMP notifications might be generated when grid nodes are stopped and restarted during the upgrade. To avoid excessive notifications, clear the *Enable SNMP Agent Notifications* checkbox (*CONFIGURATION* > *Monitoring* > *SNMP agent*) to disable SNMP notifications before you start the upgrade. Then, re-enable notifications after the upgrade is complete.
+
+== Configuration changes are restricted
+
+NOTE: This list applies specifically to upgrades from StorageGRID 11.8 to StorageGRID 11.9. If you're upgrading to another StorageGRID release, refer to the list of restricted changes in the upgrade instructions for that release.
+
+Until the *Enable New Feature* task completes:
+
+* Don't make any grid configuration changes.
+* Don't enable or disable any new features. 
+* Don't update the ILM configuration. Otherwise, you might experience inconsistent and unexpected ILM behavior.
+* Don't apply a hotfix or recover a grid node.
++
+NOTE: Contact technical support if you need to recover a node during upgrade.
+
+* You should not manage HA groups, VLAN interfaces, or load balancer endpoints while you're upgrading to StorageGRID 11.9.
+
+* Don't delete any HA groups until the upgrade to StorageGRID 11.9 is complete. Virtual IP addresses in other HA groups might become inaccessible.
+
+Until the *Final Upgrade Steps* task completes:
+
+* Don't perform an expansion procedure.
+* Don't perform a decommission procedure.
+
+== You can't view bucket details or manage buckets from the Tenant Manager
+
+During the upgrade to StorageGRID 11.9 (that is, while the system is operating as a mixed-version environment), you can't view bucket details or manage buckets using the Tenant Manager. One of the following errors appears on the Buckets page in Tenant Manager:
+
+* You can't use this API while you're upgrading to 11.9.
+
+* You can't view bucket versioning details in the Tenant Manager while you're upgrading to 11.9.
+
+This error will resolve after the upgrade to 11.9 is complete. 
+
+.Workaround
+
+While the 11.9 upgrade is in progress, use the following tools to view bucket details or manage buckets, instead of using the Tenant Manager:
+
+*	To perform standard S3 operations on a bucket, use either the link:../s3/operations-on-buckets.html[S3 REST API] or the link:../tenant/understanding-tenant-management-api.html[Tenant Management API].
+* To perform StorageGRID custom operations on a bucket (for example, viewing and modifying the bucket consistency, enabling or disabling last access time updates, or configuring search integration), use the Tenant Management API.

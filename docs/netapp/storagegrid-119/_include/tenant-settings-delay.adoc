@@ -1,0 +1,1 @@
+NOTE: Applying tenant settings across the grid could take 15 minutes or longer based on network connectivity, node status, and Cassandra operations.

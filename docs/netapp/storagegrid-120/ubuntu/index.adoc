@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/index.html
+redirect: storagegrid/swnodes/index.html
+---

@@ -1,0 +1,33 @@
+---
+permalink: tenant/deleting-platform-services-endpoint.html
+sidebar: sidebar
+keywords: how to delete tenant platform services endpoint
+summary: 'You can delete an endpoint if you no longer want to use the associated platform service.'
+---
+= Delete platform services endpoint
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can delete an endpoint if you no longer want to use the associated platform service.
+
+.Before you begin
+
+* You are signed in to the Tenant Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You belong to a user group that has the link:tenant-management-permissions.html[Manage endpoints or Root access permission].
+
+.Steps
+
+. Select *STORAGE (S3)* > *Platform services endpoints*.
++
+The Platform services endpoints page appears and shows the list of platform services endpoints that have already been configured.
+
+. Select the checkbox for each endpoint you want to delete.
++
+NOTE: If you delete a platform services endpoint that is in use, the associated platform service will be disabled for any buckets that use the endpoint. Any requests that have not yet been completed will be dropped. Any new requests will continue to be generated until you change your bucket configuration to no longer reference the deleted URN. StorageGRID will report these requests as unrecoverable errors.
+
+. Select *Actions* > *Delete endpoint*.
++
+A confirmation message appears.
+
+. Select *Delete endpoint*.

@@ -1,0 +1,31 @@
+---
+permalink: maintain/grid-node-procedures.html
+sidebar: sidebar
+keywords: storagegrid, grid node procedure
+summary: 'You might need to perform maintenance procedures related to specific grid nodes or node services.'
+---
+= Node maintenance procedures
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You might need to perform maintenance procedures related to specific grid nodes or node services.
+
+Server Manager procedures::
+Server Manager runs on every grid node to supervise the starting and stopping of services and to ensure that services gracefully join and leave the StorageGRID system. Server Manager also monitors the services on every grid node and will automatically attempt to restart any services that report faults.
++
+To perform Server Manager procedures, you typically need to access the node's command line.
++
+NOTE: You should access Server Manager only if technical support has directed you to do so.
++
+NOTE: You must close the current command shell session and log out after you are finished with Server Manager. Enter: `exit`
+
+Node reboot, shut down, and power procedures::
+
+You use these procedures to reboot one or more nodes, to shut down and restart nodes, or to power nodes off and power them back on. 
+
+Port remap procedures::
+
+You can use the port remap procedures to remove the port remaps from a node, for example, if you want to configure a load balancer endpoint using a port that was previously remapped.
+
+

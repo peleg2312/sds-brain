@@ -1,0 +1,59 @@
+{
+  "project": "grafana/mcp-grafana",
+  "version": "v2.2.0",
+  "release_url": "https://github.com/grafana/mcp-grafana/releases/tag/v2.2.0",
+  "checked_on": "2026-11-09",
+  "metadata_source": "GitHub official release API",
+  "downloaded_or_executed": true,
+  "readme_sha": "abd6660d8e0e602d258fcfb53724ace72c7ffb18",
+  "assets": [
+    {
+      "name": "mcp-grafana_Darwin_arm64.tar.gz",
+      "url": "https://github.com/grafana/mcp-grafana/releases/download/v2.2.0/mcp-grafana_Darwin_arm64.tar.gz",
+      "size_bytes": 17867102,
+      "sha256": "3710a7453b86fb535b41b6dab6bb0b1a7db86743e2ade8e06a187ca68f1e3df0",
+      "platform": "Darwin_arm64",
+      "binary_path": "mcp-grafana",
+      "binary_sha256": "46b60324d6c03c483cc78b58c67ff00759a3e74a406c64f31c58e48196a64632",
+      "binary_size_bytes": 59722162
+    },
+    {
+      "name": "mcp-grafana_Linux_arm64.tar.gz",
+      "url": "https://github.com/grafana/mcp-grafana/releases/download/v2.2.0/mcp-grafana_Linux_arm64.tar.gz",
+      "size_bytes": 16960077,
+      "sha256": "6478ef322152bf15c0cec565d6bdfa5c3d123e1080aaf03bd370418849267b16",
+      "platform": "Linux_arm64",
+      "binary_path": "mcp-grafana",
+      "binary_sha256": "3588fe751eaa9a91ea4becef352389c6038507a6ec028fb2aa4a7ea91eefad3c",
+      "binary_size_bytes": 57671842
+    },
+    {
+      "name": "mcp-grafana_Linux_x86_64.tar.gz",
+      "url": "https://github.com/grafana/mcp-grafana/releases/download/v2.2.0/mcp-grafana_Linux_x86_64.tar.gz",
+      "size_bytes": 18792058,
+      "sha256": "f93bfbd94cde68cc2e43cf5ba55da4f8e28b1a36b14fb14dadd566fc36b1312b",
+      "platform": "Linux_x86_64",
+      "binary_path": "mcp-grafana",
+      "binary_sha256": "83f9e5f5419359e987add4ccc84e5a82953f59e16c7df48768a42d1f33e0a424",
+      "binary_size_bytes": 61558946
+    },
+    {
+      "name": "mcp-grafana_Windows_x86_64.zip",
+      "url": "https://github.com/grafana/mcp-grafana/releases/download/v2.2.0/mcp-grafana_Windows_x86_64.zip",
+      "size_bytes": 19280347,
+      "sha256": "231695fef9031a2aed064ddab46b3288e7abd11822890a320cd21b547ffdc684",
+      "platform": "Windows_x86_64",
+      "binary_path": "mcp-grafana.exe",
+      "binary_sha256": "3ea946ae5e918b3764aa7a945c4ea24c296a90e8a61c94c99da6064c9a4ae3d5",
+      "binary_size_bytes": 63076864
+    }
+  ],
+  "archive_bytes_verified": true,
+  "binary_bytes_verified": true,
+  "native_execution_tested_platforms": [
+    "Linux_x86_64"
+  ],
+  "reference_packaging": "https://github.com/team-redbull/redbull-brain/tree/main/plugins/team-brain/mcp-servers/vendor/grafana",
+  "upstream_license": "Apache-2.0",
+  "native_test": "version/help; fixed-profile launcher MCP initialize, tools/list and ping with synthetic loopback endpoint; no tool calls"
+}

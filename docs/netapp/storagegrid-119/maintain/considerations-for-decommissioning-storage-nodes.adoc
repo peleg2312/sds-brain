@@ -1,0 +1,78 @@
+---
+permalink: maintain/considerations-for-decommissioning-storage-nodes.html
+sidebar: sidebar
+keywords: storage node decommission, considerations, appliance node clone
+summary: 'Before decommissioning a Storage Node, consider whether you can clone the node instead. Then, if you do decide to decommission the node, review how StorageGRID manages objects and metadata during the decommission procedure.'
+---
+= Considerations for decommissioning Storage Nodes
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Before decommissioning a Storage Node, consider whether you can clone the node instead. Then, if you do decide to decommission the node, review how StorageGRID manages objects and metadata during the decommission procedure.
+
+== When to clone a node instead of decommissioning it
+
+If you want to replace an older appliance Storage Node with a newer or larger appliance, consider cloning the appliance node instead of adding a new appliance in an expansion and then decommissioning the old appliance. 
+
+Appliance node cloning lets you easily replace an existing appliance node with a compatible appliance at the same StorageGRID site. The cloning process transfers all data to the new appliance, places the new appliance in service, and leaves the old appliance in a pre-install state.
+
+You can clone an appliance node if you need to:
+
+* Replace an appliance that is reaching end-of-life.
+
+* Upgrade an existing node to take advantage of improved appliance technology.
+
+* Increase grid storage capacity without changing the number of Storage Nodes in your StorageGRID system.
+
+* Improve storage efficiency, such as by changing the RAID mode.
+
+See https://docs.netapp.com/us-en/storagegrid-appliances/commonhardware/how-appliance-node-cloning-works.html[Appliance node cloning^] for details.
+
+== Considerations for connected Storage Nodes
+
+Review the considerations for decommissioning a connected Storage Node.
+
+* You should not decommission more than 10 Storage Nodes in a single Decommission Node procedure.
+
+* The system must, at all times, include enough Storage Nodes to satisfy operational requirements, including the link:understanding-adc-service-quorum.html[ADC quorum] and the active link:reviewing-ilm-policy-and-storage-configuration.html[ILM policy]. To satisfy this restriction, you might need to add a new Storage Node in an expansion operation before you can decommission an existing Storage Node.
++
+Use caution when you decommission Storage Nodes in a grid containing software-based metadata-only nodes. If you decommission all nodes configured to store _both_ objects and metadata, the ability to store objects is removed from the grid. See link:../primer/what-storage-node-is.html#types-of-storage-nodes[Types of Storage Nodes] for more information about metadata-only Storage Nodes.
+
+* When you remove a Storage Node, large volumes of object data are transferred over the network. Although these transfers should not affect normal system operations, they can affect the total amount of network bandwidth consumed by the StorageGRID system.
+
+* Tasks associated with Storage Node decommissioning are given a lower priority than tasks associated with normal system operations. This means that decommissioning does not interfere with normal StorageGRID system operations, and does not need to be scheduled for a period of system inactivity. Because decommissioning is performed in the background, it is difficult to estimate how long the process will take to complete. In general, decommissioning finishes more quickly when the system is quiet, or if only one Storage Node is being removed at a time.
+
+* It might take days or weeks to decommission a Storage Node. Plan this procedure accordingly. While the decommission process is designed to not impact system operations, it can limit other procedures. In general, you should perform any planned system upgrades or expansions before you remove grid nodes.
+
+* If you need to perform another maintenance procedure while Storage Nodes are being removed, you can 
+link:pausing-and-resuming-decommission-process-for-storage-nodes.html[pause the decommission procedure] and resume it after the other procedure is complete.
++
+NOTE: The *Pause* button is enabled only when the ILM evaluation or erasure-coded data decommissioning stages are reached; however, ILM evaluation (data migration) will continue to run in the background.
+
+* You can't run data repair operations on any grid nodes when a decommission task is running.
+
+* You should not make any changes to an ILM policy while a Storage Node is being decommissioned.
+
+* To permanently and securely remove data, you must wipe the Storage Node's drives after the decommission procedure is complete.
+
+[[considerations-disconnected-storage-nodes]]
+== Considerations for disconnected Storage Nodes
+
+Review the considerations for decommissioning a disconnected Storage Node.
+
+* Never decommission a disconnected node unless you are sure it can't be brought online or recovered.
++
+CAUTION: Don't perform this procedure if you believe it might be possible to recover object data from the node. Instead, contact technical support to determine if node recovery is possible.
+
+* When you decommission a disconnected Storage Node, StorageGRID uses data from other Storage Nodes to reconstruct the object data and metadata that was on the disconnected node.
+
+* Data loss might occur if you decommission more than one disconnected Storage Node. The system might not be able to reconstruct data if not enough object copies, erasure-coded fragments, or object metadata remain available.  When decommissioning Storage Nodes in a grid with software-based metadata-only nodes, decommissioning all nodes configured to store both objects and metadata removes all object storage from the grid. See link:../primer/what-storage-node-is.html#types-of-storage-nodes[Types of Storage Nodes] for more information about metadata-only Storage Nodes.
++
+CAUTION: If you have more than one disconnected Storage Node that you can't recover, contact technical support to determine the best course of action.
+
+* When you decommission a disconnected Storage Node, StorageGRID starts data repair jobs at the end of the decommissioning process. These jobs attempt to reconstruct the object data and metadata that was stored on the disconnected node.
+
+* When you decommission a disconnected Storage Node, the decommission procedure completes relatively quickly. However, the data repair jobs can take days or weeks to run and aren't monitored by the decommission procedure. You must manually monitor these jobs and restart them as needed. See link:checking-data-repair-jobs.html[Check data repair jobs].
+
+* If you decommission a disconnected Storage Node that contains the only copy of an object, the object will be lost. The data repair jobs can only reconstruct and recover objects if at least one replicated copy or enough erasure-coded fragments exist on Storage Nodes that are currently connected.

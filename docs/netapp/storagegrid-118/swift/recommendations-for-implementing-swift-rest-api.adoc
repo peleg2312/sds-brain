@@ -1,0 +1,48 @@
+---
+permalink: swift/recommendations-for-implementing-swift-rest-api.html
+sidebar: sidebar
+keywords: implement swift rest api
+summary: 'You should follow these recommendations when implementing the Swift REST API for use with StorageGRID.'
+---
+= Recommendations for implementing Swift REST API
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You should follow these recommendations when implementing the Swift REST API for use with StorageGRID.
+
+== Recommendations for HEADs to non-existent objects
+
+If your application routinely checks to see if an object exists at a path where you don't expect the object to actually exist, you should use the "Available" consistency. For example, you should use the "Available" consistency if your application performs a HEAD operation to a location before performing a PUT operation to that location.
+
+Otherwise, if the HEAD operation does not find the object, you might receive a high number of 500 Internal Server errors if one or more Storage Nodes are unavailable.
+
+You can set the "Available" consistency for each container using the link:put-container-consistency-request.html[PUT container consistency request]. You view set the "Available" consistency for each container using the link:get-container-consistency-request.html[GET container consistency request].
+
+== Recommendations for object names
+
+For containers that are created in StorageGRID 11.4 or later, restricting object names to meet performance best practices is no longer required. For example, you can now use random values for the first four characters of object names.
+
+For containers that were created in releases earlier than StorageGRID 11.4, continue to follow these recommendations for object names:
+
+* You should not use random values as the first four characters of object names. This is in contrast to the former AWS recommendation for name prefixes. Instead, you should use non-random, non-unique prefixes, such as `image`.
+* If you do follow the former AWS recommendation to use random and unique characters in name prefixes, you should prefix the object names with a directory name. That is, use this format:
++
+----
+mycontainer/mydir/f8e3-image3132.jpg
+----
++
+Instead of this format:
++
+----
+mycontainer/f8e3-image3132.jpg
+----
+
+== Recommendations for "range reads"
+
+If the link:../admin/configuring-stored-object-compression.html[global option to compress stored objects] is enabled, Swift client applications should avoid performing GET object operations that specify a range of bytes be returned. These "range read" operations are inefficient because StorageGRID must effectively uncompress the objects to access the requested bytes. GET Object operations that request a small range of bytes from a very large object are especially inefficient; for example, it is very inefficient to read a 10 MB range from a 50 GB compressed object.
+
+If ranges are read from compressed objects, client requests can time out.
+
+NOTE: If you need to compress objects and your client application must use range reads, increase the read timeout for the application.
+

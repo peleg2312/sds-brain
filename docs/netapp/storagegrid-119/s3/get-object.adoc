@@ -1,0 +1,118 @@
+---
+permalink: s3/get-object.html
+sidebar: sidebar
+keywords: get object
+summary: 'You can use the S3 GET Object request to retrieve an object from an S3 bucket.'
+---
+= GetObject
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can use the S3 GetObject request to retrieve an object from an S3 bucket.
+
+== GetObject and multipart objects
+
+You can use the `partNumber` request parameter to retrieve a specific part of a multipart or segmented object.  The `x-amz-mp-parts-count` response element indicates how many parts the object has.
+
+You can set `partNumber` to 1 for both segmented/multipart objects and  non-segmented/non-multipart objects; however, the `x-amz-mp-parts-count` response element is only returned for segmented or multipart objects.
+
+== UTF-8 characters in user metadata
+
+StorageGRID does not parse or interpret escaped UTF-8 characters in user-defined metadata. GET requests for an object with escaped UTF-8 characters in user-defined metadata don't return the `x-amz-missing-meta` header if the key name or value includes unprintable characters.
+
+== Supported request header
+
+The following request header is supported:
+
+* `x-amz-checksum-mode`: Specify `ENABLED`
++ 
+The `Range` header isn't supported with `x-amz-checksum-mode` for GetObject. When you include `Range` in the request with `x-amz-checksum-mode` enabled, StorageGRID doesn't return a checksum value in the response.
+
+== Unsupported request header
+
+The following request header is not supported and returns `XNotImplemented`:
+
+* `x-amz-website-redirect-location`
+
+== Versioning
+
+If a `versionId` subresource is not specified, the operation fetches the most recent version of the object in a versioned bucket. If the current version of the object is a delete marker, a "Not Found" status is returned with the `x-amz-delete-marker` response header set to `true`.
+
+== Request headers for server-side encryption with customer-provided encryption keys (SSE-C)
+
+Use all three of the headers if the object is encrypted with a unique key that you provided.
+
+* `x-amz-server-side-encryption-customer-algorithm`: Specify `AES256`.
+* `x-amz-server-side-encryption-customer-key`: Specify your encryption key for the object.
+* `x-amz-server-side-encryption-customer-key-MD5`: Specify the MD5 digest of the object's encryption key.
+
+CAUTION: The encryption keys you provide are never stored. If you lose an encryption key, you lose the corresponding object. Before using customer-provided keys to secure object data, review the considerations in link:using-server-side-encryption.html[Use server-side encryption].
+
+== Behavior of GetObject for Cloud Storage Pool objects
+
+If an object has been stored in a link:../ilm/what-cloud-storage-pool-is.html[Cloud Storage Pool], the behavior of a GetObject request depends on the state of the object. See link:head-object.html[HeadObject] for more details.
+
+NOTE: If an object is stored in a Cloud Storage Pool and one or more copies of the object also exist on the grid, GetObject requests will attempt to retrieve data from the grid, before retrieving it from the Cloud Storage Pool.
+
+[cols="1a,1a" options="header"]
+|===
+| State of object| Behavior of GetObject
+
+| Object ingested into StorageGRID but not yet evaluated by ILM, or object stored in a traditional storage pool or using erasure coding
+| `200 OK`
+
+A copy of the object is retrieved.
+
+| Object in Cloud Storage Pool but not yet transitioned to a non-retrievable state
+| `200 OK`
+
+A copy of the object is retrieved.
+
+| Object transitioned to a non-retrievable state
+| `403 Forbidden`, `InvalidObjectState`
+
+Use a link:post-object-restore.html[RestoreObject] request to restore the object to a retrievable state.
+
+| Object in process of being restored from a non-retrievable state
+| `403 Forbidden`, `InvalidObjectState`
+
+Wait for the RestoreObject request to complete.
+
+| Object fully restored to the Cloud Storage Pool
+|`200 OK`
+
+A copy of the object is retrieved.
+
+|===
+
+=== Multipart or segmented objects in a Cloud Storage Pool
+
+If you uploaded a multipart object or if StorageGRID split a large object into segments, StorageGRID determines whether the object is available in the Cloud Storage Pool by sampling a subset of the object's parts or segments. In some cases, a GetObject request might incorrectly return `200 OK` when some parts of the object have already been transitioned to a non-retrievable state or when some parts of the object have not yet been restored.
+
+In these cases:
+
+* The GetObject request might return some data but stop midway through the transfer.
+* A subsequent GetObject request might return `403 Forbidden`.
+
+== GetObject and cross-grid replication
+If you are using link:../admin/grid-federation-overview.html[grid federation] and link:../tenant/grid-federation-manage-cross-grid-replication.html[cross-grid replication] is enabled for a bucket, the S3 client can verify an object's replication status by issuing a GetObject request. The response includes the StorageGRID-specific `x-ntap-sg-cgr-replication-status` response header, which will have one of the following values:
+
+[cols="1a,2a" options="header"]
+|===
+| Grid| Replication status 
+
+| Source
+| * *COMPLETED*: The replication was successful.
+* *PENDING*: The object hasn't been replicated yet.
+* *FAILURE*: The replication failed with a permanent failure. A user must resolve the error.
+
+| Destination
+| *REPLICA*: The object was replicated from the source grid.
+
+|===
+
+NOTE: StorageGRID does not support the `x-amz-replication-status` header.
+
+// 2024 JULY 1, SGRIDDOC-48
+// 2024 MAY 23, SGWS-31243

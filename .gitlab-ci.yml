@@ -1,0 +1,6 @@
+# The repository check on every push (point `image` at your internal registry mirror; python3 >= 3.9 and git).
+image: python:3.12
+check:
+  script:
+    - python3 tools/check.py
+    - python3 tools/test_brain.py

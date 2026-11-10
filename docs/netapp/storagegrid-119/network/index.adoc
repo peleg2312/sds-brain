@@ -1,0 +1,54 @@
+---
+permalink: network/index.html
+sidebar: sidebar
+keywords: storagegrid, network, networking, ethernet, subnet, routing
+summary: 'Use these guidelines to learn about StorageGRID architecture and networking topologies and to learn the requirements for network configuration and provisioning.'
+---
+= Networking guidelines
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Use these guidelines to learn about StorageGRID architecture and networking topologies and to learn the requirements for network configuration and provisioning.
+
+== About these instructions
+
+These guidelines provide information you can use to create the StorageGRID networking infrastructure before deploying and configuring StorageGRID nodes. Use these guidelines to help ensure that communication can occur among all the nodes in the grid and between the grid and external clients and services.
+
+External clients and external services need to connect to StorageGRID networks to perform functions such as the following:
+
+* Store and retrieve object data
+* Receive email notifications
+* Access the StorageGRID management interface (the Grid Manager and Tenant Manager)
+* Access the audit share (optional)
+* Provide services such as:
+ ** Network Time Protocol (NTP)
+ ** Domain name system (DNS)
+ ** Key Management Server (KMS)
+
+StorageGRID networking must be configured appropriately to handle the traffic for these functions and more.
+
+== Before you begin
+Configuring the networking for a StorageGRID system requires a high level of experience with Ethernet switching, TCP/IP networking, subnets, network routing, and firewalls.
+
+Before you configure networking, become familiar with StorageGRID architecture as described in link:../primer/index.html[Learn about StorageGRID].
+
+After you determine which StorageGRID networks you want to use and how those networks will be configured, you can install and configure the StorageGRID nodes by following the appropriate instructions.
+
+.Install appliance nodes
+
+* https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/index.html[Install appliance hardware^]
+
+.Install software-based nodes
+
+* link:../rhel/index.html[Install StorageGRID on Red Hat Enterprise Linux]
+
+* link:../ubuntu/index.html[Install StorageGRID on Ubuntu or Debian]
+
+* link:../vmware/index.html[Install StorageGRID on VMware]
+
+.Configure and administer StorageGRID software
+
+* link:../admin/index.html[Administer StorageGRID]
+
+* link:../release-notes/index.html[Release notes]

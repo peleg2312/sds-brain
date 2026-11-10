@@ -1,0 +1,142 @@
+---
+permalink: expand/gather-required-materials.html
+sidebar: sidebar
+keywords: expand, expansion, planning, storagrid files
+summary: 'Before performing an expansion operation, gather the materials and install and configure any new hardware and networks.'
+---
+= Gather required materials
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Before performing an expansion operation, gather the materials and install and configure any new hardware and networks.
+
+[cols="1a,2a" options="header"]
+|===
+| Item| Notes
+
+| StorageGRID installation archive
+| If you are adding new grid nodes or a new site, you must download and extract the StorageGRID installation archive. You must use the same version that is currently running on the grid.
+
+For details, see the instructions for <<download-and-extract-install-files,downloading and extracting the StorageGRID installation files>>.
+
+*Note:* You don't need to download files if you are adding new storage volumes to existing Storage Nodes or installing a new StorageGRID appliance.
+
+| Service laptop
+| The service laptop has the following:
+
+* Network port
+* SSH client (for example, PuTTY)
+* link:../admin/web-browser-requirements.html[Supported web browser]
+
+| `Passwords.txt` file
+| Contains the passwords required to access grid nodes on the command line. Included in the Recovery Package.
+
+| Provisioning passphrase
+| The passphrase is created and documented when the StorageGRID system is first installed. The provisioning passphrase is not in the `Passwords.txt` file.
+
+| StorageGRID documentation
+|
+* link:../admin/index.html[Administer StorageGRID]
+* link:../release-notes/index.html[Release notes]
+* Installation instructions for your platform
+** link:../rhel/index.html[Install StorageGRID on Red Hat Enterprise Linux]
+** link:../ubuntu/index.html[Install StorageGRID on Ubuntu or Debian]
+** link:../vmware/index.html[Install StorageGRID on VMware]
+
+| Current documentation for your platform
+| For supported versions, see the https://imt.netapp.com/matrix/#welcome[Interoperability Matrix Tool (IMT)^].
+
+|===
+
+.[[download-and-extract-install-files]]
+== Download and extract the StorageGRID installation files
+
+Before you can add new grid nodes or a new site, you must download the appropriate StorageGRID installation archive and extract the files.
+
+.About this task
+
+You must perform expansion operations using the version of StorageGRID that is currently running on the grid.
+
+.Steps
+
+. Go to https://mysupport.netapp.com/site/products/all/details/storagegrid/downloads-tab[NetApp Downloads: StorageGRID^].
+
+. Select the version of StorageGRID that is currently running on the grid.
+. Sign in with the username and password for your NetApp account.
+. Read the End User License Agreement, select the checkbox, and then select *Accept & Continue*.
+. In the *Install StorageGRID* column of the download page, select the `.tgz` or `.zip` file for your platform.
++
+The version shown in the installation archive file must match the version of the software that is currently installed.
++
+Use the `.zip` file if you are running Windows on the service laptop.
++
+[cols="1a,2a" options="header"]
+|===
+| Platform| Installation archive
+
+| Red Hat Enterprise Linux
+m|
+include::../_include/installation-archives-rhel.adoc[]
+
+| Ubuntu or Debian or Appliances
+m|
+include::../_include/installation-archives-ubuntu.adoc[]
+
+| VMware
+m|
+include::../_include/installation-archives-vmware.adoc[]
+
+| OpenStack/other Hypervisor
+| To expand an existing deployment on OpenStack, you must deploy a virtual machine running one of the supported Linux distributions listed above and follow the appropriate instructions for Linux.
+
+|===
+
+. Download and extract the archive file.
+. Follow the appropriate step for your platform to choose the files you need, based on your platform, planned grid topology, and how you will expand your StorageGRID system.
++
+The paths listed in the step for each platform are relative to the top-level directory installed by the archive file.
+
+. If you are expanding a Red Hat Enterprise Linux system, select the appropriate files.
++
+include::../_include/installation-files-rhel.adoc[]
+
+[start=9]
+. If you are expanding an Ubuntu or Debian system, select the appropriate files.
++
+include::../_include/installation-files-ubuntu.adoc[]
+
+[start=10]
+. If you are expanding a VMware system, select the appropriate files.
++
+include::../_include/installation-files-vmware.adoc[]
+
+[start=11]
+. If you are expanding a StorageGRID appliance-based system, select the appropriate files.
++
+include::../_include/installation-files-appliance.adoc[]
+
+== Verify hardware and networking
+
+Before beginning the expansion of your StorageGRID system, ensure the following:
+
+*  The hardware needed to support the new grid nodes or new site has been installed and configured.
+
+* All new nodes have bidirectional communication paths to all existing and new nodes (a requirement for the Grid Network). In particular, confirm that the following TCP ports are open between the new nodes you are adding in the expansion and the primary Admin Node:
+
+** 1055
+** 7443
+** 8011
+** 10342
+
++
+See link:../network/internal-grid-node-communications.html[Internal grid node communications].
+
+* The primary Admin Node can communicate with all expansion servers that are intended to host the StorageGRID system.
+
+* If any of the new nodes has a Grid Network IP address on a subnet not previously used, you have already link:updating-subnets-for-grid-network.html[added the new subnet] to the Grid Network subnet list. Otherwise, you will have to cancel the expansion, add the new subnet, and start the procedure again.
+
+* You aren't using network address translation (NAT) on the Grid Network between grid nodes or between StorageGRID sites. When you use private IPv4 addresses for the Grid Network, those addresses must be directly routable from every grid node at every site. Using NAT to bridge the Grid Network across a public network segment is supported only if you use a tunneling application that is transparent to all
+nodes in the grid, meaning the grid nodes require no knowledge of public IP addresses. 
++
+This NAT restriction is specific to grid nodes and the Grid Network. As required, you can use NAT between external clients and grid nodes, such as to provide a public IP address for a Gateway Node. 

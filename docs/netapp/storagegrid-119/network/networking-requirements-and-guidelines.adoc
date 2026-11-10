@@ -1,0 +1,58 @@
+---
+permalink: network/networking-requirements-and-guidelines.html
+sidebar: sidebar
+keywords: storagegrid, networking requirements, network requirements, nat
+summary: 'You must verify that the current networking infrastructure and configuration can support the planned StorageGRID network design.'
+---
+= Networking requirements
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You must verify that the current networking infrastructure and configuration can support the planned StorageGRID network design.
+
+== General networking requirements
+
+All StorageGRID deployments must be able to support the following connections.
+
+These connections can occur through the Grid, Admin, or Client Networks, or the combinations of these networks as illustrated in the network topology examples.
+
+* *Management connections*: Inbound connections from an administrator to the node, usually through SSH. Web browser access to the Grid Manager, the Tenant Manager, and the StorageGRID Appliance Installer.
+* *NTP server connections*: Outbound UDP connection that receives an inbound UDP response.
++
+At least one NTP server must be reachable by the primary Admin Node.
+
+* *DNS server connections*: Outbound UDP connection that receives an inbound UDP response.
+* *LDAP/Active Directory server connections*: Outbound TCP connection from the Identity service on Storage Nodes.
+* *AutoSupport*: Outbound TCP connection from the Admin Nodes to either `support.netapp.com` or a customer-configured proxy.
+* *External key management server*: Outbound TCP connection from each appliance node with node encryption enabled.
+* Inbound TCP connections from S3 clients.
+* Outbound requests from StorageGRID platform services such as CloudMirror replication or from Cloud Storage Pools.
+
+If StorageGRID is unable to contact any of the provisioned NTP or DNS servers using the default routing rules, it will automatically attempt contact on all networks (Grid, Admin, and Client) as long as the IP addresses of the DNS and NTP servers are specified. If the NTP or DNS servers can be reached on any network, StorageGRID will automatically create additional routing rules to ensure that network is used for all future attempts to connect to it.
+
+TIP: Although you can use these automatically discovered host routes, in general you should manually configure the DNS and NTP routes to ensure connectivity in case automatic discovery fails.
+
+If you aren't ready to configure the optional Admin and Client Networks during deployment, you can configure these networks when you approve grid nodes during the configuration steps. Additionally, you can configure these networks after installation, using the Change IP tool (see link:../maintain/configuring-ip-addresses.html[Configure IP addresses]).
+
+Only S3 client connections and SSH, Grid Manager, and Tenant Manager administrative connections are supported over VLAN interfaces. Outbound connections, such as to NTP, DNS, LDAP, AutoSupport, and KMS servers, must go over the Client, Admin, or Grid Network interfaces directly. If the interface is configured as a trunk to support VLAN interfaces, this traffic will flow over the interface's native VLAN, as configured at the switch.
+
+== Wide Area Networks (WANs) for multiple sites
+
+When configuring a StorageGRID system with multiple sites, the WAN connection between sites must have a minimum bandwidth of 25 Mbit/second in each direction before accounting for client traffic. Data replication or erasure coding between sites, node or site expansion, node recovery, and other operations or configurations will require additional bandwidth.
+
+Actual minimum WAN bandwidth requirements depend on client activity and the ILM protection scheme. For assistance estimating the minimum WAN bandwidth requirements, contact your NetApp Professional Services consultant.
+
+== Connections for Admin Nodes and Gateway Nodes
+
+Admin Nodes must always be secured from untrusted clients, such as those on the open internet. You must ensure that no untrusted client can access any Admin Node on the Grid Network, the Admin Network, or the Client Network.
+
+Admin Nodes and Gateway Nodes that you plan to add to high availability groups must be configured with a static IP address. For more information, see link:../admin/managing-high-availability-groups.html[Manage high availability groups]. 
+
+== Using network address translation (NAT)
+
+Don't use network address translation (NAT) on the Grid Network between grid nodes or between StorageGRID sites. When you use private IPv4 addresses for the Grid Network, those addresses must be directly routable from every grid node at every site. As required, however, you can use NAT between external clients and grid nodes, such as to provide a public IP address for a Gateway Node. Using NAT to bridge a public network segment is supported only when you employ a tunneling application that is transparent to all nodes in the grid, meaning the grid nodes require no knowledge of public IP addresses.
+
+
+
+

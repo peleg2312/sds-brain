@@ -1,0 +1,5 @@
+---
+permalink: admin/using-sandbox-mode.html
+redirect: admin/configure-sso.html
+---
+// 2025-03-28, SGWS-33961

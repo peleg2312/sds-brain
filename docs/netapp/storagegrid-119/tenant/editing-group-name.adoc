@@ -1,0 +1,34 @@
+---
+permalink: tenant/editing-group-name.html
+sidebar: sidebar
+keywords: how to edit tenant group name
+summary: 'You can edit the display name for a group. You cannot edit the unique name for a group.'
+---
+= Edit group name
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can edit the display name for a group. You can't edit the unique name for a group.
+
+.Before you begin
+
+* You are signed in to the Tenant Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You belong to a user group that has the Root access permission. See link:tenant-management-permissions.html[Tenant management permissions].
+
+.Steps
+. Select *ACCESS MANAGEMENT* > *Groups*.
+. Select the checkbox for the group whose display name you want to edit.
+. Select *Actions* > *Edit group name*.
++
+The Edit group name dialog box appears.
++
+image::../media/edit_group_name.png[Edit group name]
+
+. If you are editing a local group, update the display name as needed.
++
+You can't change a group's unique name. You can't edit the display name for a federated group.
+
+. Select *Save changes*.
++
+A confirmation message appears in the upper right corner of the page.

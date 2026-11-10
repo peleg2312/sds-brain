@@ -1,0 +1,52 @@
+---
+permalink: swift/history-of-swift-api-support-in-storagegrid.html
+sidebar: sidebar
+keywords: swift api support history
+summary: 'You should be aware of changes to the StorageGRID system’s support for the Swift REST API.'
+---
+= History of Swift API support in StorageGRID
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You should be aware of changes to the StorageGRID system's support for the Swift REST API.
+
+[cols="1a,3a" options="header"]
+|===
+| Release| Comments
+
+| 11.8
+|
+
+|11.7
+|Support for Swift client applications has been deprecated and will be removed in a future release.
+
+
+|11.6
+|Minor editorial changes.
+
+|11.5
+|Removed Weak consistency. The Available consistency will be used instead.
+
+|11.4
+|Added support for TLS 1.3. Added description of interrelationship between ILM and consistency.
+
+|11.3
+|Updated PUT Object operations to describe the impact of ILM rules that use synchronous placement at ingest (the Balanced and Strict options for Ingest Behavior). Added description of client connections that use load balancer endpoints or high availability groups. TLS 1.1 ciphers are no longer supported.
+
+|11.2
+|Minor editorial changes to document.
+
+|11.1
+|Added support for using HTTP for Swift client connections to grid nodes. Updated the definitions of consistency values.
+
+|11.0
+|Added support for 1,000 containers for each tenant account.
+
+|10.3
+|Administrative updates and corrections to the document. Removed sections for configuring custom server certificates.
+
+|10.2
+|Initial support of the Swift API by the StorageGRID system. The currently supported version is OpenStack Swift Object Storage API v1.
+
+|===

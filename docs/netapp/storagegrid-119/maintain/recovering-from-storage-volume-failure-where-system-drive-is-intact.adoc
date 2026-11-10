@@ -1,0 +1,22 @@
+---
+permalink: maintain/recovering-from-storage-volume-failure-where-system-drive-is-intact.html
+sidebar: sidebar
+keywords: storagegrid, recover, storage volume failure, volume failure, system drive intact
+summary: 'You must complete a series of tasks to recover a software-based Storage Node where one or more storage volumes on the Storage Node have failed, but the system drive is intact. If only storage volumes have failed, the Storage Node is still available to the StorageGRID system.'
+---
+= Recover from storage volume failure where system drive is intact
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You must complete a series of tasks to recover a software-based Storage Node where one or more storage volumes on the Storage Node have failed, but the system drive is intact. If only storage volumes have failed, the Storage Node is still available to the StorageGRID system.
+
+NOTE: This recovery procedure applies to software-based Storage Nodes only. If storage volumes have failed on an appliance Storage Node, use the appliance procedure instead: link:recovering-storagegrid-appliance-storage-node.html[Recover appliance Storage Node].
+
+This recovery procedure includes the following tasks:
+
+* link:reviewing-warnings-about-storage-volume-recovery.html[Review warnings for storage volume recovery]
+* link:identifying-and-unmounting-failed-storage-volumes.html[Identify and unmount failed storage volumes]
+* link:recovering-failed-storage-volumes-and-rebuilding-cassandra-database.html[Recover the volumes and rebuild the Cassandra database]
+* link:restoring-object-data-to-storage-volume-where-system-drive-is-intact.html[Restore object data]
+* link:checking-storage-state-after-recovering-storage-volumes.html[Check the storage state]

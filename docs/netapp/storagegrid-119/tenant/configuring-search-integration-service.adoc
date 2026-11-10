@@ -1,0 +1,240 @@
+---
+permalink: tenant/configuring-search-integration-service.html
+sidebar: sidebar
+keywords: how to configure search integration service
+summary: 'You enable search integration for a bucket by creating search integration configuration XML and using the Tenant Manager to apply the XML to a bucket.'
+---
+= Configure the search integration service
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You enable search integration for a bucket by creating search integration XML and using the Tenant Manager to apply the XML to the bucket.
+
+.Before you begin
+
+* Platform services were enabled for your tenant account by a StorageGRID administrator.
+* You have already created an S3 bucket whose contents you want to index.
+* The endpoint that you intend to use as a destination for the search integration service already exists, and you have its URN.
+* You belong to a user group that has the link:tenant-management-permissions.html[Manage all buckets or Root access permission]. These permissions override the permission settings in group or bucket policies when configuring the bucket using the Tenant Manager.
+
+.About this task
+
+After you configure the search integration service for a source bucket, creating an object or updating an object's metadata or tags triggers object metadata to be sent to the destination endpoint.
+
+If you enable the search integration service for a bucket that already contains objects, metadata notifications aren't automatically sent for existing objects. Update these existing objects to ensure that their metadata is added to the destination search index.
+
+.Steps
+
+. Enable search integration for a bucket:
++
+* Use a text editor to create the metadata notification XML required to enable search integration.
+
+* When configuring the XML, use the URN of a search integration endpoint as the destination.
++
+Objects can be filtered on the prefix of the object name. For example, you could send metadata for objects with the prefix `images` to one destination, and metadata for objects with the prefix `videos` to another. Configurations that have overlapping prefixes aren't valid, and are rejected when they're submitted. For example, a configuration that includes one rule for objects with the prefix `test` and a second rule for objects with the prefix `test2` is not allowed.
++
+As needed, refer to the <<example-notification-config,examples for the metadata configuration XML>>.
++
+----
+<MetadataNotificationConfiguration>
+ <Rule>
+    <Status>Enabled</Status>
+    <Prefix></Prefix>
+    <Destination>
+       <Urn>/Urn>
+       </Destination>
+ </Rule>
+</MetadataNotificationConfiguration>
+----
++
+Elements in the metadata notification configuration XML:
++
+[cols="1a,3a,1a" options="header"]
+|===
+| Name| Description| Required
+| MetadataNotificationConfiguration
+| Container tag for rules used to specify the objects and destination for metadata notifications.
+
+Contains one or more Rule elements.
+| Yes
+
+| Rule
+| Container tag for a rule that identifies the objects whose metadata should be added to a specified index.
+
+Rules with overlapping prefixes are rejected.
+
+Included in the MetadataNotificationConfiguration element.
+| Yes
+
+| ID
+| Unique identifier for the rule.
+
+Included in the Rule element.
+| No
+
+| Status
+| Status can be 'Enabled' or 'Disabled'. No action is taken for rules that are disabled.
+
+Included in the Rule element.
+| Yes
+
+| Prefix
+| Objects that match the prefix are affected by the rule, and their metadata is sent to the specified destination.
+
+To match all objects, specify an empty prefix.
+
+Included in the Rule element.
+| Yes
+
+| Destination
+| Container tag for the destination of a rule.
+
+Included in the Rule element.
+| Yes
+
+| Urn
+| URN of the destination where object metadata is sent. Must be the URN of a StorageGRID endpoint with the following properties:
+
+* `es` must be the third element.
+* The URN must end with the index and type where the metadata is stored, in the form `domain-name/myindex/mytype`.
+
+Endpoints are configured using the Tenant Manager or Tenant Management API. They take the following form:
+
+* `arn:aws:es:region:account-ID:domain/mydomain/myindex/mytype`
+* `urn:mysite:es:::mydomain/myindex/mytype`
+
+The endpoint must be configured before the configuration XML is submitted, or configuration will fail with a 404 error.
+
+URN is included in the Destination element.
+
+| Yes
+|===
+
+. In the Tenant Manager select *STORAGE (S3)* > *Buckets*.
+. Select the name of the source bucket.
++
+The bucket details page appears.
+
+. Select *Platform services* > *Search integration*
+. Select the *Enable search integration* checkbox.
+. Paste the metadata notification configuration into the text box, and select *Save changes*.
++
+NOTE: Platform services must be enabled for each tenant account by a StorageGRID administrator using the Grid Manager or Management API. Contact your StorageGRID administrator if an error occurs when you save the configuration XML.
+
+. Verify that the search integration service is configured correctly:
+ .. Add an object to the source bucket that meets the requirements for triggering a metadata notification as specified in the configuration XML.
++
+In the example shown earlier, all objects added to the bucket trigger a metadata notification.
+
+ .. Confirm that a JSON document that contains the object's metadata and tags was added to the search index specified in the endpoint.
+
+.After you finish
+
+As necessary, you can disable search integration for a bucket using either of the following methods:
+
+* Select *STORAGE (S3)* > *Buckets* and clear the *Enable search integration* checkbox.
+* If you are using the S3 API directly, use a DELETE Bucket metadata notification request. See the instructions for implementing S3 client applications.
+
+== [[example-notification-config]]Example: Metadata notification configuration that applies to all objects
+
+In this example, object metadata for all objects is sent to the same destination.
+
+----
+<MetadataNotificationConfiguration>
+    <Rule>
+        <ID>Rule-1</ID>
+        <Status>Enabled</Status>
+        <Prefix></Prefix>
+        <Destination>
+           <Urn>urn:myes:es:::sgws-notifications/test1/all</Urn>
+        </Destination>
+    </Rule>
+</MetadataNotificationConfiguration>
+----
+
+== Example: Metadata notification configuration with two rules
+
+In this example, object metadata for objects that match the prefix `/images` is sent to one destination, while object metadata for objects that match the prefix `/videos` is sent to a second destination.
+
+----
+
+<MetadataNotificationConfiguration>
+    <Rule>
+        <ID>Images-rule</ID>
+        <Status>Enabled</Status>
+        <Prefix>/images</Prefix>
+        <Destination>
+           <Urn>arn:aws:es:us-east-1:3333333:domain/es-domain/graphics/imagetype</Urn>
+        </Destination>
+    </Rule>
+    <Rule>
+        <ID>Videos-rule</ID>
+        <Status>Enabled</Status>
+        <Prefix>/videos</Prefix>
+        <Destination>
+           <Urn>arn:aws:es:us-west-1:22222222:domain/es-domain/graphics/videotype</Urn>
+        </Destination>
+    </Rule>
+</MetadataNotificationConfiguration>
+----
+
+== Metadata notification format
+
+When you enable the search integration service for a bucket, a JSON document is generated and sent to the destination endpoint each time object metadata or tags are added, updated, or deleted.
+
+This example shows an example of the JSON that could be generated when an object with the key `SGWS/Tagging.txt` is created in a bucket named `test`. The `test` bucket is not versioned, so the `versionId` tag is empty.
+
+----
+{
+  "bucket": "test",
+  "key": "SGWS/Tagging.txt",
+  "versionId": "",
+  "accountId": "86928401983529626822",
+  "size": 38,
+  "md5": "3d6c7634a85436eee06d43415012855",
+  "region":"us-east-1",
+  "metadata": {
+    "age": "25"
+  },
+  "tags": {
+    "color": "yellow"
+  }
+}
+----
+
+=== Fields included in the JSON document
+
+The document name includes the bucket name, object name, and version ID if present.
+
+Bucket and object information::
++
+`bucket`: Name of the bucket
++
+`key`: Object key name
++
+`versionID`: Object version, for objects in versioned buckets
++
+`region`: Bucket region, for example `us-east-1`
+
+System metadata::
++
+`size`: Object size (in bytes) as visible to an HTTP client
++
+`md5`: Object hash
+
+User metadata::
++
+`metadata`: All user metadata for the object, as key-value pairs
++
+`key:value`
+
+Tags::
++
+`tags`: All object tags defined for the object, as key-value pairs
++
+`key:value`
+
+=== How to view results in Elasticsearch
+
+For tags and user metadata, StorageGRID passes dates and numbers to Elasticsearch as strings or as S3 event notifications. To configure Elasticsearch to interpret these strings as dates or numbers, follow the Elasticsearch instructions for dynamic field mapping and for mapping date formats. Enable the dynamic field mappings on the index before you configure the search integration service. After a document is indexed, you can't edit the document's field types in the index.

@@ -1,0 +1,278 @@
+---
+permalink: tenant/creating-platform-services-endpoint.html
+sidebar: sidebar
+keywords: how to create platform services endpoint
+summary: 'You must create at least one endpoint of the correct type before you can enable a platform service.'
+---
+= Create platform services endpoint
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You must create at least one endpoint of the correct type before you can enable a platform service.
+
+.Before you begin
+
+* You are signed in to the Tenant Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* Platform services were enabled for your tenant account by a StorageGRID administrator.
+* You belong to a user group that has the link:tenant-management-permissions.html[Manage endpoints or Root access permission].
+* The resource referenced by the platform services endpoint have been created:
+ ** CloudMirror replication: S3 bucket
+ ** Event notification: Amazon Simple Notification Service (Amazon SNS) or Kafka topic
+ ** Search notification: Elasticsearch index, if the destination cluster is not configured to automatically create indexes.
+* You have the information about the destination resource:
+ ** Host and port for the Uniform Resource Identifier (URI)
++
+NOTE: If you plan to use a bucket hosted on a StorageGRID system as an endpoint for CloudMirror replication, contact the grid administrator to determine the values you need to enter. 
+
+ ** Unique Resource Name (URN)
++
+link:specifying-urn-for-platform-services-endpoint.html[Specify URN for platform services endpoint]
+
+** Authentication credentials (if required):
++
+[role="tabbed-block"]
+====
+
+.Search integration endpoints
+--
+For search integration endpoints, you can use the following credentials:
+
+*** Access Key: Access key ID and secret access key
+*** Basic HTTP: Username and password
+--
+
+.CloudMirror replication endpoints
+--
+For CloudMirror replication endpoints, you can use the following credentials:
+
+*** Access Key: Access key ID and secret access key
+*** CAP (C2S Access Portal): Temporary credentials URL, server and client certificates, client keys, and an optional client private key passphrase.
+--
+
+.Amazon SNS endpoints
+--
+For Amazon SNS endpoints, you can use the following credentials:
+
+*** Access Key: Access key ID and secret access key
+--
+
+.Kafka endpoints
+--
+For Kafka endpoints, you can use the following credentials:
+
+*** SASL/PLAIN: Username and password
+*** SASL/SCRAM-SHA-256: Username and password
+*** SASL/SCRAM-SHA-512: Username and password
+--
+====
+
+** Security certificate (if using a custom CA certificate)
+* If the Elasticsearch security features are enabled, you have the monitor cluster privilege for connectivity testing, and either the write index privilege or both the index and delete index privileges for document updates.
+
+.Steps
+
+. Select *STORAGE (S3)* > *Platform services endpoints*. The Platform services endpoints page appears.
+
+. Select *Create endpoint*.
+
+. Enter a display name to briefly describe the endpoint and its purpose.
++
+The type of platform service that the endpoint supports is shown beside the endpoint name when it is listed on the Endpoints page, so you don't need to include that information in the name.
+
+. In the *URI* field, specify the Unique Resource Identifier (URI) of the endpoint.
++
+--
+Use one of the following formats:
+
+----
+https://host:port
+http://host:port
+----
+
+If you don't specify a port, the following default ports are used:
+
+* Port 443 for HTTPS URIs and port 80 for HTTP URIs (most endpoints)
+* Port 9092 for HTTPS and HTTP URIs (Kafka endpoints only)
+--
++
+For example, the URI for a bucket hosted on StorageGRID might be:
++
+----
+https://s3.example.com:10443
+----
++
+In this example, `s3.example.com` represents the DNS entry for the virtual IP (VIP) of the StorageGRID high availability (HA) group, and `10443` represents the port defined in the load balancer endpoint.
++
+NOTE: Whenever possible, you should connect to an HA group of load-balancing nodes to avoid a single point of failure.
+
++
+Similarly, the URI for a bucket hosted on AWS might be:
++
+----
+https://s3-aws-region.amazonaws.com
+----
+
++
+NOTE: If the endpoint is used for the CloudMirror replication service, don't include the bucket name in the URI. You include the bucket name in the *URN* field.
+
+. Enter the Unique Resource Name (URN) for the endpoint.
++
+NOTE: You can't change an endpoint's URN after the endpoint has been created.
+
+. Select *Continue*.
+. Select a value for *Authentication type*.
++
+[role="tabbed-block"]
+====
+
+.Search integration endpoints
+--
+Enter or upload the credentials for a search integration endpoint.
+
+The credentials that you supply must have write permissions for the destination resource.
+
+[cols="1a,2a,2a" options="header"]
+|===
+| Authentication type| Description| Credentials
+| Anonymous
+| Provides anonymous access to the destination. Only works for endpoints that have security disabled.
+| No authentication.
+
+| Access Key
+| Uses AWS-style credentials to authenticate connections with the destination.
+|
+* Access key ID
+* Secret access key
+
+| Basic HTTP
+| Uses a username and password to authenticate connections to the destination.
+|
+* Username
+* Password
+
+|===
+--
+
+.CloudMirror replication endpoints
+--
+Enter or upload the credentials for a CloudMirror replication endpoint.
+
+The credentials that you supply must have write permissions for the destination resource.
+
+[cols="1a,2a,2a" options="header"]
+|===
+| Authentication type| Description| Credentials
+| Anonymous
+| Provides anonymous access to the destination. Only works for endpoints that have security disabled.
+| No authentication.
+
+| Access Key
+| Uses AWS-style credentials to authenticate connections with the destination.
+|
+* Access key ID
+* Secret access key
+
+| CAP (C2S Access Portal)
+| Uses certificates and keys to authenticate connections to the destination.
+|
+* Temporary credentials URL
+* Server CA certificate (PEM file upload)
+* Client certificate (PEM file upload)
+* Client private key (PEM file upload, OpenSSL encrypted format or unencrypted private key format)
+* Client private key passphrase (optional)
+|===
+--
+
+.Amazon SNS endpoints
+--
+Enter or upload the credentials for an Amazon SNS endpoint.
+
+The credentials that you supply must have write permissions for the destination resource.
+
+[cols="1a,2a,2a" options="header"]
+|===
+| Authentication type| Description| Credentials
+| Anonymous
+| Provides anonymous access to the destination. Only works for endpoints that have security disabled.
+| No authentication.
+| Access Key
+| Uses AWS-style credentials to authenticate connections with the destination.
+|
+* Access key ID
+* Secret access key
+|===
+--
+
+.Kafka endpoints
+--
+Enter or upload the credentials for a Kafka endpoint.
+
+The credentials that you supply must have write permissions for the destination resource.
+
+[cols="1a,2a,2a" options="header"]
+|===
+| Authentication type| Description| Credentials
+| Anonymous
+| Provides anonymous access to the destination. Only works for endpoints that have security disabled.
+| No authentication.
+
+| SASL/PLAIN
+| Uses a username and password with plain text to authenticate connections to the destination.
+| 
+* Username
+* Password
+
+| SASL/SCRAM-SHA-256
+| Uses a username and password using a challenge-response protocol and SHA-256 hashing to authenticate connections to the destination.
+| 
+* Username
+* Password
+
+| SASL/SCRAM-SHA-512
+| Uses a username and password using a challenge-response protocol and SHA-512 hashing to authenticate connections to the destination.
+| 
+* Username
+* Password
+|===
+
+Select *Use delegation taken authentication* if the username and password are derived from a delegation token that was obtained from a Kafka cluster.
+--
+====
+
+. Select *Continue*.
+. Select a radio button for *Verify server* to choose how TLS connection to the endpoint is verified.
++
+[cols="1a,2a" options="header"]
+|===
+| Type of certificate verification| Description
+| Use custom CA certificate
+| Use a custom security certificate. If you select this setting, copy and paste the custom security certificate in the *CA Certificate* text box.
+
+| Use operating system CA certificate
+| Use the default Grid CA certificate installed on the operating system to secure connections.
+
+| Do not verify certificate
+| The certificate used for the TLS connection is not verified. This option is not secure.
+|===
+
+. Select *Test and create endpoint*.
+* A success message appears if the endpoint can be reached using the specified credentials. The connection to the endpoint is validated from one node at each site.
+* An error message appears if endpoint validation fails. If you need to modify the endpoint to correct the error, select *Return to endpoint details* and update the information. Then, select *Test and create endpoint*.
++
+NOTE: Endpoint creation fails if platform services aren't enabled for your tenant account. Contact your StorageGRID administrator.
+
+After you have configured an endpoint, you can use its URN to configure a platform service.
+
+.Related information
+
+* link:specifying-urn-for-platform-services-endpoint.html[Specify URN for platform services endpoint]
+
+* link:configuring-cloudmirror-replication.html[Configure CloudMirror replication]
+
+* link:configuring-event-notifications.html[Configure event notifications]
+
+* link:configuring-search-integration-service.html[Configure search integration service]
+
+// 2024 MAR 19, SGRIDDOC-7
+// 2023 SEP 15, SGWS-25330

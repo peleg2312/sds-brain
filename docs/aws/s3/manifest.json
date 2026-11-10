@@ -1,0 +1,62 @@
+{
+  "aws-iam-policy-evaluation.md": {
+    "title": "IAM policy evaluation logic",
+    "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html"
+  },
+  "aws-s3-access-denied.md": {
+    "title": "Troubleshoot access denied errors",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/troubleshoot-403-errors.html"
+  },
+  "aws-s3-consistency.md": {
+    "title": "Amazon S3 overview and consistency model",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html"
+  },
+  "aws-s3-errors.md": {
+    "title": "Amazon S3 error responses",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/developerguide/ErrorResponses.html"
+  },
+  "aws-s3-head-bucket.md": {
+    "title": "HeadBucket API reference",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadBucket.html"
+  },
+  "aws-s3-head-object.md": {
+    "title": "HeadObject API reference",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html"
+  },
+  "aws-s3-kms.md": {
+    "title": "Server-side encryption with AWS KMS keys",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html"
+  },
+  "aws-s3-lifecycle.md": {
+    "title": "Managing the lifecycle of objects",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html"
+  },
+  "aws-s3-list-multipart.md": {
+    "title": "AWS CLI list-multipart-uploads reference",
+    "url": "https://docs.aws.amazon.com/cli/latest/reference/s3api/list-multipart-uploads.html"
+  },
+  "aws-s3-multipart.md": {
+    "title": "Multipart upload overview",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html"
+  },
+  "aws-s3-object-lock.md": {
+    "title": "Locking objects with Object Lock",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html"
+  },
+  "aws-s3-performance.md": {
+    "title": "Performance guidelines for Amazon S3",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/optimizing-performance-guidelines.html"
+  },
+  "aws-s3-presigned.md": {
+    "title": "Download and upload using presigned URLs",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html"
+  },
+  "aws-s3-sigv4.md": {
+    "title": "Authenticating requests with AWS Signature Version 4",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/developerguide/sig-v4-authenticating-requests.html"
+  },
+  "aws-s3-versioning.md": {
+    "title": "S3 Versioning",
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html"
+  }
+}

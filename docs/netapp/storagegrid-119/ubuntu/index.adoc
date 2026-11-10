@@ -1,0 +1,60 @@
+---
+permalink: ubuntu/index.html
+sidebar: sidebar
+keywords: about ubuntu, ubuntu overview
+summary: 'Follow these high-level steps to install an Ubuntu or Debian StorageGRID node.'
+---
+= Quick start for installing StorageGRID on Ubuntu or Debian
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Follow these high-level steps to install an Ubuntu or Debian StorageGRID node.
+
+// Start snippet: Quick start headings as block titles
+// 1 placeholder per entry: Heading text here
+
+.image:https://raw.githubusercontent.com/NetAppDocs/common/main/media/number-1.png[One] Preparation
+
+// [role="quick-margin-para"]
+// Prepare for installation:
+[role="quick-margin-list"]
+* Learn about link:../primer/storagegrid-architecture-and-network-topology.html[StorageGRID architecture and network topology].
+* Learn about the specifics of link:../network/index.html[StorageGRID networking].
+* Gather and prepare the link:required-materials.html[Required information and materials].
+* Prepare the required link:cpu-and-ram-requirements.html[CPU and RAM].
+* Provide for link:storage-and-performance-requirements.html[storage and performance requirements].
+* link:how-host-wide-settings-change.html[Prepare the Linux servers] that will host your StorageGRID nodes.
+
+.image:https://raw.githubusercontent.com/NetAppDocs/common/main/media/number-2.png[Two] Deployment
+
+[role="quick-margin-para"]
+Deploy grid nodes. When you deploy grid nodes, they are created as part of the StorageGRID system and connected to one or more networks.
+
+[role="quick-margin-list"]
+* To deploy software-based grid nodes on the hosts you prepared in step 1, use the Linux command line and link:creating-node-configuration-files.html[node configuration files].
+* To deploy StorageGRID appliance nodes, follow the https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/index.html[Quick start for hardware installation^].
+
+.image:https://raw.githubusercontent.com/NetAppDocs/common/main/media/number-3.png[Three] Configuration
+
+[role="quick-margin-para"]
+When all nodes have been deployed, use the Grid Manager to link:navigating-to-grid-manager.html[configure the grid and complete the installation].
+
+== Automate the installation
+
+To save time and provide consistency, you can automate the installation of the StorageGRID host service and the configuration of grid nodes.
+
+* Use a standard orchestration framework such as Ansible, Puppet, or Chef to automate:
+** Installation of Ubuntu or Debian
+** Configuration of networking and storage
+** Installation of the container engine and the StorageGRID host service
+** Deployment of virtual grid nodes
+
++
+See link:automating-installation.html#automate-the-installation-and-configuration-of-the-storagegrid-host-service[Automate the installation and configuration of the StorageGRID host service].
+
+* After you deploy grid nodes, link:automating-installation.html#automate-the-configuration-of-storagegrid[automate the configuration of the StorageGRID system] using the Python configuration script provided in the installation archive.
+
+* https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/automating-appliance-installation-and-configuration.html[Automate the installation and configuration of appliance grid nodes^]
+
+* If you are an advanced developer of StorageGRID deployments, automate the installation of grid nodes by using the link:overview-of-installation-rest-api.html[installation REST API].

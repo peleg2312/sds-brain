@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/software-requirements.html
+redirect: storagegrid/swnodes/software-requirements.html
+---

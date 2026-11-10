@@ -1,0 +1,22 @@
+---
+permalink: vmware/download-files-verify.html
+sidebar: sidebar
+keywords: vmware installation files, how to verify files
+summary: 'If necessary, you can manually verify the files in the StorageGRID installation archive.'
+---
+= Manually verify installation files (optional) 
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+If necessary, you can manually verify the files in the StorageGRID installation archive.
+
+.Before you begin
+
+You have link:../vmware/downloading-and-extracting-storagegrid-installation-files.html#vmware-download-verification-package[downloaded the verification package] from the https://mysupport.netapp.com/site/products/all/details/storagegrid/downloads-tab[NetApp Downloads page for StorageGRID^].
+
+.Steps
+
+include::../_include/installation-files-verification.adoc[]
+
+. link:../vmware/downloading-and-extracting-storagegrid-installation-files.html[Complete the remaining steps] to extract and choose the appropriate installation files. 

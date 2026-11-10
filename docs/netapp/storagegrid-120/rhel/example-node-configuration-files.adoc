@@ -1,0 +1,4 @@
+---
+permalink: rhel/example-node-configuration-files.html
+redirect: storagegrid/swnodes/example-node-configuration-files.html
+---

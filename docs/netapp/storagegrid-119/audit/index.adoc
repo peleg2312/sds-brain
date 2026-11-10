@@ -1,0 +1,19 @@
+---
+permalink: audit/index.html
+sidebar: sidebar
+keywords: storagegrid, audit, message, log, structure, content
+summary: 'These instructions contain information about the structure and content of StorageGRID audit messages and audit logs. You can use this information to read and analyze the audit trail of system activity.'
+---
+= Audit messages and logs
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+These instructions contain information about the structure and content of StorageGRID audit messages and audit logs. You can use this information to read and analyze the audit trail of system activity.
+
+These instructions are for administrators responsible for producing reports of system activity and usage that require analysis of the StorageGRID system's audit messages.
+
+To use the text log file, you must have access to the configured audit share on the Admin Node.
+
+For information about configuring audit message levels and using an external syslog server, see link:../monitor/configure-audit-messages.html[Configure audit messages and log destinations].
+

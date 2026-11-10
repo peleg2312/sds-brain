@@ -1,0 +1,4 @@
+---
+permalink: admin/creating-enterprise-application-azure.html
+redirect: storagegrid/admin/creating-enterprise-application-entra-id.html
+---

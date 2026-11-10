@@ -1,0 +1,40 @@
+//used in rhel, ub, and vmware "Manually verify installation files (optional)"
+//starts at step 2 bcs step 1 is unique for each OS
+. Extract the artifacts from the verification package:
++
+`tar -xf StorageGRID_11.9.0_Code_Signature_Verification_Package.tar.gz`
+. Ensure that these artifacts were extracted:
+
+* Leaf certificate: `Leaf-Cert.pem`
+* Certificate chain: `CA-Int-Cert.pem`
+* Time stamp response chain: `TS-Cert.pem`
+* Checksum file: `sha256sum`
+* Checksum signature: `sha256sum.sig`
+* Time stamp response file: `sha256sum.sig.tsr`
+
+. Use the chain to verify the leaf certificate is valid.
++
+*Example*: `openssl verify -CAfile CA-Int-Cert.pem Leaf-Cert.pem`
++
+*Expected output*: `Leaf-Cert.pem: OK`
+. If step _2_ failed because of an expired leaf certificate, use the `tsr` file to verify.
++
+*Example*: `openssl ts -CAfile CA-Int-Cert.pem -untrusted TS-Cert.pem -verify -data sha256sum.sig -in sha256sum.sig.tsr`
++
+*Expected output includes*: `Verification: OK`
+. Create a public key file from the leaf certificate.
++
+*Example*: `openssl x509 -pubkey -noout -in Leaf-Cert.pem > Leaf-Cert.pub`
++
+*Expected output*: _none_
+. Use the public key to verify the `sha256sum` file against `sha256sum.sig`.
++
+*Example*: `openssl dgst -sha256 -verify Leaf-Cert.pub -signature sha256sum.sig sha256sum`
++
+*Expected output*: `Verified OK`
+. Verify the `sha256sum` file content against newly created checksums.
++
+*Example*: `sha256sum -c sha256sum`
++
+*Expected output*: `_<filename>_: OK` +
+`_<filename>_` is the name of the archive file you downloaded.

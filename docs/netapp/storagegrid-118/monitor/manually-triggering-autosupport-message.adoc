@@ -1,0 +1,14 @@
+---
+permalink: monitor/manually-triggering-autosupport-message.html
+sidebar: sidebar
+keywords: autosupport, triggering autosupport, manually triggering autosupport, autosupport triggers
+summary: 'To assist technical support in troubleshooting issues with your StorageGRID system, you can manually trigger an AutoSupport package to be sent.'
+---
+= Manually trigger an AutoSupport package
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+To assist technical support in troubleshooting issues with your StorageGRID system, you can manually trigger an AutoSupport package to be sent.
+
+include::../_include/manually-trigger-autosupport-message.adoc[]

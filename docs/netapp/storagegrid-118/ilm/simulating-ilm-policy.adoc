@@ -1,0 +1,4 @@
+---
+permalink: ilm/creating-proposed-ilm-policy.html
+redirect: storagegrid-118/ilm/simulating-ilm-policy-examples.html
+---

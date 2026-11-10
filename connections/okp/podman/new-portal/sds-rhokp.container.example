@@ -1,0 +1,18 @@
+# Replace the image reference with the approved, already-loaded image digest or local image ID.
+[Unit]
+Description=SDS Red Hat Offline Knowledge Portal
+
+[Container]
+Image=registry.example.invalid/sds/rhokp@sha256:REPLACE_WITH_APPROVED_DIGEST
+ContainerName=sds-rhokp
+Network=sds-okp.network
+Volume=sds-rhokp-data.volume:/opt/solr/server/solr/portal/data
+Environment=SOLR_JETTY_HOST=0.0.0.0
+EnvironmentFile=%h/.config/sds-brain/rhokp.env
+Pull=never
+PodmanArgs=--stop-timeout=30 --http-proxy=false
+
+[Service]
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=900

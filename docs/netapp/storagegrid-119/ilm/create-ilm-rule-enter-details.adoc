@@ -1,0 +1,170 @@
+---
+permalink: ilm/create-ilm-rule-enter-details.html
+sidebar: sidebar
+keywords: ILM rule step 1, define basics
+summary: 'Step 1 \(Enter details\) of the Create an ILM rule wizard allows you to enter a name and description for the rule and to define filters for the rule.'
+---
+= Step 1 of 3: Enter details
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The *Enter details* step of the Create an ILM rule wizard allows you to enter a name and description for the rule and to define filters for the rule.
+
+Entering a description and defining filters for the rule are optional.
+
+.About this task
+
+When evaluating an object against an link:what-ilm-rule-is.html[ILM rule], StorageGRID compares the object metadata to the rule's filters. If the object metadata matches all filters, StorageGRID uses the rule to place the object. You can design a rule to apply to all objects, or you can specify basic filters, such as one or more tenant accounts or bucket names, or advanced filters, such as the object's size or user metadata.
+
+.Steps
+
+. Enter a unique name for the rule in the *Name* field.
+
+. Optionally, enter a short description for the rule in the *Description* field.
++
+You should describe the rule's purpose or function so you can recognize the rule later.
+
+. Optionally, select one or more S3 tenant accounts to which this rule applies. If this rule applies to all tenants, leave this field blank.
++
+If you don't have either the Root access permission or the Tenant accounts permission, you can't select tenants from the list. Instead, enter the tenant ID or enter multiple IDs as a comma-delimited string.
+
+. Optionally, specify the S3 buckets to which this rule applies.
++
+If *applies to all buckets* is selected (default), the rule applies to all S3 buckets.
+
+. For S3 tenants, optionally select *Yes* to apply the rule only to older object versions in S3 buckets that have versioning enabled.
++
+If you select *Yes*, "Noncurrent time" will be automatically selected for Reference time in link:create-ilm-rule-define-placements.html[Step 2 of the Create an ILM rule wizard].
++
+NOTE: Noncurrent time applies only to S3 objects in versioning-enabled buckets. See link:../s3/operations-on-buckets.html[Operations on buckets, PutBucketVersioning] and link:managing-objects-with-s3-object-lock.html[Manage objects with S3 Object Lock].
++
+You can use this option to reduce the storage impact of versioned objects by filtering for noncurrent object versions. See link:example-4-ilm-rules-and-policy-for-s3-versioned-objects.html[Example 4: ILM rules and policy for S3 versioned objects].
+
+. Optionally, select *Add an advanced filter* to specify additional filters.
++
+If you don't configure advanced filtering, the rule applies to all objects that match the basic filters. For more information about advanced filtering, see <<Use advanced filters in ILM rules>> and <<Specify multiple metadata types and values>>.
+
+. Select *Continue*. link:create-ilm-rule-define-placements.html[Step 2 (Define placements)] of the Create an ILM rule wizard appears.
+
+== Use advanced filters in ILM rules
+
+Advanced filtering allows you to create ILM rules that apply only to specific objects based on their metadata. When you set up advanced filtering for a rule, you select the type of metadata you want to match, select an operator, and specify a metadata value. When objects are evaluated, the ILM rule is applied only to those objects that have metadata matching the advanced filter.
+
+The table shows the types of metadata you can specify in advanced filters, the operators you can use for each type of metadata, and the metadata values expected.
+
+[cols="1a,1a,2a" options="header"]
+|===
+| Metadata type| Supported operators| Metadata value
+
+|Ingest time
+|
+* is
+* is not
+* is before
+* is on or before
+* is after
+* is on or after
+
+
+|Time and date the object was ingested.
+
+*Note:* To avoid resource issues when activating an new ILM policy, you can use the Ingest time advanced filter in any rule that might change the location of large numbers of existing objects. Set Ingest time to be greater than or equal to the approximate time when the new policy will go into effect to ensure that existing objects aren't moved unnecessarily.
+
+|Key
+
+|
+* equals
+* does not equal
+* contains
+* does not contain
+* starts with
+* does not start with
+* ends with
+* does not end with
+|All or part of a unique S3 object key.
+
+For example, you might want to match objects that end with `.txt` or start with `test-object/`.
+
+|Last access time
+|
+* is
+* is not
+* is before
+* is on or before
+* is after
+* is on or after
+|Time and date the object was last retrieved (read or viewed).
+
+*Note:* If you plan to link:using-last-access-time-in-ilm-rules.html[use last access time] as an advanced filter, Last access time updates must be enabled for the S3 bucket.
+
+|Location constraint (S3 only)
+|
+* equals
+* does not equal
+|The region where an S3 bucket was created. Use *ILM* > *Regions* to define the regions that are shown.
+
+*Note:* A value of us-east-1 will match objects in buckets created in the us-east-1 region as well as objects in buckets that have no region specified. See link:configuring-regions-optional-and-s3-only.html[Configure regions (optional and S3 only)].
+
+|Object size
+|
+* equals
+* does not equal
+* less than
+* less than or equal to
+* greater than
+* greater than or equal to
+|The object's size.
+
+Erasure coding is best suited for objects greater than 1 MB. Don't use erasure coding for objects smaller than 200 KB to avoid the overhead of managing very small erasure-coded fragments.
+
+|User metadata
+|
+* contains
+* ends with
+* equals
+* exists
+* starts with
+* does not contain
+* does not end with
+* does not equal
+* does not exist
+* does not start with
+|Key-value pair, where *User metadata name* is the key and *Metadata value* is the value.
+
+For example, to filter on objects that have user metadata of `color=blue`, specify `color` for *User metadata name*, `equals` for the operator, and `blue` for *Metadata value*.
+
+*Note:* User-metadata names aren't case sensitive; user-metadata values are case sensitive.
+
+|Object tag (S3 only)
+|
+* contains
+* ends with
+* equals
+* exists
+* starts with
+* does not contain
+* does not end with
+* does not equal
+* does not exist
+* does not start with
+|Key-value pair, where *Object tag name* is the key and *Object tag value* is the value.
+
+For example, to filter on objects that have an object tag of `Image=True`, specify `Image` for *Object tag name*, `equals` for the operator, and `True` for *Object tag value*.
+
+*Note:* Object tag names and object tag values are case sensitive. You must enter these items exactly as they were defined for the object.
+
+|===
+
+== Specify multiple metadata types and values
+
+When you define advanced filtering, you can specify multiple types of metadata and multiple metadata values. For example, if you want a rule to match objects between 10 MB and 100 MB in size, you would select the *Object size* metadata type and specify two metadata values.
+
+* The first metadata value specifies objects greater than or equal to 10 MB.
+* The second metadata value specifies objects less than or equal to 100 MB.
+
+image::../media/advanced_filtering_size_between.png[Advanced Filtering example for object size]
+
+Using multiple entries allows you to have precise control over which objects are matched. In the following example, the rule applies to objects that have Brand A or Brand B as the value of the camera_type user metadata. However, the rule only applies to those Brand B objects that are smaller than 10 MB.
+
+image::../media/advanced_filtering_multiple_rows.png[Advanced Filtering example for user metadata]

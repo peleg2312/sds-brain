@@ -1,0 +1,71 @@
+---
+permalink: admin/guidelines-for-storagegrid-networks.html
+sidebar: sidebar
+keywords: admin network, client network, grid network, access interface, trunk interface 
+summary: 'StorageGRID supports up to three network interfaces per grid node, allowing you to configure the networking for each individual grid node to match your security and access requirements.'
+---
+= Guidelines for StorageGRID networks
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can use the Grid Manager to configure and manage StorageGRID networks and connections.
+
+See link:configuring-client-connections.html[Configure S3 client connections] to learn how to connect S3 clients.
+
+== Default StorageGRID networks
+By default, StorageGRID supports three network interfaces per grid node, allowing you to configure the networking for each individual grid node to match your security and access requirements. 
+
+For more information about network topology, see link:../network/index.html[Networking guidelines].
+
+=== Grid Network
+
+Required. The Grid Network is used for all internal StorageGRID traffic. It provides connectivity between all nodes in the grid, across all sites and subnets.
+
+=== Admin Network
+
+Optional. The Admin Network is typically used for system administration and maintenance. It can also be used for client protocol access. The Admin Network is typically a private network and does not need to be routable between sites.
+
+=== Client Network
+
+Optional. The Client Network is an open network typically used to provide access to S3 client applications, so the Grid Network can be isolated and secured. The Client Network can communicate with any subnet reachable through the local gateway.
+
+== Guidelines
+
+* Each StorageGRID node requires a dedicated network interface, IP address, subnet mask, and gateway for each network it is assigned to.
+* A grid node can't have more than one interface on a network.
+* A single gateway, per network, per grid node is supported, and it must be on the same subnet as the node. You can implement more complex routing in the gateway, if required.
+* On each node, each network maps to a specific network interface.
++
+[cols="1a,1a" options="header"]
+|===
+| Network| Interface name
+a|
+Grid
+a|
+eth0
+a|
+Admin (optional)
+a|
+eth1
+a|
+Client (optional)
+a|
+eth2
+|===
+
+* If the node is connected to a StorageGRID appliance, specific ports are used for each network. For details, see the installation instructions for your appliance.
+* The default route is generated automatically, per node. If eth2 is enabled, then 0.0.0.0/0 uses the Client Network on eth2. If eth2 is not enabled, then 0.0.0.0/0 uses the Grid Network on eth0.
+* The Client Network does not become operational until the grid node has joined the grid
+* The Admin Network can be configured during grid node deployment to allow access to the installation user interface before the grid is fully installed.
+
+== Optional interfaces
+
+Optionally, you can add extra interfaces to a node. For example, you might want to add a trunk interface to an Admin or Gateway Node, so you can use link:../admin/configure-vlan-interfaces.html[VLAN interfaces] to segregate the traffic belonging to different applications or tenants. Or, you might want to add an access interface to use in a link:../admin/configure-high-availability-group.html[high availability (HA) group].
+
+To add trunk or access interfaces, see the following:
+
+** *VMware (after installing the node)*: link:../maintain/vmware-adding-trunk-or-access-interfaces-to-node.html[VMware: Add trunk or access interfaces to a node]
+* *Red Hat Enterprise Linux (before installing the node)*: link:../rhel/creating-node-configuration-files.html[Create node configuration files]
+* *Ubuntu or Debian (before installing the node)*: link:../ubuntu/creating-node-configuration-files.html[Create node configuration files]
+* *RHEL, Ubuntu, or Debian (after installing the node)*: link:../maintain/linux-adding-trunk-or-access-interfaces-to-node.html[Linux: Add trunk or access interfaces to a node]

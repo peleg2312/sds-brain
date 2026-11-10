@@ -1,0 +1,58 @@
+{
+  "ceph-squid-cephadm.md": {
+    "title": "Ceph Squid cephadm troubleshooting",
+    "url": "https://docs.ceph.com/en/squid/cephadm/troubleshooting/"
+  },
+  "ceph-squid-configuration.md": {
+    "title": "Ceph Squid configuration sources and inspection commands",
+    "url": "https://docs.ceph.com/en/squid/rados/configuration/ceph-conf/"
+  },
+  "ceph-squid-health.md": {
+    "title": "Ceph Squid health checks",
+    "url": "https://docs.ceph.com/en/squid/rados/operations/health-checks/"
+  },
+  "ceph-squid-mclock.md": {
+    "title": "Ceph Squid mClock configuration reference",
+    "url": "https://docs.ceph.com/en/squid/rados/configuration/mclock-config-ref/"
+  },
+  "ceph-squid-monitoring.md": {
+    "title": "Ceph Squid cluster monitoring",
+    "url": "https://docs.ceph.com/en/squid/rados/operations/monitoring/"
+  },
+  "ceph-squid-multisite.md": {
+    "title": "Ceph Squid RGW multi-site",
+    "url": "https://docs.ceph.com/en/squid/radosgw/multisite/"
+  },
+  "ceph-squid-multitenancy.md": {
+    "title": "Ceph Squid RGW multi-tenancy and qualified identities",
+    "url": "https://docs.ceph.com/en/squid/radosgw/multitenancy/"
+  },
+  "ceph-squid-pg-json.md": {
+    "title": "ceph-squid-pg-json",
+    "url": "https://github.com/ceph/ceph/blob/squid/qa/tasks/ceph_manager.py"
+  },
+  "ceph-squid-prometheus.md": {
+    "title": "Ceph Squid Prometheus module",
+    "url": "https://docs.ceph.com/en/squid/mgr/prometheus/"
+  },
+  "ceph-squid-rgw-admin.md": {
+    "title": "Ceph Squid RGW administration",
+    "url": "https://docs.ceph.com/en/squid/radosgw/admin/"
+  },
+  "ceph-squid-rgw-metrics.md": {
+    "title": "Ceph Squid RGW metrics",
+    "url": "https://docs.ceph.com/en/squid/radosgw/metrics/"
+  },
+  "ceph-squid-rgw-service.md": {
+    "title": "Ceph Squid RGW service specification and TLS",
+    "url": "https://docs.ceph.com/en/squid/cephadm/services/rgw/"
+  },
+  "ceph-squid-s3-auth.md": {
+    "title": "Ceph Squid S3 authentication and ACLs",
+    "url": "https://docs.ceph.com/en/squid/radosgw/s3/authentication/"
+  },
+  "ceph-squid-s3.md": {
+    "title": "Ceph Squid S3 API and feature support",
+    "url": "https://docs.ceph.com/en/squid/radosgw/s3/"
+  }
+}

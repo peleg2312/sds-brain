@@ -1,0 +1,200 @@
+---
+permalink: primer/exploring-grid-manager.html
+sidebar: sidebar
+keywords: what is the grid manager, grid manager dashboard
+summary: 'The Grid Manager is the browser-based graphical interface that allows you to configure, manage, and monitor your StorageGRID system.'
+---
+= Explore the Grid Manager
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The Grid Manager is the browser-based graphical interface that allows you to configure, manage, and monitor your StorageGRID system.
+
+NOTE: The Grid Manager is updated with each release and might not match the example screenshots on this page.
+
+When you sign in to the Grid Manager, you are connecting to an Admin Node. Each StorageGRID system includes one primary Admin Node and any number of non-primary Admin Nodes. You can connect to any Admin Node, and each Admin Node displays a similar view of the StorageGRID system.
+
+You can access the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+
+== Grid Manager dashboard
+
+When you first sign in to the Grid Manager, you can use the dashboard to link:../monitor/viewing-dashboard.html[monitor system activities] at a glance.
+
+The dashboard contains information about system health and performance, storage use, ILM processes, S3 operations, and the nodes in the grid. You can link:../monitor/viewing-dashboard.html[configure the dashboard] by selecting from a collection of cards that contain the information you need to effectively monitor your system.
+
+image::../media/grid_manager_dashboard_and_menu.png[Dashboard in the Grid Manager]
+
+For an explanation of the information shown on each card, select the help icon image:../media/icon_nms_question.png[question mark icon] for that card.
+
+[[search-field]]
+== Search field
+
+The *Search* field in the header bar allows you to quickly navigate to a specific page within Grid Manager. For example, you can enter *km* to access the Key management server (KMS) page.
+
+You can use *Search* to find entries in the sidebar of the Grid Manager and on the Configuration, Maintenance, and Support menus. You can also search by name for items like grid nodes and tenant accounts.
+
+== Help menu
+
+The help menu image:../media/icon-help-menu-bar.png[help icon on the menu bar] provides access to:
+
+* The link:../fabricpool/use-fabricpool-setup-wizard.html[FabricPool] and link:../admin/use-s3-setup-wizard.html[S3 setup] wizard 
+* The StorageGRID documentation center for the current release
+* link:../admin/using-grid-management-api.html[API documentation]
+* Information about which version of StorageGRID is currently installed
+
+== Alerts menu
+
+The Alerts menu provides an easy-to-use interface for detecting, evaluating, and resolving issues that might occur during StorageGRID operation.
+
+From the Alerts menu, you can do the following to link:../monitor/managing-alerts.html[manage alerts]:
+
+* Review current alerts
+* Review resolved alerts
+* Configure silences to suppress alert notifications
+* Define alert rules for conditions that trigger alerts
+* Configure the email server for alert notifications
+
+== Nodes page
+
+The link:../monitor/viewing-nodes-page.html[Nodes page] displays information about the entire grid, each site in the grid, and each node at a site.
+
+The Nodes home page displays combined metrics for the entire grid. To view information for a particular site or node, select the site or node.
+
+image::../media/nodes_page.png[nodes page main]
+
+== Tenants page
+
+The link:../admin/managing-tenants.html[Tenants page] allows you to link:../tenant/index.html[create and monitor the storage tenant accounts] for your StorageGRID system. You must create at least one tenant account to specify who can store and retrieve objects and which functionality is available to them.
+
+The Tenants page also provides usage details for each tenant, including the amount of storage used and the number of objects. If you set a quota when you created the tenant, you can see how much of that quota has been used.
+
+image::../media/tenants_page.png[Tenants Menu and Page]
+
+== ILM menu
+
+The link:using-information-lifecycle-management.html[ILM menu] allows you to link:../ilm/index.html[configure the information lifecycle management (ILM) rules and policies] that govern data durability and availability. You can also enter an object identifier to view the metadata for that object.
+
+From the ILM menu you can view and manage ILM:
+
+* Rules
+* Policies
+* Policy tags
+* Storage pools
+* Storage grades
+* Regions
+* Object metadata lookup
+
+== Configuration menu
+
+The Configuration menu allows you to specify network settings, security settings, system settings, monitoring options, and access control options.
+
+=== Network tasks
+
+Network tasks include:
+
+* link:../admin/managing-high-availability-groups.html[Managing high availability groups]
+* link:../admin/managing-load-balancing.html[Managing load balancer endpoints]
+* link:../admin/configuring-s3-api-endpoint-domain-names.html[Configuring S3 endpoint domain names]
+* link:../admin/managing-traffic-classification-policies.html[Managing traffic classification policies]
+* link:../admin/configure-vlan-interfaces.html[Configuring VLAN interfaces]
+
+=== Security tasks
+Security tasks include:
+
+* link:../admin/using-storagegrid-security-certificates.html[Managing security certificates]
+* link:../admin/manage-firewall-controls.html[Managing internal firewall controls]
+* link:../admin/kms-configuring.html[Configuring key management servers]
+* Configuring security settings including the link:../admin/manage-tls-ssh-policy.html[TLS and SSH policy], link:../admin/changing-network-options-object-encryption.html[network and object security options], and link:../admin/changing-browser-session-timeout-interface.html[interface security settings].
+* Configuring the settings for a link:../admin/configuring-storage-proxy-settings.html[storage proxy] or an link:../admin/configuring-admin-proxy-settings.html[admin proxy] 
+
+=== System tasks
+System tasks include:
+
+* Using link:../admin/grid-federation-overview.html[grid federation] to clone tenant account information and replicate object data between two StorageGRID systems.
+* Optionally, enabling the link:../admin/configuring-stored-object-compression.html[Compress stored objects] option.
+* link:../ilm/managing-objects-with-s3-object-lock.html[Managing S3 Object Lock]
+* Understanding Storage options such as link:../admin/what-object-segmentation-is.html[object segmentation] and link:../admin/what-storage-volume-watermarks-are.html[storage volume watermarks].
+* link:../ilm/manage-erasure-coding-profiles.html[Manage erasure-coding profiles].
+
+=== Monitoring tasks
+
+Monitoring tasks include:
+
+* link:../monitor/configure-audit-messages.html[Configuring audit messages and log destinations]
+* link:../monitor/using-snmp-monitoring.html[Using SNMP monitoring]
+
+=== Access control tasks
+
+Access control tasks include:
+
+* link:../admin/managing-admin-groups.html[Managing admin groups]
+* link:../admin/managing-users.html[Managing admin users]
+* Changing the link:../admin/changing-provisioning-passphrase.html[provisioning passphrase] or link:../admin/change-node-console-password.html[node console passwords]
+* link:../admin/using-identity-federation.html[Using identity federation]
+* link:../admin/configuring-sso.html[Configuring SSO]
+
+== Maintenance menu
+
+The Maintenance menu allows you to perform maintenance tasks, system maintenance, and network maintenance.
+
+=== Tasks
+
+Maintenance tasks include:
+
+* link:../maintain/decommission-procedure.html[Decommission operations] to remove unused grid nodes and sites
+* link:../expand/index.html[Expansion operations] to add new grid nodes and sites
+* link:../maintain/warnings-and-considerations-for-grid-node-recovery.html[Grid node recovery procedures] to replace a failed node and restore data
+* link:../maintain/rename-grid-site-node-overview.html[Rename procedures] to change the display names of your grid, sites, and nodes
+* link:../troubleshoot/verifying-object-integrity.html[Object existence check operations] to verify the existence (although not the correctness) of object data
+* Performing a link:../maintain/rolling-reboot-procedure.html[rolling reboot] to restart multiple grid nodes
+* link:../maintain/restoring-volume.html[Volume restoration operations]
+
+=== System
+
+System maintenance tasks you can perform include:
+
+* link:../admin/viewing-storagegrid-license-information.html[Viewing StorageGRID license information] or link:../admin/updating-storagegrid-license-information.html[updating license information]
+* Generating and downloading the link:../maintain/downloading-recovery-package.html[Recovery Package]
+* Performing StorageGRID software updates, including software upgrades, hotfixes, and updates to the SANtricity OS software on selected appliances
+
+** link:../upgrade/index.html[Upgrade procedure]
+** link:../maintain/storagegrid-hotfix-procedure.html[Hotfix procedure]
+** https://docs.netapp.com/us-en/storagegrid-appliances/sg6000/upgrading-santricity-os-on-storage-controllers-using-grid-manager-sg6000.html[Upgrade SANtricity OS on SG6000 storage controllers using Grid Manager^]
+** https://docs.netapp.com/us-en/storagegrid-appliances/sg5700/upgrading-santricity-os-on-storage-controllers-using-grid-manager-sg5700.html[Upgrade SANtricity OS on SG5700 storage controllers using Grid Manager^]
+
+=== Network
+
+Network maintenance tasks you can perform include:
+
+* link:../maintain/configuring-dns-servers.html[Configuring DNS servers]
+* link:../maintain/updating-subnets-for-grid-network.html[Updating Grid Network subnets]
+* link:../maintain/configuring-ntp-servers.html[Managing NTP servers]
+
+== Support menu
+
+The Support menu provides options that help technical support analyze and troubleshoot your system.
+
+=== Tools
+
+From the Tools section of the Support menu, you can:
+
+* link:../admin/configure-autosupport-grid-manager.html[Configure AutoSupport]
+* link:../monitor/running-diagnostics.html[Run diagnostics] on the current state of the grid
+* link:../monitor/viewing-grid-topology-tree.html[Access the Grid Topology tree] to view detailed information about grid nodes, services, and attributes
+* link:../monitor/collecting-log-files-and-system-data.html[Collect log files and system data]
+* link:../monitor/reviewing-support-metrics.html[Review support metrics]
++
+NOTE: The tools available from the *Metrics* option are intended for use by technical support. Some features and menu items within these tools are intentionally non-functional.
+
+=== Alarms (legacy)
+
+The information about legacy alarms has been removed from this version of the documentation. Refer to https://docs.netapp.com/us-en/storagegrid-118/monitor/managing-alerts-and-alarms.html[Manage alerts and alarms (StorageGRID 11.8 documentation)^].
+
+=== Other
+
+From the Other section of the Support menu, you can:
+
+* Manage link:../admin/manage-link-costs.html[link cost]
+* View link:../admin/viewing-notification-status-and-queues.html[Network Management System (NMS)] entries
+* Manage link:../admin/what-storage-volume-watermarks-are.html[storage watermarks]

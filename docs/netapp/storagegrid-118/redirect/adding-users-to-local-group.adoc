@@ -1,0 +1,4 @@
+---
+permalink: tenant/adding-users-to-local-group.html
+redirect: storagegrid-118/tenant/manage-groups.html#view-or-edit-group
+---

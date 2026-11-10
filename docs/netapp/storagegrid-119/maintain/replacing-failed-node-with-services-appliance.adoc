@@ -1,0 +1,29 @@
+---
+permalink: maintain/replacing-failed-node-with-services-appliance.html
+sidebar: sidebar
+keywords: storagegrid, recover, replace failed node, services appliance
+summary: 'You can use a services appliance to recover a failed Gateway Node, a failed non-primary Admin Node, or a failed primary Admin Node that was hosted on VMware, a Linux host, or a services appliance. This procedure is one step of the grid node recovery procedure.'
+---
+= Replace failed node with services appliance
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can use a services appliance to recover a failed Gateway Node, a failed non-primary Admin Node, or a failed primary Admin Node that was hosted on VMware, a Linux host, or a services appliance. This procedure is one step of the grid node recovery procedure.
+
+.Before you begin
+
+* You have determined that one of the following situations is true:
+ ** The virtual machine hosting the node can't be restored.
+ ** The physical or virtual Linux host for the grid node has failed, and must be replaced.
+ ** The services appliance hosting the grid node must be replaced.
+* You have confirmed that the StorageGRID Appliance Installer version on the services appliance matches the software version of your StorageGRID system. See https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/verifying-and-upgrading-storagegrid-appliance-installer-version.html[Verify and upgrade StorageGRID Appliance Installer version^].
+
+NOTE: Don't deploy both an SG110 and an SG1100 services appliance or an SG100 and an SG1000 services appliance in the same site. Unpredictable performance might result.
+
+.About this task
+
+You can use a services appliance to recover a failed grid node in the following cases:
+
+* The failed node was hosted on VMware or Linux (link:installing-services-appliance-platform-change-only.html[platform change])
+* The failed node was hosted on a services appliance (link:preparing-appliance-for-reinstallation-platform-replacement-only.html[platform replacement])

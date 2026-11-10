@@ -1,0 +1,40 @@
+---
+permalink: maintain/pausing-and-resuming-decommission-process-for-storage-nodes.html
+sidebar: sidebar
+keywords: how to pause decommission
+summary: 'If you need to perform a second maintenance procedure, you can pause the decommission procedure for a Storage Node during certain stages. After the other procedure is finished, you can resume decommissioning.'
+---
+= Pause and resume decommission process for Storage Nodes
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+If you need to perform a second maintenance procedure, you can pause the decommission procedure for a Storage Node during certain stages. After the other procedure is finished, you can resume decommissioning.
+
+NOTE: The *Pause* button is enabled only when the ILM evaluation or erasure-coded data decommissioning stages are reached; however, ILM evaluation (data migration) will continue to run in the background.
+
+.Before you begin
+
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have the link:../admin/admin-group-permissions.html[Maintenance or Root access permission].
+
+.Steps
+
+. Select *MAINTENANCE* > *Tasks* > *Decommission*.
++
+The Decommission page appears.
+
+. Select *Decommission Nodes*.
++
+The Decommission Nodes page appears. When the decommission procedure reaches either of the following stages, the *Pause* button is enabled.
+
+ ** Evaluating ILM
+ ** Decommissioning Erasure-Coded Data
+
+. Select *Pause* to suspend the procedure.
++
+The current stage is paused, and the *Resume* button is enabled.
++
+image::../media/decommission_nodes_procedure_paused.png[Decommission Nodes Procedure Paused]
+
+. After the other maintenance procedure is finished, select *Resume* to proceed with the decommission.

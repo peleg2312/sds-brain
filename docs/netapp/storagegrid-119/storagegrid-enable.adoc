@@ -1,0 +1,16 @@
+---
+sidebar: sidebar
+permalink: storagegrid-enable.html
+keywords: storagegrid, how to enable, third-party solutions, tools, applications, examples
+summary: "Learn how to test and enable applications in your StorageGRID environment."
+---
+= How to enable StorageGRID in your environment
+:hardbreaks:
+:nofooter:
+:icons: font
+:linkattrs:
+:imagesdir: ./media/
+
+[.lead]
+Go to https://docs.netapp.com/us-en/storagegrid-enable/index.html[How to enable StorageGRID^] to learn how to test and enable applications in your StorageGRID environment. 
+// 2024-09-19, jira SGRIDOC-23

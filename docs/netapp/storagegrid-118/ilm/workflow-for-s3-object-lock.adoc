@@ -1,0 +1,33 @@
+---
+permalink: ilm/workflow-for-s3-object-lock.html
+sidebar: sidebar
+keywords: object lock workflow
+summary: 'As a grid administrator, you must coordinate closely with tenant users to ensure that the objects are protected in a manner that satisfies their retention requirements.'
+---
+= Workflow for S3 Object Lock
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+As a grid administrator, you must coordinate closely with tenant users to ensure that the objects are protected in a manner that satisfies their retention requirements.
+
+The workflow diagram shows the high-level steps for using S3 Object Lock. These steps are performed by the grid administrator and by tenant users.
+
+image::../media/s3_object_lock_workflow_gm.png[S3 Object Lock workflow for Grid Manager]
+
+== Grid administrator tasks
+
+As the workflow diagram shows, a grid administrator must perform two high-level tasks before S3 tenant users can use S3 Object Lock:
+
+. Create at least one compliant ILM rule and make that rule the default rule in an active ILM policy.
+. Enable the global S3 Object Lock setting for the entire StorageGRID system.
+
+== Tenant user tasks
+
+After the global S3 Object Lock setting has been enabled, tenants can perform these tasks:
+
+. Create buckets that have S3 Object Lock enabled.
+. Optionally, specify default retention settings for the bucket. Any default bucket settings are applied only to new objects that don't have their own retention settings.
+. Add objects to those buckets and optionally specify object-level retention periods and legal hold settings.
+. As required, update default retention for the bucket or update the retention period or the legal hold setting for an individual object.
+

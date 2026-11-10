@@ -1,0 +1,84 @@
+---
+permalink: network/network-specific-requirements.html
+sidebar: sidebar
+keywords: network-specific requirements, network specific requirements, network requirements
+summary: 'Follow the requirements for each StorageGRID network type.'
+---
+= Network-specific requirements
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Follow the requirements for each StorageGRID network type.
+
+== Network gateways and routers
+
+* If set, the gateway for a given network must be within the specific network's subnet.
+* If you configure an interface using static addressing, you must specify a gateway address other than 0.0.0.0.
+* If you don't have a gateway, the best practice is to set the gateway address to be the IP address of the network interface.
+
+== Subnets
+
+NOTE: Each network must be connected to its own subnet that does not overlap with any other network on the node.
+
+The following restrictions are enforced by the Grid Manager during deployment. They are provided here to assist in pre-deployment network planning.
+
+* The subnet mask for any network IP address can't be 255.255.255.254 or 255.255.255.255 (/31 or /32 in CIDR notation).
+* The subnet defined by a network interface IP address and subnet mask (CIDR) can't overlap the subnet of any other interface configured on the same node.
+* Do not use subnets that contain the following IPv4 addresses for the Grid Network, Admin Network, or Client Network of any node:
+
+** 192.168.130.101
+** 192.168.131.101
+** 192.168.130.102
+** 192.168.131.102
+** 198.51.100.2
+** 198.51.100.4
+
++
+For example, do not use the following subnet ranges for the Grid Network, Admin Network, or Client Network of any node:
+
+** 192.168.130.0/24 because this subnet range contains the IP addresses 192.168.130.101 and 192.168.130.102 
+** 192.168.131.0/24 because this subnet range contains the IP addresses 192.168.131.101 and 192.168.131.102
+** 198.51.100.0/24 because this subnet range contains the IP addresses 198.51.100.2 and 198.51.100.4
+
+* The Grid Network subnet for each node must be included in the GNSL.
+* The Admin Network subnet can't overlap the Grid Network subnet, the Client Network subnet, or any subnet in the GNSL.
+* The subnets in the AESL can't overlap with any subnets in the GNSL.
+* The Client Network subnet can't overlap the Grid Network subnet, the Admin Network subnet, any subnet in the GNSL, or any subnet in the AESL.
+
+== Grid Network
+
+* At deployment time, each grid node must be attached to the Grid Network and must be able to communicate with the primary Admin Node using the networking configuration you specify when deploying the node.
+* During normal grid operations, each grid node must be able to communicate with all other grid nodes over the Grid Network.
++
+NOTE: The Grid Network must be directly routable between each node. Network address translation (NAT) between nodes is not supported.
+
+* If the Grid Network consists of multiple subnets, add them to the Grid Network Subnet List (GNSL). Static routes are created on all nodes for each subnet in the GNSL.
+
+*  If the Grid Network interface is configured as a trunk to support VLAN interfaces, the trunk native VLAN must be the VLAN used for Grid Network traffic.  All grid nodes must be accessible over the trunk native VLAN.
+
+== Admin Network
+
+The Admin Network is optional. If you plan to configure an Admin Network, follow these requirements and guidelines.
+
+Typical uses of the Admin Network include management connections, AutoSupport, KMS, and connections to critical servers such as NTP, DNS, and LDAP if these connections aren't provided through the Grid Network or Client Network.
+
+NOTE: The Admin Network and AESL can be unique to each node, as long as the desired network services and clients are reachable.
+
+NOTE: You must define at least one subnet on the Admin Network to enable inbound connections from external subnets. Static routes are automatically generated on each node for each subnet in the AESL.
+
+== Client Network
+
+The Client Network is optional. If you plan to configure a Client Network, note the following considerations.
+
+* The Client Network is designed to support traffic from S3 clients. If configured, the Client Network gateway becomes the node's default gateway.
+
+* If you use a Client Network, you can help secure StorageGRID from hostile attacks by accepting inbound client traffic only on explicitly configured load balancer endpoints. See link:../admin/configuring-load-balancer-endpoints.html[Configure load balancer endpoints].
+
+* If the Client Network interface is configured as a trunk to support VLAN interfaces, consider whether configuring the Client Network interface (eth2) is necessary. If configured, Client Network traffic will flow over the trunk native VLAN, as configured in the switch.
+
+.Related information
+
+link:../maintain/changing-nodes-network-configuration.html[Change node network configuration]
+
+// 2024 MAY 1, SGRIDDOC-28

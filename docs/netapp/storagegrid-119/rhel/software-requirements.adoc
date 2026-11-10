@@ -1,0 +1,57 @@
+---
+permalink: rhel/software-requirements.html
+sidebar: sidebar
+keywords: software requirements
+summary: 'You can use a virtual machine to host any type of StorageGRID node. You need one virtual machine for each grid node.'
+---
+= Software requirements for Red Hat Enterprise Linux
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can use a virtual machine to host any type of StorageGRID node. You need one virtual machine for each grid node.
+
+To install StorageGRID on Red Hat Enterprise Linux (RHEL), you must install some third-party software packages. Some supported Linux distributions don't contain these packages by default. The software package versions that StorageGRID installations are tested on include those listed on this page. 
+
+If you select a Linux distribution and container runtime installation option that requires any of these packages, and they are not installed automatically by the Linux distribution, install one of the versions listed here if available from your provider or the supporting vendor for your Linux distribution. Otherwise, use the default package versions available from your vendor.
+
+All installation options require either Podman or Docker. Do not install both packages. Install only the package required by your installation option.
+
+NOTE: Support for Docker as the container engine for software-only deployments is deprecated. Docker will be replaced with another container engine in a future release.
+
+== Python versions tested
+
+* 3.5.2-2
+* 3.6.8-2
+* 3.6.8-38
+* 3.6.9-1
+* 3.7.3-1
+* 3.8.10-0
+* 3.9.2-1
+* 3.9.10-2
+* 3.9.16-1
+* 3.10.6-1
+* 3.11.2-6
+
+== Podman versions tested
+
+* 3.2.3-0
+* 3.4.4+ds1
+* 4.1.1-7
+* 4.2.0-11
+* 4.3.1+ds1-8+b1
+* 4.4.1-8
+* 4.4.1-12
+
+== Docker versions tested
+
+IMPORTANT: Docker support is deprecated and will be removed in a future release.
+
+* Docker-CE 20.10.7
+* Docker-CE 20.10.20-3
+* Docker-CE 23.0.6-1
+* Docker-CE 24.0.2-1
+* Docker-CE 24.0.4-1
+* Docker-CE 24.0.5-1
+* Docker-CE 24.0.7-1
+* 1.5-2

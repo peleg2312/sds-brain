@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/creating-node-configuration-files.html
+redirect: storagegrid/swnodes/creating-node-configuration-files.html
+---

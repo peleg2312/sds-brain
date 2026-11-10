@@ -1,0 +1,4 @@
+---
+permalink: tenant/object-metadata-included-in-metadata-notifications.html
+redirect: storagegrid/tenant/configuring-search-integration-service.html
+---

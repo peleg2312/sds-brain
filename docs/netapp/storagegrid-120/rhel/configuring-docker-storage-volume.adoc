@@ -1,0 +1,4 @@
+---
+permalink: rhel/configuring-docker-storage-volume.html
+redirect: storagegrid/swnodes/configuring-docker-storage-volume.html
+---

@@ -1,0 +1,17 @@
+---
+permalink: ubuntu/where-to-go-next.html
+sidebar: sidebar
+keywords: what to do after ubuntu installation
+summary: 'After completing an installation, perform the required integration and configuration tasks. You can perform the optional tasks as needed.'
+---
+= Where to go next
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+After completing an installation, perform the required integration and configuration tasks. You can perform the optional tasks as needed.
+
+== Required tasks
+
+include::../_include/install-rhel-ub-vm-where-next.adoc[]
+

@@ -1,0 +1,81 @@
+//This is the shared introduction for restoring object data in the Storage Node maintenance procedures//
+
+== Which procedure should I use?
+
+Whenever possible, restore object data using the *Volume restoration* page in the Grid Manager.
+
+* If the volumes are listed at *MAINTENANCE* > *Volume restoration* > *Nodes to restore*, restore object data using the link:../maintain/restoring-volume.html[Volume restoration page in the Grid Manager].
+
+* If the volumes aren't listed at *MAINTENANCE* > *Volume restoration* > *Nodes to restore*, follow the steps below for using the `repair-data` script to restore object data.
++
+If the recovered Storage Node contains fewer volumes than the node it is replacing, you must use the `repair-data` script.
+
+NOTE: The repair-data script is deprecated and will be removed in a future release. When possible, use the link:../maintain/restoring-volume.html[Volume restoration procedure in the Grid Manager].
+
+== Use the `repair-data` script to restore object data
+
+.Before you begin
+
+* You have confirmed that the recovered Storage Node has a Connection State of *Connected* image:../media/icon_alert_green_checkmark.png[icon alert green check mark] on the *NODES* > *Overview* tab in the Grid Manager.
+
+.About this task
+
+Object data can be restored from other Storage Nodes or a Cloud Storage Pool, assuming that the grid's ILM rules were configured such that object copies are available.
+
+Note the following:
+
+* If an ILM rule was configured to store only one replicated copy and that copy existed on a storage volume that failed, you will not be able to recover the object.
+
+* If the only remaining copy of an object is in a Cloud Storage Pool, StorageGRID must issue multiple requests to the Cloud Storage Pool endpoint to restore object data. Before performing this procedure, contact technical support for help in estimating the recovery time frame and the associated costs.
+
+== About the `repair-data` script
+
+To restore object data, you run the `repair-data` script. This script begins the process of restoring object data and works with ILM scanning to ensure that ILM rules are met.
+
+Select *Replicated data* or *Erasure-coded (EC) data* below to learn the different options for the `repair-data` script, based on whether you are restoring replicated data or erasure-coded data. If you need to restore both types of data, you must run both sets of commands.
+
+NOTE: For more information about the `repair-data` script, enter `repair-data --help` from the command line of the primary Admin Node.
+
+NOTE: The repair-data script is deprecated and will be removed in a future release. When possible, use the link:../maintain/restoring-volume.html[Volume restoration procedure in the Grid Manager].
+
+// start tabbed area
+
+[role="tabbed-block"]
+====
+
+.Replicated data
+--
+Two commands are available for restoring replicated data, based on whether you need to repair the entire node or only certain volumes on the node:
+
+`repair-data start-replicated-node-repair`
+
+`repair-data start-replicated-volume-repair`
+
+You can track repairs of replicated data with this command:
+
+`repair-data show-replicated-repair-status`
+
+--
+.Erasure-coded (EC) data
+--
+
+Two commands are available for restoring erasure-coded data, based on whether you need to repair the entire node or only certain volumes on the node:
+
+`repair-data start-ec-node-repair`
+
+`repair-data start-ec-volume-repair`
+
+You can track repairs of erasure-coded data with this command:
+
+`repair-data show-ec-repair-status`
+
+NOTE: Repairs of erasure-coded data can begin while some Storage Nodes are offline. However, if all erasure-coded data can't be accounted for, the repair can't be completed. Repair will complete after all nodes are available. 
+
+NOTE: The EC repair job temporarily reserves a large amount of storage. Storage alerts might be triggered, but will resolve when the repair is complete. If there is not enough storage for the reservation, the EC repair job will fail. Storage reservations are released when the EC repair job completes, whether the job failed or succeeded.
+
+--
+====
+
+// end tabbed area
+
+

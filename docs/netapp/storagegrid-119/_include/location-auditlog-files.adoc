@@ -1,0 +1,23 @@
+The audit log directory and applicable nodes depend on your audit destination settings.  
+
+[cols="1a,2a" options="header"]
+|===
+| Option
+| Destination
+
+| Local nodes (default)
+| `/var/local/log/localaudit.log`
+| Admin Nodes/local nodes
+|* Admin Nodes (Primary and Non-Primary): `/var/local/audit/export/audit.log`
+* All nodes: The `/var/local/log/localaudit.log` file is typically empty or missing in this mode.
+| External syslog server
+| `/var/local/log/localaudit.log`
+
+|===
+
+Depending on your audit destination settings, enter: `cd /var/local/log` or `/var/local/audit/export/` 
+
+To learn more, refer to link:../monitor/configure-audit-messages.html#select-audit-information-destinations[Select audit information destinations].
+
+// 2025 MAR 10, SGRIDDOC-110
+// 2024 Oct 8, SGRIDDOC-98

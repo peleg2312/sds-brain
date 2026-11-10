@@ -1,0 +1,4 @@
+---
+permalink: rhel/configuring-host-network.html
+redirect: storagegrid/swnodes/configuring-host-network.html
+---

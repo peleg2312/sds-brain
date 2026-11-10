@@ -1,0 +1,29 @@
+---
+permalink: upgrade/changes-to-grid-management-api.html
+sidebar: sidebar
+keywords: grid management api, api, api version, swagger, rest api
+summary: 'StorageGRID 11.8 uses version 4 of the Grid Management API. Version 4 deprecates version 3; however, versions 1, 2, and 3 are still supported.'
+---
+= Changes to the Grid Management API
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+StorageGRID 11.8 uses version 4 of the Grid Management API. Version 4 deprecates version 3; however, versions 1, 2, and 3 are still supported. 
+
+NOTE: You can continue to use deprecated versions of the management API with StorageGRID 11.8; however, support for these versions of the API will be removed in a future release of StorageGRID. After upgrading to StorageGRID 11.8, the deprecated APIs can be deactivated using the `PUT /grid/config/management` API.
+
+To learn more, go to link:../admin/using-grid-management-api.html[Use the Grid Management API].
+
+== Changes for `ilm-policies` API v4
+
+Effective starting with StorageGRID 11.8, version 4 of the `ilm-policies` API contains the following differences from the version 3:
+
+* Historical policies are no longer returned. A new, separate API for getting historical policy and tag data has been added at `/grid/ilm-history`.
+* Properties removed: `proposed`, `historical`, `historicalRules`, `activationTime`.
+* Properties added: `active` (boolean), `activatedBy` (array of tag UUIDs that the policy is assigned to).
+* The optional type query parameter for `GET ilm-policies` now takes the values `inactive` and `active.` The previous values were `proposed`, `active`, and `historical`.
+
+== New endpoints for drive management
+
+You can use the */grid/drive-details/{nodeId}* API endpoints to perform operations on the drives in specific models of appliance Storage Nodes.

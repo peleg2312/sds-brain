@@ -1,0 +1,4 @@
+---
+permalink: monitor/configure-audit-messages.html
+redirect: storagegrid/monitor/configure-log-management.html
+---

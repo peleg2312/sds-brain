@@ -1,0 +1,4 @@
+---
+permalink: rhel/installing-linux.html
+redirect: storagegrid/swnodes/installing-linux.html
+---

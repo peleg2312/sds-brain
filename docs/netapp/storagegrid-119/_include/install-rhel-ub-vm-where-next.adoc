@@ -1,0 +1,24 @@
+// Where to go next for RHEL, UB, and VMware installation - common tasks (required and optional)
+// NOTE: Did not include the Required tasks heading, bcs VMware has an extra bullet at the top of the list.
+
+* link:../admin/managing-tenants.html[Create a tenant account] for the S3 client protocol that will be used to store objects on your StorageGRID system.
+* link:../admin/controlling-storagegrid-access.html[Control system access] by configuring groups and user accounts. Optionally, you can link:../admin/using-identity-federation.html[configure a federated identity source] (such as Active Directory or OpenLDAP), so you can import administration groups and users. Or, you can link:../admin/managing-users.html#create-a-local-user[create local groups and users].
+* Integrate and test the link:../s3/configuring-tenant-accounts-and-connections.html[S3 API] client applications you will use to upload objects to your StorageGRID system.
+* link:../ilm/index.html[Configure the information lifecycle management (ILM) rules and ILM policy] you want to use to protect object data.
+* If your installation includes appliance Storage Nodes, use SANtricity OS to complete the following tasks:
+ ** Connect to each StorageGRID appliance.
+ ** Verify receipt of AutoSupport data.
++
+See https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/configuring-hardware.html[Set up hardware^].
+
+* Review and follow the link:../harden/index.html[StorageGRID system hardening guidelines] to eliminate security risks.
+* link:../monitor/email-alert-notifications.html[Configure email notifications for system alerts].
+
+== Optional tasks
+
+* link:../maintain/changing-ip-addresses-and-mtu-values-for-all-nodes-in-grid.html[Update grid node IP addresses] if they have changed since you planned your deployment and generated the Recovery Package.
+* link:../admin/changing-network-options-object-encryption.html[Configure storage encryption], if required.
+* link:../admin/configuring-stored-object-compression.html[Configure storage compression] to reduce the size of stored objects, if required.
+* link:../admin/configure-vlan-interfaces.html[Configure VLAN interfaces] to isolate and partition network traffic, if required.
+* link:../admin/configure-high-availability-group.html[Configure high availability groups] to improve connection availability for the Grid Manager, Tenant Manager, and S3 clients, if required.
+* link:../admin/configuring-load-balancer-endpoints.html[Configure load balancer endpoints] for S3 client connectivity, if required.

@@ -1,0 +1,4 @@
+---
+permalink: upgrade/removed-or-deprecated-features.html
+redirect: storagegrid/release-notes/removed-or-deprecated-features.html
+---

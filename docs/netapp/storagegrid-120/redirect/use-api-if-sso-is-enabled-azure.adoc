@@ -1,0 +1,6 @@
+---
+permalink: admin/use-api-if-sso-is-enabled-azure.html
+redirect: storagegrid/admin/use-api-if-sso-is-enabled-entra-id.html
+---
+
+// 2025 JUN 10, SGWS-33778

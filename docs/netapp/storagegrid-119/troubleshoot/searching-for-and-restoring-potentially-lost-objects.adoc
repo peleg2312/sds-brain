@@ -1,0 +1,175 @@
+---
+permalink: troubleshoot/searching-for-and-restoring-potentially-lost-objects.html
+sidebar: sidebar
+keywords: how to search lost object, how to restore lost object, how to find lost object
+summary: 'It might be possible to find and restore objects that have triggered an *Object lost* alert and a legacy Lost Objects (LOST) alarm and that you have identified as potentially lost.'
+---
+= Search for and restore potentially lost objects
+:icons: font
+:imagesdir: ../media/
+
+
+[.lead]
+It might be possible to find and restore objects that have triggered an *Object lost* alert and a legacy Lost Objects (LOST) alarm and that you have identified as potentially lost.
+
+.Before you begin
+* You have the UUID of any lost object, as identified in link:../troubleshoot/investigating-lost-objects.html[Investigate lost objects].
+* You have the `Passwords.txt` file.
+
+.About this task
+You can follow this procedure to look for replicated copies of the lost object elsewhere in the grid. In most cases, the lost object will not be found. However, in some cases, you might be able to find and restore a lost replicated object if you take prompt action.
+
+CAUTION: Contact technical support for assistance with this procedure.
+
+.Steps
+. From an Admin Node, search the audit logs for possible object locations:
+.. Log in to the grid node:
+... Enter the following command: `ssh admin@grid_node_IP`
+... Enter the password listed in the `Passwords.txt` file.
+... Enter the following command to switch to root: `su -`
+... Enter the password listed in the `Passwords.txt` file.
+When you are logged in as root, the prompt changes from `$` to `#`.
+
+.. [[substep-1b]]Change to the directory where the audit logs are located.
++
+--
+include::../_include/location-auditlog-files.adoc[]
+--
+.. Use grep to extract the link:../audit/object-ingest-transactions.html[audit messages associated with the potentially lost object] and send them to an output file. Enter: `grep uuid-value audit_file_name > output_file_name`
++
+For example:
++
+----
+Admin: # grep 926026C4-00A4-449B-AC72-BCCA72DD1311 audit.log > /var/local/tmp/messages_about_lost_object.txt
+----
+
+.. Use grep to extract the Location Lost (LLST) audit messages from this output file. Enter: `grep LLST output_file_name`
++
+For example:
++
+----
+Admin: # grep LLST /var/local/tmp/messages_about_lost_objects.txt
+----
++
+An LLST audit message looks like this example message.
++
+----
+[AUDT:[NOID(UI32):12448208][CBIL(UI64):0x38186FE53E3C49A5]
+[UUID(CSTR):"926026C4-00A4-449B-AC72-BCCA72DD1311"][LTYP(FC32):CLDI]
+[PCLD(CSTR):"/var/local/rangedb/1/p/17/11/00rH0%DkRs&LgA#3tN6"]
+[TSRC(FC32):SYST][RSLT(FC32):NONE][AVER(UI32):10][ATIM(UI64):1581535134379225]
+[ATYP(FC32):LLST][ANID(UI32):12448208][AMID(FC32):CLSM][ATID(UI64):7086871083190743409]]
+----
+
+.. Find the PCLD field and the NOID field in the LLST message.
++
+If present, the value of PCLD is the complete path on disk to the missing replicated object copy. The value of NOID is the node id of the LDR where a copy of the object might be found.
++
+If you find an object location, you might be able to restore the object.
+
+.. Find the Storage Node associated with this LDR node ID. In the Grid Manager, select *SUPPORT* > *Tools* > *Grid topology*. Then select *_Data Center_* > *_Storage Node_* > *LDR*.
++
+The Node ID for the LDR service is in the Node Information table. Review the information for each Storage Node until you find the one that hosts this LDR.
+
+. Determine if the object exists on the Storage Node indicated in the audit message:
+.. Log in to the grid node:
+... Enter the following command: `ssh admin@grid_node_IP`
+... Enter the password listed in the `Passwords.txt` file.
+... Enter the following command to switch to root: `su -`
+... Enter the password listed in the `Passwords.txt` file.
++
+When you are logged in as root, the prompt changes from `$` to `#`.
+
+.. Determine if the file path for the object exists.
++
+For the file path of the object, use the value of PCLD from the LLST audit message.
++
+For example, enter:
++
+----
+ls '/var/local/rangedb/1/p/17/11/00rH0%DkRs&LgA%#3tN6'
+----
++
+NOTE: Always enclose the object file path in single quotes in commands to escape any special characters.
+
+*** If the object path is not found, the object is lost and can't be restored using this procedure. Contact technical support.
+*** If the object path is found, continue with the next step. You can attempt to restore the found object back to StorageGRID.
+
+. If the object path was found, attempt to restore the object to StorageGRID:
+.. From the same Storage Node, change the ownership of the object file so that it can be managed by StorageGRID. Enter: `chown ldr-user:bycast 'file_path_of_object'`
+.. Telnet to localhost 1402 to access the LDR console. Enter: `telnet 0 1402`
+.. Enter: `cd /proc/STOR`
+.. Enter: `Object_Found 'file_path_of_object'`
++
+For example, enter:
++
+----
+Object_Found '/var/local/rangedb/1/p/17/11/00rH0%DkRs&LgA%#3tN6'
+----
++
+Issuing the `Object_Found` command notifies the grid of the object's location. It also triggers the active ILM policies, which make additional copies as specified in each policy.
++
+NOTE: If the Storage Node where you found the object is offline, you can copy the object to any Storage Node that is online. Place the object in any /var/local/rangedb directory of the online Storage Node. Then, issue the `Object_Found` command using that file path to the object.
+
+** If the object can't be restored, the `Object_Found` command fails. Contact technical support.
+** If the object was successfully restored to StorageGRID, a success message appears. For example:
++
+----
+ade 12448208: /proc/STOR > Object_Found '/var/local/rangedb/1/p/17/11/00rH0%DkRs&LgA%#3tN6'
+
+ade 12448208: /proc/STOR > Object found succeeded.
+First packet of file was valid. Extracted key: 38186FE53E3C49A5
+Renamed '/var/local/rangedb/1/p/17/11/00rH0%DkRs&LgA%#3tN6' to '/var/local/rangedb/1/p/17/11/00rH0%DkRt78Ila#3udu'
+----
++
+Continue with the next step.
+
+. If the object was successfully restored to StorageGRID, verify that the new locations were created: 
+.. Sign in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+.. Select *ILM* > *Object metadata lookup*.
+.. Enter the UUID, and select *Look Up*.
+.. Review the  metadata, and verify the new locations.
+
+. From an Admin Node, search the audit logs for the ORLM audit message for this object to confirm that information lifecycle management (ILM) has placed copies as required.
+.. Log in to the grid node:
+... Enter the following command: `ssh admin@grid_node_IP`
+... Enter the password listed in the `Passwords.txt` file.
+... Enter the following command to switch to root: `su -`
+... Enter the password listed in the `Passwords.txt` file.
+When you are logged in as root, the prompt changes from `$` to `#`.
+.. Change to the directory where the audit logs are located. Refer to <<substep-1b,substep 1. b>> .
+
+.. Use grep to extract the audit messages associated with the object to an output file. Enter: `grep uuid-value audit_file_name > output_file_name`
++
+For example:
++
+----
+Admin: # grep 926026C4-00A4-449B-AC72-BCCA72DD1311 audit.log > /var/local/tmp/messages_about_restored_object.txt
+----
+
+ .. Use grep to extract the Object Rules Met (ORLM) audit messages from this output file. Enter: `grep ORLM output_file_name`
++
+For example:
++
+----
+Admin: # grep ORLM /var/local/tmp/messages_about_restored_object.txt
+----
++
+An ORLM audit message looks like this example message.
++
+----
+[AUDT:[CBID(UI64):0x38186FE53E3C49A5][RULE(CSTR):"Make 2 Copies"]
+[STAT(FC32):DONE][CSIZ(UI64):0][UUID(CSTR):"926026C4-00A4-449B-AC72-BCCA72DD1311"]
+[LOCS(CSTR):"**CLDI 12828634 2148730112**, CLDI 12745543 2147552014"]
+[RSLT(FC32):SUCS][AVER(UI32):10][ATYP(FC32):ORLM][ATIM(UI64):1563398230669]
+[ATID(UI64):15494889725796157557][ANID(UI32):13100453][AMID(FC32):BCMS]]
+----
+
+ .. Find the LOCS field in the audit message.
++
+If present, the value of CLDI in LOCS is the node ID and the volume ID where an object copy has been created. This message shows that the ILM has been applied and that two object copies have been created in two locations in the grid.
+. link:resetting-lost-and-missing-object-counts.html[Reset the lost and missing object counts] in the Grid Manager.
+
+// 2025 MAR 10, SGRIDDOC-110
+// 2024 OCT 8: SGRIDDOC-98
+// 2024 SEP 11: SGRIDDOC-96

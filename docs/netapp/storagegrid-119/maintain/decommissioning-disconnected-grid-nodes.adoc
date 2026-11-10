@@ -1,0 +1,88 @@
+---
+permalink: maintain/decommissioning-disconnected-grid-nodes.html
+sidebar: sidebar
+keywords: storagegrid, disconnected nodes, decommission node
+summary: 'You might need to decommission a node that is not currently connected to the grid \(one whose Health is Unknown or Administratively Down\).'
+---
+= Decommission disconnected grid nodes
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You might need to decommission a node that is not currently connected to the grid (one whose Health is Unknown or Administratively Down).
+
+.Before you begin
+
+* You understand the considerations for decommissioning link:considerations-for-decommissioning-admin-or-gateway-nodes.html[Admin and Gateway Nodes] and the considerations for decommissioning link:considerations-for-decommissioning-storage-nodes.html[Storage Nodes].
+* You have obtained all prerequisite items.
+* You have ensured that no data repair jobs are active. See link:checking-data-repair-jobs.html[Check data repair jobs].
+* You have confirmed that Storage Node recovery is not in progress anywhere in the grid. If it is, you must wait until any Cassandra rebuild performed as part of the recovery is complete. You can then proceed with decommissioning.
+* You have ensured that other maintenance procedures will not be run while the node decommission procedure is running, unless the node decommission procedure is paused.
+* The *Decommission Possible* column for the disconnected node or nodes you want to decommission includes a green check mark.
+* You have the provisioning passphrase.
+
+.About this task
+
+You can identify disconnected nodes by looking for the blue Unknown icon image:../media/icon_alarm_blue_unknown.png[Icon Unknown] or the gray Administratively down icon image:../media/icon_alarm_gray_administratively_down.png[Icon Administratively down] in the *Health* column.
+
+Before decommissioning any disconnected node, note the following:
+
+* This procedure is primarily intended for removing a single disconnected node. If your grid contains multiple disconnected nodes, the software requires you to decommission them all at the same time, which increases the potential for unexpected results.
++
+CAUTION: Data loss might occur if you decommission more than one disconnected Storage Node at a time. See link:considerations-for-decommissioning-storage-nodes.html#considerations-disconnected-storage-nodes[Considerations for disconnected Storage Nodes].
++
+CAUTION: Use caution when you decommission Storage Nodes in a grid containing software-based metadata-only nodes. If you decommission all nodes configured to store _both_ objects and metadata, the ability to store objects is removed from the grid. See link:../primer/what-storage-node-is.html#types-of-storage-nodes[Types of Storage Nodes] for more information about metadata-only Storage Nodes.
+
+* If a disconnected node can't be removed (for example, a Storage Node that is required for the ADC quorum), no other disconnected node can be removed.
+
+.Steps
+
+. Unless you are decommissioning an Archive Node (which must be disconnected), attempt to bring any disconnected grid nodes back online or recover them.
++
+See link:warnings-and-considerations-for-grid-node-recovery.html[Grid node recovery procedures] for instructions.
+
+. If you are unable to recover a disconnected grid node and you want to decommission it while it is disconnected, select the checkbox for that node.
++
+NOTE: If your grid contains multiple disconnected nodes, the software requires you to decommission them all at the same time, which increases the potential for unexpected results.
++
+CAUTION: Be careful when choosing to decommission more than one disconnected grid node at a time, especially if you are selecting multiple disconnected Storage Nodes. If you have more than one disconnected Storage Node that you can't recover, contact technical support to determine the best course of action.
+
+. Enter the provisioning passphrase.
++
+The *Start Decommission* button is enabled.
+
+. Click *Start Decommission*.
++
+A warning appears, indicating that you have selected a disconnected node and that object data will be lost if the node has the only copy of an object.
+
+. Review the list of nodes, and click *OK*.
++
+The decommission procedure starts, and the progress is displayed for each node. During the procedure, a new Recovery Package is generated containing the grid configuration change.
+
+. As soon as the new Recovery Package is available, click the link or select *MAINTENANCE* > *System* > *Recovery package* to access the Recovery Package page. Then, download the `.zip` file.
++
+See the instructions for link:downloading-recovery-package.html[downloading the Recovery Package].
++
+NOTE: Download the Recovery Package as soon as possible to ensure you can recover your grid if something goes wrong during the decommission procedure.
++
+CAUTION: The Recovery Package file must be secured because it contains encryption keys and passwords that can be used to obtain data from the StorageGRID system.
+
+. Periodically monitor the Decommission page to ensure that all selected nodes are decommissioned successfully.
++
+Storage Nodes can take days or weeks to decommission. When all tasks are complete, the node selection list is redisplayed with a success message. If you decommissioned a disconnected Storage Node, an information message indicates that the repair jobs have been started.
+
+. After the nodes have shut down automatically as part of the decommission procedure, remove any remaining virtual machines or other resources that are associated with the decommissioned node.
++
+CAUTION: Don't perform this step until the nodes have shut down automatically.
+
+. If you are decommissioning a Storage Node, monitor the status of the *replicated data* and *erasure-coded (EC) data* repair jobs that are automatically started during the decommissioning process.
+include::../_include/restore-data-monitor.adoc[]
+
+.After you finish
+
+As soon as the disconnected nodes have been decommissioned and all data repair jobs have been completed, you can decommission any connected grid nodes as required.
+
+Then, complete these steps after you complete the decommission procedure:
+
+* Ensure that the drives of the decommissioned grid node are wiped clean. Use a commercially available data wiping tool or service to permanently and securely remove data from the drives.
+* If you decommissioned an appliance node and the data on the appliance was protected using node encryption, use the StorageGRID Appliance Installer to clear the key management server configuration (Clear KMS). You must clear the KMS configuration if you want to add the appliance to another grid. For instructions, see https://docs.netapp.com/us-en/storagegrid-appliances/commonhardware/monitoring-node-encryption-in-maintenance-mode.html[Monitor node encryption in maintenance mode^].

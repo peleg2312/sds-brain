@@ -1,0 +1,38 @@
+---
+permalink: primer/what-archive-node-is.html
+sidebar: sidebar
+keywords: archive node
+summary: 'Support for Archive Nodes is deprecated and will be removed in a future release.'
+---
+= What is an Archive Node?
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Support for Archive Nodes is deprecated and will be removed in a future release. 
+
+[CAUTION]
+====
+Support for Archive Nodes is deprecated and will be removed in a future release. Moving objects from an Archive Node to an external archival storage system through the S3 API has been replaced by ILM Cloud Storage Pools, which offer more functionality. 
+
+The Cloud Tiering - Simple Storage Service (S3) option is also deprecated. If you are currently using an Archive Node with this option, link:../admin/migrating-objects-from-cloud-tiering-s3-to-cloud-storage-pool.html[migrate your objects to a Cloud Storage Pool] instead.
+
+Additionally, you should remove Archive Nodes from the active ILM policies in StorageGRID 11.7 or earlier. Removing object data stored on Archive Nodes will simplify future upgrades. See link:../ilm/working-with-ilm-rules-and-ilm-policies.html[Working with ILM rules and ILM policies].
+
+====
+
+== Primary services for Archive Nodes
+
+The following table shows the primary services for Archive Nodes; however, this table does not list all node services.
+
+
+[cols="1a,2a" options="header"]
+|===
+| Service| Key function
+
+| Archive (ARC)
+| Communicates with a Tivoli Storage Manager (TSM) external tape storage system.
+
+| Server Status Monitor (SSM)
+| Monitors the operating system and underlying hardware.
+|===

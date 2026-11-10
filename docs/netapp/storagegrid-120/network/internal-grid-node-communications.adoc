@@ -1,0 +1,251 @@
+---
+permalink: network/internal-grid-node-communications.html
+sidebar: sidebar
+keywords: storagegrid, network port, internal communications, ports, TCP, UDP, grid communications, port
+summary: "The StorageGRID internal firewall only allows incoming connections to specific ports on the Grid Network, with the exception of ports 22, 80, 123, and 443 (see the information about external communications). Connections are also accepted on ports defined by load balancer endpoints."
+---
+= Internal grid node communications for StorageGRID
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The StorageGRID internal firewall allows incoming connections to specific ports on the Grid Network. Connections are also accepted on ports defined by load balancer endpoints. 
+
+NOTE: NetApp recommends that you enable Internet Control Message Protocol (ICMP) traffic between grid nodes. Allowing ICMP traffic can improve failover performance when a grid node can't be reached.
+
+In addition to ICMP and the ports listed in the table, StorageGRID uses the Virtual Router Redundancy Protocol (VRRP). VRRP is an internet protocol that uses IP protocol number 112. StorageGRID uses VRRP in unicast mode only. VRRP is required only if link:../admin/managing-high-availability-groups.html[high availability groups] are configured.
+
+== Guidelines for Linux-based nodes
+
+If enterprise networking policies restrict access to any of these ports, you can remap ports at deployment time using a deployment configuration parameter. For more information about port remapping and deployment configuration parameters, see link:../swnodes/index.html[Install StorageGRID on software-based nodes].
+
+NOTE: Support for port remapping is deprecated and will be removed in a future release. To remove remapped ports, refer to link:../maintain/removing-port-remaps-on-bare-metal-hosts.html[Remove port remaps on bare metal hosts].
+
+== Guidelines for VMware-based nodes
+
+Configure the following ports only if you need to define firewall restrictions that are external to VMware networking.
+
+If enterprise networking policies restrict access to any of these ports, you can remap ports when you deploy nodes using the VMware vSphere Web Client, or by using a configuration file setting when automating grid node deployment. For more information about port remapping and deployment configuration parameters, see the instructions for link:../swnodes/index.html[installing StorageGRID on VMware].
+
+NOTE: Support for port remapping is deprecated and will be removed in a future release. To remove remapped ports, refer to link:../maintain/removing-port-remaps-on-bare-metal-hosts.html[Remove port remaps on bare metal hosts].
+
+== Guidelines for appliance nodes
+
+If enterprise networking policies restrict access to any of these ports, you can remap ports using the StorageGRID Appliance Installer. See https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/optional-remapping-network-ports-for-appliance.html[Optional: Remap network ports for appliance^].
+
+NOTE: Support for port remapping is deprecated and will be removed in a future release. To remove remapped ports, refer to link:../maintain/removing-port-remaps.html[Remove port remaps on StorageGRID appliances].
+
+== StorageGRID internal ports
+
+[cols="1a,1a,1a,1a,4a" options=header] 
+|===
+| Port| TCP or UDP| From| To| Details
+
+| 22
+| TCP
+| Primary Admin Node
+| All nodes
+| For maintenance procedures, the primary Admin Node must be able to communicate with all other nodes using SSH on port 22. Allowing SSH traffic from other nodes is optional.
+
+| 80
+| TCP
+| Appliances
+| Primary Admin Node
+| Used by StorageGRID appliances to communicate with the primary Admin Node to start the installation.
+
+| 123
+| UDP
+| All nodes
+| All nodes
+| Network time protocol service. Every node synchronizes its time with every other node using NTP.
+
+| 443
+| TCP
+| All nodes
+| Primary Admin Node
+| Used for communicating status to the primary Admin Node during installation and other maintenance procedures.
+
+| 1055
+| TCP
+| All nodes
+| Primary Admin Node
+| Internal traffic for installation, expansion, recovery, and other maintenance procedures.
+
+| 1139
+| TCP
+| Storage Nodes
+| Storage Nodes
+| Internal traffic between Storage Nodes.
+
+| 1501
+| TCP
+| All nodes
+| Storage Nodes with ADC
+| Reporting, auditing, and configuration internal traffic.
+
+| 1502
+| TCP
+| All nodes
+| Storage Nodes
+| S3-related internal traffic.
+
+| 1504
+| TCP
+| All nodes
+| Admin Nodes
+| NMS service reporting and configuration internal traffic.
+
+| 1505
+| TCP
+| All nodes
+| Admin Nodes
+| AMS service internal traffic.
+
+| 1506
+| TCP
+| All nodes
+| All nodes
+| Server status internal traffic.
+
+| 1507
+| TCP
+| All nodes
+| Gateway Nodes
+| Load balancer internal traffic.
+
+| 1508
+| TCP
+| All nodes
+| Primary Admin Node
+| Configuration management internal traffic.
+
+| 1511
+| TCP
+| All nodes
+| Storage Nodes
+| Metadata internal traffic.
+
+| 5353
+| UDP
+| All nodes
+| All nodes
+| Provides the multicast DNS (mDNS) service used for full-grid IP changes and for primary Admin Node discovery during installation, expansion, and recovery.
+
+*Note*: Configuring this port is optional.
+
+| 7001
+| TCP
+| Storage Nodes
+| Storage Nodes
+| Cassandra TLS inter-node cluster communication.
+
+| 7443
+| TCP
+| All nodes
+| Primary Admin Node
+| Internal traffic for installation, expansion, recovery, other maintenance procedures, and error reporting.
+
+| 8011
+| TCP
+| All nodes
+| Primary Admin Node
+| Internal traffic for installation, expansion, recovery, and other maintenance procedures.
+
+| 8443
+| TCP
+| Primary Admin Node
+| Appliance nodes
+| Internal traffic related to the maintenance mode procedure.
+
+| 9042
+| TCP
+| Storage Nodes
+| Storage Nodes
+| Cassandra client port.
+
+| 9999
+| TCP
+| All nodes
+| All nodes
+| Internal traffic for multiple services. Includes maintenance procedures, metrics, and networking updates.
+
+| 10226
+| TCP
+| Storage Nodes
+| Primary Admin Node
+| Used by StorageGRID appliances for forwarding AutoSupport packages from E-Series SANtricity System Manager to the primary Admin Node.
+
+| 10342
+| TCP
+| All nodes
+| Primary Admin Node
+| Internal traffic for installation, expansion, recovery, and other maintenance procedures.
+
+| 18000
+| TCP
+| Admin/Storage Nodes
+| Storage Nodes with ADC
+| Account service internal traffic.
+
+| 18001
+| TCP
+| Admin/Storage Nodes
+| Storage Nodes with ADC
+| Identity Federation internal traffic.
+
+| 18002
+| TCP
+| Admin/Storage Nodes
+| Storage Nodes
+| Internal API traffic related to object protocols.
+
+| 18003
+| TCP
+| Admin/Storage Nodes
+| Storage Nodes with ADC
+| Platform services internal traffic.
+
+| 18017
+| TCP
+| Admin/Storage Nodes
+| Storage Nodes
+| Data Mover service internal traffic for Cloud Storage Pools.
+
+| 18019
+| TCP
+| All nodes
+| All nodes
+| Chunk service internal traffic for erasure coding and replication
+
+| 18082
+| TCP
+| Admin/Storage Nodes
+| Storage Nodes
+| S3-related internal traffic.
+
+| 18086
+| TCP
+| All nodes
+| Storage Nodes
+| Internal traffic related to LDR service.
+
+| 18200
+| TCP
+| Admin/Storage Nodes
+| Storage Nodes
+| Additional statistics about client requests.
+
+| 19000
+| TCP
+| Admin/Storage Nodes
+| Storage Nodes with ADC
+| Keystone service internal traffic.
+
+|===
+
+.Related information
+
+link:external-communications.html[External communications]
+
+// 2025 NOV 3, SGRIDDOC-199
+// 2025 SEP 22, SGRIDDOC-195

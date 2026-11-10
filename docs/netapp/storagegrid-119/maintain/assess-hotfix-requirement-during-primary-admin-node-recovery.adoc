@@ -1,0 +1,30 @@
+---
+permalink: maintain/assess-hotfix-requirement-during-primary-admin-node-recovery.html
+sidebar: sidebar
+keywords: storagegrid, primary admin node, hotfix
+summary: 'After recovering a primary admin node, determine if you need to apply a hotfix.'
+---
+= Determine hotfix requirement for primary Admin Node
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+After recovering a primary admin node, determine if you need to apply a hotfix.
+
+.Before you begin
+
+Primary admin node recovery is complete.
+
+.Steps
+ 
+ . Sign in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+ . Select *NODES*.
+ . From the list on the left, select the primary Admin Node.
+ . On the Overview tab, note the version displayed in the *Software Version* field.
+ . Select any other grid node.
+ . On the Overview tab, note the version displayed in the *Software Version* field.
+  ** If the versions displayed in the *Software Version* fields are the same, you don't need to apply a hotfix.
+  ** If the versions displayed in the *Software Version* fields are different, you must link:storagegrid-hotfix-procedure.html[apply a hotfix] to update the recovered primary Admin Node to the same version.
+
+
+

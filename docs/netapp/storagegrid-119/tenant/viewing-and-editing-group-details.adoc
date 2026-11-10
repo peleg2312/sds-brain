@@ -1,0 +1,51 @@
+---
+permalink: tenant/viewing-and-editing-group-details.html
+sidebar: sidebar
+keywords: how to view and edit group
+summary: 'When you view the details for a group, you can change the group’s display name, permissions, policies, and the users that belong to the group.'
+---
+= View and edit group details
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+When you view the details for a group, you can change the group's display name, permissions, policies, and the users that belong to the group.
+
+.Before you begin
+
+* You are signed in to the Tenant Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You belong to a user group that has the Root access permission.
+
+.Steps
+. Select *ACCESS MANAGEMENT* > *Groups*.
+. Select the name of the group whose details you want to view or edit.
++
+Alternatively, you can select *Actions* > *View group details*.
++
+The group details page appears. The following example shows the S3 group details page.
++
+image::../media/tenant_group_details.png[View Group Details]
+
+. Make changes to the group settings as needed.
++
+TIP: To ensure your changes are saved, select *Save changes* after you make changes in each section. When your changes are saved, a confirmation message appears in the upper right corner of the page.
+
+ .. Optionally, select the display name or edit icon image:../media/icon_edit_tm.png[Edit icon] to update the display name.
++
+You can't change a group's unique name. You can't edit the display name for a federated group.
+
+ .. Optionally, update the permissions.
+ .. For group policy, make the appropriate changes for your S3 tenant.
+  *** If you are editing a group for an S3 tenant, optionally select a different S3 group policy. If you select a custom S3 policy, update the JSON string as required.
+  *** If you are editing a group for a Swift tenant, optionally select or clear the *Swift Administrator* checkbox.
++
+For more information about the Swift Administrator permission, see the instructions for creating groups for a Swift tenant.
+ .. Optionally, add or remove users.
+
+. Confirm that you have selected *Save changes* for each section you changed.
+
+.Related information
+
+* link:creating-groups-for-s3-tenant.html[Create groups for S3 tenant]
+
+* link:creating-groups-for-swift-tenant.html[Create groups for Swift tenant]

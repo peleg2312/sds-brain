@@ -1,0 +1,38 @@
+---
+permalink: ilm/create-ilm-rule-select-ingest-behavior.html
+sidebar: sidebar
+keywords: ilm rule step 3, define ingest behavior
+summary: 'Step 3 \(Select ingest behavior\) of the Create ILM Rule wizard allows you to choose how the objects filtered by this rule are protected as they are ingested.'
+---
+= Step 3 of 3: Select ingest behavior
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The *Select ingest behavior* step of the Create ILM Rule wizard allows you to choose how the objects filtered by this rule are protected as they are ingested.
+
+.About this task
+
+StorageGRID can make interim copies and queue the objects for ILM evaluation later, or it can make copies to meet the rule's placement instructions immediately.
+
+.Steps
+
+. Select the link:data-protection-options-for-ingest.html[ingest behavior] to use.
++
+For more information, see link:advantages-disadvantages-of-ingest-options.html[Advantages, disadvantages, and limitations of the ingest options].
++
+[NOTE]
+====
+You can't use the Balanced or Strict option if the rule uses one of these placements:
+
+** A Cloud Storage Pool at day 0
+** A Cloud Storage Pool when the rule uses a User defined creation time as a Reference time
+
+See link:example-5-ilm-rules-and-policy-for-strict-ingest-behavior.html[Example 5: ILM rules and policy for Strict ingest behavior].
+====
+
+. Select *Create*.
++
+The ILM rule is created. The rule does not become active until it is added to an link:creating-ilm-policy.html[ILM policy] and that policy is activated.
++
+To view the details of the rule, select the rule's name on the ILM rules page.

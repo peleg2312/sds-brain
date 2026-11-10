@@ -1,0 +1,78 @@
+---
+permalink: tenant/configuring-cross-origin-resource-sharing-cors.html
+sidebar: sidebar
+keywords: how to configure cross-origin resource sharing, cors
+summary: 'You can configure cross-origin resource sharing \(CORS\) for an S3 bucket if you want that bucket and objects in that bucket to be accessible to web applications in other domains.'
+---
+= Configure cross-origin resource sharing (CORS)
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can configure cross-origin resource sharing (CORS) for an S3 bucket if you want that bucket and objects in that bucket to be accessible to web applications in other domains.
+
+.Before you begin
+
+* You are signed in to the Tenant Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* For GET CORS configuration requests, you belong to a user group that has the link:tenant-management-permissions.html[Manage all buckets or View all buckets permission]. These permissions override the permissions settings in group or bucket policies.
+* For PUT CORS configuration requests, you belong to a user group that has the link:tenant-management-permissions.html[Manage all buckets permission]. This permission overrides the permissions settings in group or bucket policies.
+* The link:tenant-management-permissions.html[Root access permission] provides access to all CORS configuration requests.
+
+.About this task
+
+Cross-origin resource sharing (CORS) is a security mechanism that allows client web applications in one domain to access resources in a different domain. For example, suppose you use an S3 bucket named `Images` to store graphics. By configuring CORS for the `Images` bucket, you can allow the images in that bucket to be displayed on the website `+http://www.example.com+`.
+
+== Enable CORS for a bucket
+
+.Steps
+
+. Use a text editor to create the required XML. This example shows the XML used to enable CORS for an S3 bucket. Specifically:
++
+* Allows any domain to send GET requests to the bucket
+* Only allows the `+http://www.example.com+` domain to send GET, POST, and DELETE requests
+* All request headers are allowed
++
+----
+<CORSConfiguration
+    xmlns="http://s3.amazonaws.com/doc/2020-10-22/">
+    <CORSRule>
+        <AllowedOrigin>*</AllowedOrigin>
+        <AllowedMethod>GET</AllowedMethod>
+        <AllowedHeader>*</AllowedHeader>
+    </CORSRule>
+    <CORSRule>
+        <AllowedOrigin>http://www.example.com</AllowedOrigin>
+        <AllowedMethod>GET</AllowedMethod>
+        <AllowedMethod>POST</AllowedMethod>
+        <AllowedMethod>DELETE</AllowedMethod>
+        <AllowedHeader>*</AllowedHeader>
+    </CORSRule>
+</CORSConfiguration>
+----
++
+For more information about the CORS configuration XML, see http://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html[Amazon Web Services (AWS) Documentation: Amazon Simple Storage Service User Guide^].
+
+. Select *View buckets* from the dashboard, or select *STORAGE (S3)* > *Buckets*.
+. Select the bucket name from the table.
++
+The bucket details page appears.
+
+. From the *Bucket access* tab, select the *Cross-Origin Resource Sharing (CORS)* accordion.
+. Select the *Enable CORS* checkbox.
+. Paste the CORS configuration XML into the text box.
+. Select *Save changes*.
+
+== Modify CORS setting
+
+.Steps
+
+. Update the CORS configuration XML in the text box, or select *Clear* to start over. 
+. Select *Save changes*.
+
+== Disable CORS setting
+
+.Steps
+
+. Clear the *Enable CORS* checkbox.
+
+. Select *Save changes*.

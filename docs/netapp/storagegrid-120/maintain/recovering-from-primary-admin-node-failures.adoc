@@ -1,0 +1,26 @@
+---
+permalink: maintain/recovering-from-primary-admin-node-failures.html
+sidebar: sidebar
+keywords: storagegrid, recover, primary admin node failure
+summary: "You must complete a specific set of tasks to recover from a primary Admin Node failure. The primary Admin Node hosts the Configuration Management Node (CMN) service for the grid."
+---
+= Recover from primary StorageGRID Admin Node failures
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You must complete a specific set of tasks to recover from a primary Admin Node failure. The primary Admin Node hosts the Configuration Management Node (CMN) service for the grid.
+
+CAUTION: You must repair or replace a failed primary Admin Node promptly or you might not be able to perform certain maintenance procedures.
+
+Follow these high-level steps to recover a primary Admin Node:
+
+. link:copying-audit-logs-from-failed-primary-admin-node.html[Copy audit logs from failed primary Admin Node]
+. link:replacing-primary-admin-node.html[Replace the primary Admin Node]
+. link:configuring-replacement-primary-admin-node.html[Configure the replacement primary Admin Node]
+. link:assess-hotfix-requirement-during-primary-admin-node-recovery.html[Determine if there is a hotfix requirement for the recovered primary Admin Node]
+. link:restoring-audit-log-on-recovered-primary-admin-node.html[Restore the audit log on the recovered primary Admin Node]
+. link:restoring-admin-node-database-primary-admin-node.html[Restore the Admin Node database when recovering a primary Admin Node]
+. link:restoring-prometheus-metrics-primary-admin-node.html[Restore Prometheus metrics when recovering a primary Admin Node]
+
+// 2025 NOV 18, storagegrid-issues-39

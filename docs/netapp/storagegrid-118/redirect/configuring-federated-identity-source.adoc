@@ -1,0 +1,4 @@
+---
+permalink: tenant/configuring-federated-identity-source.html
+redirect: storagegrid-118/tenant/using-identity-federation.html
+---

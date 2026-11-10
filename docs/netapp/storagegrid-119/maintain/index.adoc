@@ -1,0 +1,28 @@
+---
+permalink: maintain/index.html
+sidebar: sidebar
+keywords: maintain overview, maintenance overview, about maintain, about maintenance
+summary: 'Grid maintenance tasks include decommissioning a node or site, renaming a grid, node or site, and maintaining the network. You can also perform host and middleware procedures and grid node procedures.'
+---
+= Grid maintenance
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Grid maintenance tasks include decommissioning a node or site, renaming a grid, node or site, and maintaining networks. You can also perform host and middleware procedures and grid node procedures.
+
+NOTE: In these instructions, "Linux" refers to a Red Hat® Enterprise Linux®, Ubuntu®, or Debian® deployment. For a list of supported versions, see the https://imt.netapp.com/matrix/#welcome[NetApp Interoperability Matrix Tool^].
+
+== Before you begin
+
+* You have a broad understanding of the StorageGRID system. 
+
+* You have reviewed your StorageGRID system's topology and you understand the grid configuration.
+
+* You understand that you must follow all instructions exactly and heed all warnings.
+
+* You understand that maintenance procedures not described aren't supported or require a services engagement.
+
+== Maintenance procedures for appliances
+
+For hardware procedures, see the https://docs.netapp.com/us-en/storagegrid-appliances/commonhardware/index.html[maintenance instructions for your StorageGRID appliance^].

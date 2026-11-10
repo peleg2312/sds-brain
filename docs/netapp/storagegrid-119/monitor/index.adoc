@@ -1,0 +1,39 @@
+---
+permalink: monitor/index.html
+sidebar: sidebar
+keywords: monitor StorageGRID
+summary: 'Monitor your StorageGRID system regularly to ensure it is performing as expected.'
+---
+= Monitor a StorageGRID system
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Monitor your StorageGRID system regularly to ensure it is performing as expected. 
+
+.Before you begin
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have link:../admin/admin-group-permissions.html[specific access permissions].
+
+NOTE: To change units for the storage values displayed in the Grid Manager, select the user drop-down in the upper right of the Grid Manager, then select *User preferences*.
+
+.About this task
+
+These instructions describe how to:
+
+* link:viewing-dashboard.html[View and manage the dashboard]
+* link:viewing-nodes-page.html[View the Nodes page]
+* link:information-you-should-monitor-regularly.html[Monitor these aspects of the system regularly:]
+** link:monitoring-system-health.html[System health]
+** link:monitoring-storage-capacity.html[Storage capacity]
+** link:monitoring-information-lifecycle-management.html[Information lifecycle management]
+** link:monitoring-network-connections-and-performance.html[Networking and system resources]
+** link:monitoring-tenant-activity.html[Tenant activity]
+** link:monitoring-load-balancing-operations.html[Load balancing operations]
+** link:grid-federation-monitor-connections.html[Grid federation connections]
+* link:managing-alerts.html[Manage alerts]
+* link:logs-files-reference.html[View log files]
+* link:configure-audit-messages.html[Configure audit messages and log destinations]
+* link:considerations-for-external-syslog-server.html[Use an external syslog server] to collect audit information
+* link:using-snmp-monitoring.html[Use SNMP for monitoring]
+* link:using-charts-and-reports.html[Obtain additional StorageGRID data], including metrics and diagnostics

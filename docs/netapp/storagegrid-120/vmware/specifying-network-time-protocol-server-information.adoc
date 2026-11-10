@@ -1,0 +1,4 @@
+---
+permalink: vmware/specifying-network-time-protocol-server-information.html
+redirect: storagegrid/swnodes/specifying-network-time-protocol-server-information.html
+---

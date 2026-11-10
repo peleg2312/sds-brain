@@ -1,0 +1,36 @@
+---
+permalink: tenant/viewing-your-s3-access-keys.html
+sidebar: sidebar
+keywords: how to view your s3 access key
+summary: 'If you are using an S3 tenant and you have the appropriate permission, you can view a list of your S3 access keys. You can sort the list by expiration time, so you can determine which keys will expire soon. As needed, you can create new keys or delete keys that you are no longer using.'
+---
+= View your S3 access keys
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+If you are using an S3 tenant and you have the link:tenant-management-permissions.html[appropriate permission], you can view a list of your S3 access keys. You can sort the list by expiration time, so you can determine which keys will expire soon. As needed, you can link:creating-your-own-s3-access-keys.html[create new keys] or link:deleting-your-own-s3-access-keys.html[delete keys] that you are no longer using.
+
+CAUTION: The S3 buckets and objects belonging to your account can be accessed using the access key ID and secret access key displayed for your account in the Tenant Manager. For this reason, protect access keys as you would a password. Rotate access keys on a regular basis, remove any unused keys from your account, and never share them with other users.
+
+.Before you begin
+
+* You are signed in to the Tenant Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You belong to a user group that has the Manage your own S3 credentials link:tenant-management-permissions.html[permission].
+
+.Steps
+
+. Select *STORAGE (S3)* > *My access keys*.
+
+. From the My access keys page, sort any existing access keys by *Expiration time* or *Access key ID*.
+
+. As needed, create new keys or delete any keys that you are no longer using.
++
+If you create new keys before the existing keys expire, you can begin using the new keys without temporarily losing access to the objects in the account.
++
+Expired keys are removed automatically.
+
+
+
+
+

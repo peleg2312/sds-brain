@@ -1,0 +1,66 @@
+---
+permalink: audit/ovwr-object-overwrite.html
+sidebar: sidebar
+keywords: storagegrid, audit, message, OVWR, Object Overwrite
+summary: 'This message is generated when an external \(client-requested\) operation causes one object to be overwritten by another object.'
+---
+= OVWR: Object Overwrite
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+This message is generated when an external (client-requested) operation causes one object to be overwritten by another object.
+
+[cols="1a,1a,4a" options="header"]
+|===
+| Code| Field| Description
+|
+CBID
+|
+Content Block Identifier (new)
+|
+The CBID for the new object.
+|
+CSIZ
+|
+Previous Object Size
+|
+The size, in bytes, of the object being overwritten.
+|
+OCBD
+|
+Content Block Identifier (previous)
+|
+The CBID for the previous object.
+|
+UUID
+|
+Universally Unique ID (new)
+|
+The identifier of the new object within the StorageGRID system.
+|
+OUID
+|
+Universally Unique ID (previous)
+|
+The identifier for the previous object within the StorageGRID system.
+|
+PATH
+|
+S3 Object Path
+|
+The S3 object path used for both the previous and new object
+|
+RSLT
+|
+Result Code
+|
+Result of the Object Overwrite transaction. Result is always:
+
+SUCS: Successful
+
+|SGRP
+|Site (Group)
+|If present, the overwritten object was deleted at the site specified, which is not the site where the overwritten object was ingested.
+
+|===

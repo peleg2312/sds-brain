@@ -1,0 +1,4 @@
+---
+permalink: vmware/navigating-to-grid-manager.html
+redirect: storagegrid/swnodes/navigating-to-grid-manager.html
+---

@@ -1,0 +1,37 @@
+---
+permalink: admin/deleting-tenant-account.html
+sidebar: sidebar
+keywords: tenant, delete, remove tenant
+summary: 'You can delete a tenant account if you want to permanently remove the tenant’s access to the system.'
+---
+= Delete tenant account
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can delete a tenant account if you want to permanently remove the tenant's access to the system.
+
+.Before you begin
+
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* You have link:admin-group-permissions.html[specific access permissions].
+* You have removed all S3 buckets and objects associated with the tenant account.
+* If the tenant is permitted to use a grid federation connection, you have reviewed the considerations for link:grid-federation-manage-tenants.html[deleting a tenant with the Use grid federation connection permission].
+
+.Steps
+
+. Select *TENANTS*.
+
+. Locate the tenant account or accounts you want to delete.
++
+Use the search box to search for a tenant by name or tenant ID.
+
+. To delete multiple tenants, select the checkboxes and select *Actions* > *Delete*.
+
+. To delete a single tenant, do either of the following:
+
+**  Select the checkbox, and select *Actions* > *Delete*.
+
+** Select the tenant name to display the details page, and then select *Actions* > *Delete*.
+
+. Select *Yes*.

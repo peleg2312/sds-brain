@@ -1,0 +1,5 @@
+---
+permalink: monitor/configuring-syslog-server.html
+redirect: storagegrid-118/monitor/configure-audit-messages.html
+---
+

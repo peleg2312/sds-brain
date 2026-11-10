@@ -1,0 +1,4 @@
+---
+permalink: rhel/approving-pending-grid-nodes.html
+redirect: storagegrid/swnodes/approving-pending-grid-nodes.html
+---

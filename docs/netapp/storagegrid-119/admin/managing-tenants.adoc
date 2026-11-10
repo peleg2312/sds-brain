@@ -1,0 +1,55 @@
+---
+permalink: admin/managing-tenants.html
+sidebar: sidebar
+keywords: manage tenants, tenant account, what is a tenant
+summary: 'A tenant account allows you to use the Simple Storage Service \(S3\) REST API to store and retrieve objects in a StorageGRID system.'
+---
+= What are tenant accounts?
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+A tenant account allows you to use the Simple Storage Service (S3) REST API to store and retrieve objects in a StorageGRID system.
+
+TIP: Swift details have been removed from this version of the doc site. See https://docs.netapp.com/us-en/storagegrid-118/admin/managing-tenants.html[StorageGRID 11.8: Manage tenants^].
+
+As a grid administrator, you create and manage the tenant accounts that S3 clients use to store and retrieve objects.
+
+Each tenant account has federated or local groups, users, S3 buckets, and objects.
+
+Tenant accounts can be used to segregate stored objects by different entities. For example, multiple tenant accounts can be used for either of these use cases:
+
+* *Enterprise use case:* If you are administering a StorageGRID system in an enterprise application, you might want to segregate the grid's object storage by the different departments in your organization. In this case, you could create tenant accounts for the Marketing department, the Customer Support department, the Human Resources department, and so on.
++
+NOTE: If you use the S3 client protocol, you can use S3 buckets and bucket policies to segregate objects between the departments in an enterprise. You don't need to use tenant accounts. See instructions for implementing link:../s3/bucket-and-group-access-policies.html[S3 buckets and bucket policies] for more information.
+
+* *Service provider use case:* If you are administering a StorageGRID system as a service provider, you can segregate the grid's object storage by the different entities that will lease the storage on your grid. In this case, you would create tenant accounts for Company A, Company B, Company C, and so on.
+
+For more information, see link:../tenant/index.html[Use a tenant account].
+
+== How do I create a tenant account?
+
+Use the Grid manager to create a tenant account. When you create a tenant account, you specify the following information:
+
+* Basic information including the tenant name, client type (S3) and optional storage quota.
+
+* Permissions for the tenant account, such as whether the tenant account can use S3 platform services, configure its own identity source, use S3 Select, or use a grid federation connection.
+
+* The initial root access for the tenant, based on whether the StorageGRID system uses local groups and users, identity federation, or single sign-on (SSO).
+
+In addition, you can enable the S3 Object Lock setting for the StorageGRID system if S3 tenant accounts need to comply with regulatory requirements. When S3 Object Lock is enabled, all S3 tenant accounts can create and manage compliant buckets.
+
+== What is Tenant Manager used for?
+
+After you create the tenant account, tenant users can sign in to the Tenant Manager to perform tasks such as the following:
+
+* Set up identity federation (unless the identity source is shared with the grid)
+* Manage groups and users
+* Use grid federation for account clone and cross-grid replication
+* Manage S3 access keys
+* Create and manage S3 buckets
+* Use S3 platform services
+* Use S3 Select
+* Monitor storage usage
+
+TIP: While S3 tenant users can create and manage S3 access key and buckets with the Tenant Manager, they must use an S3 client application to ingest and manage objects. See link:../s3/index.html[Use S3 REST API] for details.

@@ -1,0 +1,2 @@
+# one command, or the beginning of one, per line: a read command the guard blocked by mistake.
+# A * matches anything. Only people edit this file (the guard does not let Claude change it).

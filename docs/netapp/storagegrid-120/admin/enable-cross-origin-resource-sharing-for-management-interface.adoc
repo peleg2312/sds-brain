@@ -1,0 +1,40 @@
+---
+permalink: admin/enable-cross-origin-resource-sharing-for-management-interface.html
+sidebar: sidebar
+keywords: how to configure cross-origin resource sharing, cors, management, api, domain
+summary: "You can enable cross-origin resource sharing (CORS) for management API requests to StorageGRID, if you want data in StorageGRID to be accessible using management APIs to another domain."
+---
+= Enable StorageGRID CORS for a management interface 
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+As a grid administrator, you can enable cross-origin resource sharing (CORS) for management API requests to StorageGRID, if you want data in StorageGRID to be accessible using management APIs to another domain.
+
+.Before you begin
+
+* You are signed in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+* The link:../tenant/tenant-management-permissions.html[Root access permission] provides access to all CORS configuration requests.
+
+.About this task
+
+CORS is a security mechanism that allows client web applications in one domain to access resources in a different domain. For example, suppose you want to build a monitoring dashboard for StorageGRID in domain `\http://www.example.com`. By enabling CORS in StorageGRID for `\http://www.example.com` and "Grid Manager", the StorageGRID domain responds to Grid Management API requests from `\http://www.example.com`.  
+
+Management API (mgmt-api) requests with `application/json` or `multipart/formdata` requests for `Content-Type` are supported for CORS.
+
+.Steps
+
+. In Grid Manager, go to *CONFIGURATION* > *Network* > *Management interface CORS settings*.
+. Select *Grid Manager*, *Tenant Manager*, or both options.
+* *Grid Manager*: Enables CORS for cross-domain Grid Management API requests.  
+* *Tenant Manager*: Enables CORS for cross-domain Tenant Management API requests.
+. Enter the URL for the other domain in the *Domains* field.
++
+Select *Add another domain* if you want to enable CORS in StorageGRID for more than one domain.
+. Select *Save*. 
+
+.Related information
+link:../tenant/configuring-cross-origin-resource-sharing-for-buckets-and-objects.html[Configure StorageGRID CORS for buckets and objects]
+
+// 2025 JULY 16, SGRIDDOC-175
+// 2025 MAR 12, SGWS-34427

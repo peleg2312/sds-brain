@@ -1,0 +1,69 @@
+---
+permalink: s3/get-bucket-consistency-request.html
+sidebar: sidebar
+keywords: S3 REST API, S3 operations, GET bucket consistency
+summary: 'The GET Bucket consistency request allows you to determine the consistency being applied to a particular bucket.'
+---
+= GET Bucket consistency
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The GET Bucket consistency request allows you to determine the consistency being applied to a particular bucket.
+
+The default consistency is set to guarantee read-after-write for newly created objects.
+
+You must have the s3:GetBucketConsistency permission, or be account root, to complete this operation. 
+
+== Request example
+
+[subs="specialcharacters,quotes"]
+----
+GET /bucket?x-ntap-sg-consistency HTTP/1.1
+Date: _date_
+Authorization: _authorization string_
+Host: _host_
+----
+
+== Response
+
+In the response XML, `<Consistency>` will return one of the following values:
+
+[cols="1a,2a" options="header"]
+|===
+| Consistency| Description
+
+|all
+|All nodes receive the data immediately, or the request will fail.
+
+|strong-global
+|Guarantees read-after-write consistency for all client requests across all sites.
+
+|strong-site
+|Guarantees read-after-write consistency for all client requests within a site.
+
+|read-after-new-write
+|(Default) Provides read-after-write consistency for new objects and eventual consistency for object updates. Offers high availability and data protection guarantees. Recommended for most cases.
+
+|available
+|Provides eventual consistency for both new objects and object updates. For S3 buckets, use only as required (for example, for a bucket that contains log values that are rarely read, or for HEAD or GET operations on keys that don't exist). Not supported for S3 FabricPool buckets.
+|===
+
+== Response example
+
+----
+HTTP/1.1 200 OK
+Date: Fri, 18 Sep 2020 01:02:18 GMT
+Connection: CLOSE
+Server: StorageGRID/11.5.0
+x-amz-request-id: 12345
+Content-Length: 127
+Content-Type: application/xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Consistency xmlns="http://s3.storagegrid.com/doc/2015-02-01/">read-after-new-write</Consistency>
+----
+
+.Related information
+
+link:consistency-controls.html[Consistency values]

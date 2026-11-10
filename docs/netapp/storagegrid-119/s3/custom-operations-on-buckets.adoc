@@ -1,0 +1,54 @@
+---
+permalink: s3/custom-operations-on-buckets.html
+sidebar: sidebar
+keywords: operations, buckets, custom, storagegrid bucket operations
+summary: 'The StorageGRID system supports custom operations that are added on to the S3 REST API.'
+---
+= StorageGRID custom operations
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The StorageGRID system supports custom operations that are added on to the S3 REST API.
+
+The following table lists the custom operations supported by StorageGRID.
+
+[cols="1a,2a" options="header"]
+|===
+| Operation| Description
+
+| link:get-bucket-consistency-request.html[GET Bucket consistency]
+| Returns the consistency being applied to a particular bucket.
+
+| link:put-bucket-consistency-request.html[PUT Bucket consistency]
+| Sets the consistency applied to a particular bucket.
+
+| link:get-bucket-last-access-time-request.html[GET Bucket last access time]
+| Returns whether last access time updates are enabled or disabled for a particular bucket.
+
+| link:put-bucket-last-access-time-request.html[PUT Bucket last access time]
+| Allows you to enable or disable last access time updates for a particular bucket.
+
+| link:delete-bucket-metadata-notification-configuration-request.html[DELETE Bucket metadata notification configuration]
+| Deletes the metadata notification configuration XML associated with a particular bucket.
+
+| link:get-bucket-metadata-notification-configuration-request.html[GET Bucket metadata notification configuration]
+| Returns the metadata notification configuration XML associated with a particular bucket.
+
+| link:put-bucket-metadata-notification-configuration-request.html[PUT Bucket metadata notification configuration]
+| Configures the metadata notification service for a bucket.
+
+| link:get-storage-usage-request.html[GET Storage Usage]
+| Tells you the total amount of storage in use by an account and for each bucket associated with the account.
+
+| link:deprecated-put-bucket-request-modifications-for-compliance.html[Deprecated: CreateBucket with compliance settings]
+| Deprecated and not supported: You can no longer create new buckets with Compliance enabled.
+
+| link:deprecated-get-bucket-compliance-request.html[Deprecated: GET Bucket compliance]
+| Deprecated but supported: Returns the compliance settings currently in effect for an existing legacy Compliant bucket.
+
+| link:deprecated-put-bucket-compliance-request.html[Deprecated: PUT Bucket compliance]
+| Deprecated but supported: Allows you to modify the compliance settings for an existing legacy Compliant bucket.
+
+|===
+

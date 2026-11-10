@@ -1,0 +1,4 @@
+---
+permalink: rhel/how-grid-nodes-discover-primary-admin-node.html
+redirect: storagegrid/swnodes/how-grid-nodes-discover-primary-admin-node.html
+---

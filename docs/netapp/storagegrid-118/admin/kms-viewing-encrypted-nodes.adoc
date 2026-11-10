@@ -1,0 +1,4 @@
+---
+permalink: admin/kms-viewing-encrypted-nodes.html
+redirect: admin/kms-viewing-details.html
+---

@@ -1,0 +1,6 @@
+---
+permalink: tenant/creating-groups-for-swift-tenant.html
+redirect: storagegrid/swift/index.html
+---
+
+// 2025 APR 8, SGWS-33007

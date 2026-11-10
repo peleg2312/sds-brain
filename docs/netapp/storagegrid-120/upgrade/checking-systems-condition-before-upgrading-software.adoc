@@ -1,0 +1,19 @@
+---
+permalink: upgrade/checking-systems-condition-before-upgrading-software.html
+sidebar: sidebar
+keywords: upgrade, grid tasks, firewall, ports
+summary: "Before upgrading a StorageGRID system, verify that the system is ready to accommodate the upgrade. Ensure that the system is running normally and that all grid nodes are operational."
+---
+= Check your StorageGRID system's condition before upgrading
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Before upgrading a StorageGRID system, verify the system is ready to accommodate the upgrade. Ensure that the system is running normally and that all grid nodes are operational.
+
+.Steps
+. Sign in to the Grid Manager using a link:../admin/web-browser-requirements.html[supported web browser].
+. Check for and resolve any active alerts.
+. Refer to link:../network/internal-grid-node-communications.html[Internal grid node communications] and link:../network/external-communications.html[External communications] to ensure that all required ports for StorageGRID 12.0 are opened before you upgrade.
++
+NOTE: No additional ports are required when upgrading to StorageGRID 12.0.

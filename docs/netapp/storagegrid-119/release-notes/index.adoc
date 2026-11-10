@@ -1,0 +1,14 @@
+---
+permalink: release-notes/index.html
+sidebar: sidebar
+keywords: release notes
+summary: 'Obtain release-specific information about fixed issues and known issues.'
+---
+= Release notes
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Obtain release-specific information about fixed issues and known issues.
+
+Log in to the NetApp Support Site to https://library.netapp.com/ecm/ecm_download_file/ECMLP3330064[view or download a PDF file^] containing the StorageGRID 11.9 release notes.

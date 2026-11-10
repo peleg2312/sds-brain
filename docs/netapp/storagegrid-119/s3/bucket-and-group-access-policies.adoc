@@ -1,0 +1,858 @@
+---
+permalink: s3/bucket-and-group-access-policies.html
+sidebar: sidebar
+keywords: bucket access policies, group access policies
+summary: ''
+---
+= Use bucket and group access policies
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+StorageGRID uses the Amazon Web Services (AWS) policy language to allow S3 tenants to control access to buckets and objects within those buckets. The StorageGRID system implements a subset of the S3 REST API policy language. Access policies for the S3 API are written in JSON.
+
+== Access policy overview
+
+There are two kinds of access policies supported by StorageGRID.
+
+* *Bucket policies*, which are managed using the GetBucketPolicy, PutBucketPolicy, and DeleteBucketPolicy S3 API operations or the Tenant Manager or Tenant Management API. Bucket policies are attached to buckets, so they are configured to control access by users in the bucket owner account or other accounts to the bucket and the objects in it. A bucket policy applies to only one bucket and possibly multiple groups.
+* *Group policies*, which are configured using the Tenant Manager or Tenant Management API. Group policies are attached to a group in the account, so they are configured to allow that group to access specific resources owned by that account. A group policy applies to only one group and possibly multiple buckets.
+
+NOTE: There is no difference in priority between group and bucket policies.
+
+StorageGRID bucket and group policies follow a specific grammar defined by Amazon. Inside each policy is an array of policy statements, and each statement contains the following elements:
+
+* Statement ID (Sid) (optional)
+* Effect
+* Principal/NotPrincipal
+* Resource/NotResource
+* Action/NotAction
+* Condition (optional)
+
+Policy statements are built using this structure to specify permissions: Grant <Effect> to allow/deny <Principal> to perform <Action> on <Resource> when <Condition> applies.
+
+Each policy element is used for a specific function:
+
+[cols="1a,2a" options="header"]
+|===
+| Element| Description
+| Sid
+| The Sid element is optional. The Sid is only intended as a description for the user. It is stored but not interpreted by the StorageGRID system.
+
+| Effect
+| Use the Effect element to establish whether the specified operations are allowed or denied. You must identify operations you allow (or deny) on buckets or objects using the supported Action element keywords.
+
+| Principal/NotPrincipal
+| You can allow users, groups, and accounts to access specific resources and perform specific actions. If no S3 signature is included in the request, anonymous access is allowed by specifying the wildcard character (*) as the principal. By default, only the account root has access to resources owned by the account.
+
+You only need to specify the Principal element in a bucket policy. For group policies, the group to which the policy is attached is the implicit Principal element.
+
+| Resource/NotResource
+| The Resource element identifies buckets and objects. You can allow or deny permissions to buckets and objects using the Amazon Resource Name (ARN) to identify the resource.
+
+| Action/NotAction
+| The Action and Effect elements are the two components of permissions. When a group requests a resource, they are either granted or denied access to the resource. Access is denied unless you specifically assign permissions, but you can use explicit deny to override a permission granted by another policy.
+
+| Condition
+| The Condition element is optional. Conditions allow you to build expressions to determine when a policy should be applied.
+|===
+In the Action element, you can use the wildcard character (*) to specify all operations, or a subset of operations. For example, this Action matches permissions such as s3:GetObject, s3:PutObject, and s3:DeleteObject.
+
+----
+s3:*Object
+----
+
+In the Resource element, you can use the wildcard characters (\*) and (?). While the asterisk (*) matches 0 or more characters, the question mark (?) matches any single character.
+
+In the Principal element, wildcard characters aren't supported except to set anonymous access, which grants permission to everyone. For example, you set the wildcard (*) as the Principal value.
+
+----
+"Principal":"*"
+----
+
+----
+"Principal":{"AWS":"*"}
+----
+
+In the following example, the statement is using the Effect, Principal, Action, and Resource elements. This example shows a complete bucket policy statement that uses the Effect "Allow" to give the Principals, the admin group `federated-group/admin` and the finance group `federated-group/finance`, permissions to perform the Action `s3:ListBucket` on the bucket named `mybucket` and the Action `s3:GetObject` on all objects inside that bucket.
+
+----
+{
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::27233906934684427525:federated-group/admin",
+          "arn:aws:iam::27233906934684427525:federated-group/finance"
+        ]
+      },
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::mybucket",
+        "arn:aws:s3:::mybucket/*"
+      ]
+    }
+  ]
+}
+----
+
+The bucket policy has a size limit of 20,480 bytes, and the group policy has a size limit of 5,120 bytes.
+
+== Consistency for policies
+
+By default, any updates you make to group policies are eventually consistent. When a group policy becomes consistent, the changes can take an additional 15 minutes to take effect, because of policy caching. By default, any updates you make to bucket policies are strongly consistent.
+
+As required, you can change the consistency guarantees for bucket policy updates. For example, you might want a change to a bucket policy to be available during a site outage.
+
+In this case, you can either set the `Consistency-Control` header in the PutBucketPolicy request, or you can use the PUT Bucket consistency request. When a bucket policy becomes consistent, the changes can take an additional 8 seconds to take effect, because of policy caching.
+
+NOTE: If you set the consistency to a different value to work around a temporary situation, be sure to set the bucket-level setting back to its original value when you are done. Otherwise, all future bucket requests will use the modified setting.
+
+== Use ARN in policy statements
+
+In policy statements, the ARN is used in Principal and Resource elements.
+
+* Use this syntax to specify the S3 resource ARN:
++
+----
+arn:aws:s3:::bucket-name
+arn:aws:s3:::bucket-name/object_key
+----
+
+* Use this syntax to specify the identity resource ARN (users and groups):
++
+----
+arn:aws:iam::account_id:root
+arn:aws:iam::account_id:user/user_name
+arn:aws:iam::account_id:group/group_name
+arn:aws:iam::account_id:federated-user/user_name
+arn:aws:iam::account_id:federated-group/group_name
+----
+
+Other considerations:
+
+* You can use the asterisk (*) as a wildcard to match zero or more characters inside the object key.
+* International characters, which can be specified in the object key, should be encoded using JSON UTF-8 or using JSON \u escape sequences. Percent-encoding is not supported.
++
+https://www.ietf.org/rfc/rfc2141.txt[RFC 2141 URN Syntax^]
++
+The HTTP request body for the PutBucketPolicy operation must be encoded with charset=UTF-8.
+
+== Specify resources in a policy
+
+In policy statements, you can use the Resource element to specify the bucket or object for which permissions are allowed or denied.
+
+* Each policy statement requires a Resource element. In a policy, resources are denoted by the element `Resource`, or alternatively, `NotResource` for exclusion.
+* You specify resources with an S3 resource ARN. For example:
++
+----
+"Resource": "arn:aws:s3:::mybucket/*"
+----
+
+* You can also use policy variables inside the object key. For example:
++
+----
+"Resource": "arn:aws:s3:::mybucket/home/${aws:username}/*"
+----
+
+* The resource value can specify a bucket that does not yet exist when a group policy is created.
+
+
+== Specify principals in a policy
+
+Use the Principal element to identity the user, group, or tenant account that is allowed/denied access to the resource by the policy statement.
+
+* Each policy statement in a bucket policy must include a Principal element. Policy statements in a group policy don't need the Principal element because the group is understood to be the principal.
+* In a policy, principals are denoted by the element "Principal," or alternatively "NotPrincipal" for exclusion.
+* Account-based identities must be specified using an ID or an ARN:
++
+----
+"Principal": { "AWS": "account_id"}
+"Principal": { "AWS": "identity_arn" }
+----
+
+* This example uses the tenant account ID 27233906934684427525, which includes the account root and all users in the account:
++
+----
+ "Principal": { "AWS": "27233906934684427525" }
+----
+
+* You can specify just the account root:
++
+----
+"Principal": { "AWS": "arn:aws:iam::27233906934684427525:root" }
+----
+
+* You can specify a specific federated user ("Alex"):
++
+----
+"Principal": { "AWS": "arn:aws:iam::27233906934684427525:federated-user/Alex" }
+----
+
+* You can specify a specific federated group ("Managers"):
++
+----
+"Principal": { "AWS": "arn:aws:iam::27233906934684427525:federated-group/Managers"  }
+----
+
+* You can specify an anonymous principal:
++
+----
+"Principal": "*"
+----
+
+* To avoid ambiguity, you can use the user UUID instead of the username:
++
+----
+arn:aws:iam::27233906934684427525:user-uuid/de305d54-75b4-431b-adb2-eb6b9e546013
+----
++
+For example, suppose Alex leaves the organization and the username `Alex` is deleted. If a new Alex joins the organization and is assigned the same `Alex` username, the new user might unintentionally inherit the permissions granted to the original user.
+
+* The principal value can specify a group/user name that does not yet exist when a bucket policy is created.
+
+== Specify permissions in a policy
+
+In a policy, the Action element is used to allow/deny permissions to a resource. There are a set of permissions that you can specify in a policy, which are denoted by the element "Action," or alternatively, "NotAction" for exclusion. Each of these elements maps to specific S3 REST API operations.
+
+The tables lists the permissions that apply to buckets and the permissions that apply to objects.
+
+NOTE: Amazon S3 now uses the s3:PutReplicationConfiguration permission for both the PutBucketReplication and DeleteBucketReplication actions. StorageGRID uses separate permissions for each action, which matches the original Amazon S3 specification.
+
+NOTE: A delete is performed when a put is used to overwrite an existing value.
+
+=== Permissions that apply to buckets
+
+[cols="2a,2a,1a" options="header"]
+|===
+| Permissions| S3 REST API operations| Custom for StorageGRID
+| s3:CreateBucket
+| CreateBucket
+| Yes.
+
+*Note*: Use in group policy only.
+
+| s3:DeleteBucket
+| DeleteBucket
+| 
+
+| s3:DeleteBucketMetadataNotification
+| DELETE Bucket metadata notification configuration
+| Yes
+
+| s3:DeleteBucketPolicy
+| DeleteBucketPolicy
+| 
+
+| s3:DeleteReplicationConfiguration
+| DeleteBucketReplication
+| Yes, separate permissions for PUT and DELETE
+
+| s3:GetBucketAcl
+| GetBucketAcl
+| 
+
+| s3:GetBucketCompliance
+| GET Bucket compliance (deprecated)
+| Yes
+
+| s3:GetBucketConsistency
+| GET Bucket consistency
+| Yes
+
+| s3:GetBucketCORS
+| GetBucketCors
+| 
+
+| s3:GetEncryptionConfiguration
+| GetBucketEncryption
+| 
+
+| s3:GetBucketLastAccessTime
+| GET Bucket last access time
+| Yes
+
+| s3:GetBucketLocation
+| GetBucketLocation
+| 
+
+| s3:GetBucketMetadataNotification
+| GET Bucket metadata notification configuration
+| Yes
+
+| s3:GetBucketNotification
+| GetBucketNotificationConfiguration
+| 
+
+| s3:GetBucketObjectLockConfiguration
+| GetObjectLockConfiguration
+| 
+
+| s3:GetBucketPolicy
+| GetBucketPolicy
+| 
+
+| s3:GetBucketTagging
+| GetBucketTagging
+| 
+
+| s3:GetBucketVersioning
+| GetBucketVersioning
+| 
+
+| s3:GetLifecycleConfiguration
+| GetBucketLifecycleConfiguration
+| 
+
+| s3:GetReplicationConfiguration
+| GetBucketReplication
+| 
+
+| s3:ListAllMyBuckets
+| 
+* ListBuckets
+* GET Storage Usage
+| Yes, for GET Storage Usage.
+
+*Note*: Use in group policy only.
+
+| s3:ListBucket
+| 
+* ListObjects
+* HeadBucket
+* RestoreObject
+| 
+
+| s3:ListBucketMultipartUploads
+| 
+* ListMultipartUploads
+* RestoreObject
+| 
+
+| s3:ListBucketVersions
+| GET Bucket versions
+| 
+
+| s3:PutBucketCompliance
+| PUT Bucket compliance (deprecated)
+| Yes
+
+| s3:PutBucketConsistency
+| PUT Bucket consistency
+| Yes
+
+| s3:PutBucketCORS
+| 
+* DeleteBucketCors†
+* PutBucketCors
+| 
+
+| s3:PutEncryptionConfiguration
+| 
+* DeleteBucketEncryption
+* PutBucketEncryption
+| 
+
+| s3:PutBucketLastAccessTime
+| PUT Bucket last access time
+| Yes
+
+| s3:PutBucketMetadataNotification
+| PUT Bucket metadata notification configuration
+| Yes
+
+| s3:PutBucketNotification
+| PutBucketNotificationConfiguration
+| 
+
+| s3:PutBucketObjectLockConfiguration
+| 
+* CreateBucket with the `x-amz-bucket-object-lock-enabled: true` request header (also requires the s3:CreateBucket permission)
+* PutObjectLockConfiguration
+| 
+
+| s3:PutBucketPolicy
+| PutBucketPolicy
+| 
+
+| s3:PutBucketTagging
+| 
+* DeleteBucketTagging†
+* PutBucketTagging
+| 
+
+| s3:PutBucketVersioning
+| PutBucketVersioning
+| 
+
+| s3:PutLifecycleConfiguration
+| 
+* DeleteBucketLifecycle†
+* PutBucketLifecycleConfiguration
+| 
+
+| s3:PutReplicationConfiguration
+| PutBucketReplication
+| Yes, separate permissions for PUT and DELETE
+|===
+
+=== Permissions that apply to objects
+
+[cols="2a,2a,1a" options="header"]
+|===
+| Permissions| S3 REST API operations| Custom for StorageGRID
+
+| s3:AbortMultipartUpload
+| 
+* AbortMultipartUpload
+* RestoreObject
+| 
+
+| s3:BypassGovernanceRetention
+| 
+* DeleteObject
+* DeleteObjects
+* PutObjectRetention
+| 
+
+| s3:DeleteObject
+| 
+* DeleteObject
+* DeleteObjects
+* RestoreObject
+| 
+
+| s3:DeleteObjectTagging
+| DeleteObjectTagging
+| 
+
+| s3:DeleteObjectVersionTagging
+| DeleteObjectTagging (a specific version of the object)
+| 
+
+| s3:DeleteObjectVersion
+| DeleteObject (a specific version of the object)
+| 
+
+| s3:GetObject
+| 
+* GetObject
+* HeadObject
+* RestoreObject
+* SelectObjectContent
+| 
+
+| s3:GetObjectAcl
+| GetObjectAcl
+| 
+
+| s3:GetObjectLegalHold
+| GetObjectLegalHold
+| 
+
+| s3:GetObjectRetention
+| GetObjectRetention
+| 
+
+| s3:GetObjectTagging
+| GetObjectTagging
+| 
+
+| s3:GetObjectVersionTagging
+| GetObjectTagging (a specific version of the object)
+| 
+
+| s3:GetObjectVersion
+| GetObject (a specific version of the object)
+| 
+
+| s3:ListMultipartUploadParts
+| ListParts, RestoreObject
+| 
+
+| s3:PutObject
+| 
+* PutObject
+* CopyObject
+* RestoreObject
+* CreateMultipartUpload
+* CompleteMultipartUpload
+* UploadPart
+* UploadPartCopy
+| 
+
+| s3:PutObjectLegalHold
+| PutObjectLegalHold
+| 
+
+| s3:PutObjectRetention
+| PutObjectRetention
+| 
+
+| s3:PutObjectTagging
+| PutObjectTagging
+| 
+
+| s3:PutObjectVersionTagging
+| PutObjectTagging (a specific version of the object)
+| 
+
+| s3:PutOverwriteObject
+| 
+* PutObject
+* CopyObject
+* PutObjectTagging
+* DeleteObjectTagging
+* CompleteMultipartUpload
+| Yes
+
+| s3:RestoreObject
+| RestoreObject
+| 
+|===
+
+== Use PutOverwriteObject permission
+
+The s3:PutOverwriteObject permission is a custom StorageGRID permission that applies to operations that create or update objects. The setting of this permission determines whether the client can overwrite an object's data, user-defined metadata, or S3 object tagging.
+
+Possible settings for this permission include:
+
+* *Allow*: The client can overwrite an object. This is the default setting.
+* *Deny*: The client can't overwrite an object. When set to Deny, the PutOverwriteObject permission works as follows:
+ ** If an existing object is found at the same path:
+  *** The object's data, user-defined metadata, or S3 object tagging can't be overwritten.
+  *** Any ingest operations in progress are cancelled, and an error is returned.
+  *** If S3 versioning is enabled, the Deny setting prevents PutObjectTagging or DeleteObjectTagging operations from modifying the TagSet for an object and its noncurrent versions.
+ ** If an existing object is not found, this permission has no effect.
+* When this permission is not present, the effect is the same as if Allow were set.
+
+NOTE: If the current S3 policy allows overwrite, and the PutOverwriteObject permission is set to Deny, the client can't overwrite an object's data, user-defined metadata, or object tagging. In addition, if the *Prevent client modification* checkbox is selected (*CONFIGURATION* > *Security settings* > *Network and objects*), that setting overrides the setting of the PutOverwriteObject permission.
+
+== Specify conditions in a policy
+
+Conditions define when a policy will be in effect. Conditions consist of operators and key-value pairs.
+
+Conditions use key-value pairs for evaluation. A Condition element can contain multiple conditions, and each condition can contain multiple key-value pairs. The condition block uses the following format:
+
+[subs="specialcharacters,quotes"]
+----
+Condition: {
+     _condition_type_: {
+          _condition_key_: _condition_values_
+----
+
+In the following example, the IpAddress condition uses the SourceIp condition key.
+
+----
+"Condition": {
+    "IpAddress": {
+      "aws:SourceIp": "54.240.143.0/24"
+		...
+},
+		...
+----
+
+=== Supported condition operators
+
+Condition operators are categorized as follows:
+
+* String
+* Numeric
+* Boolean
+* IP address
+* Null check
+
+[cols="1a,2a" options="header"]
+|===
+| Condition operators| Description
+
+| StringEquals
+| Compares a key to a string value based on exact matching (case sensitive).
+
+| StringNotEquals
+| Compares a key to a string value based on negated matching (case sensitive).
+
+| StringEqualsIgnoreCase
+| Compares a key to a string value based on exact matching (ignores case).
+
+| StringNotEqualsIgnoreCase
+| Compares a key to a string value based on negated matching (ignores case).
+
+| StringLike
+| Compares a key to a string value based on exact matching (case sensitive). Can include * and ? wildcard characters.
+
+| StringNotLike
+| Compares a key to a string value based on negated matching (case sensitive). Can include * and ? wildcard characters.
+
+| NumericEquals
+| Compares a key to a numeric value based on exact matching.
+
+| NumericNotEquals
+| Compares a key to a numeric value based on negated matching.
+
+| NumericGreaterThan
+| Compares a key to a numeric value based on "greater than" matching.
+
+| NumericGreaterThanEquals
+| Compares a key to a numeric value based on "greater than or equals" matching.
+
+| NumericLessThan
+| Compares a key to a numeric value based on "less than" matching.
+
+| NumericLessThanEquals
+| Compares a key to a numeric value based on "less than or equals" matching.
+
+| Bool
+| Compares a key to a Boolean value based on "true or false" matching.
+
+| IpAddress
+| Compares a key to an IP address or range of IP addresses.
+
+| NotIpAddress
+| Compares a key to an IP address or range of IP addresses based on negated matching.
+
+| Null
+| Checks if a condition key is present in the current request context.
+|===
+
+=== Supported condition keys
+
+[cols="1a,1a,2a" options="header"]
+|===
+| Condition keys | Actions | Description
+
+| aws:SourceIp
+| IP operators
+| Will compare to the IP address from which the request was sent. Can be used for bucket or object operations.
+
+*Note:* If the S3 request was sent through the Load Balancer service on Admin Nodes and Gateways Nodes, this will compare to the IP address upstream of the Load Balancer service.
+
+*Note*: If a third-party, non-transparent load balancer is used, this will compare to the IP address of that load balancer. Any `X-Forwarded-For` header will be ignored because its validity can't be ascertained.
+
+| aws:username
+| Resource/Identity
+| Will compare to the sender's username from which the request was sent. Can be used for bucket or object operations.
+
+
+| s3:delimiter
+| 
+s3:ListBucket and
+
+s3:ListBucketVersions permissions
+| Will compare to the delimiter parameter specified in a ListObjects or ListObjectVersions request.
+
+| s3:ExistingObjectTag/<tag-key>
+| s3:DeleteObjectTagging
+
+s3:DeleteObjectVersionTagging
+
+s3:GetObject
+
+s3:GetObjectAcl
+
+3:GetObjectTagging
+
+s3:GetObjectVersion
+
+s3:GetObjectVersionAcl
+
+s3:GetObjectVersionTagging
+
+s3:PutObjectAcl
+
+s3:PutObjectTagging
+
+s3:PutObjectVersionAcl
+
+s3:PutObjectVersionTagging
+| Will require that the existing object has the specific tag key and value.
+
+| s3:max-keys
+| 
+s3:ListBucket and
+
+s3:ListBucketVersions permissions
+| Will compare to the max-keys parameter specified in a ListObjects or ListObjectVersions request.
+
+| s3:object-lock-remaining-retention-days
+| s3:PutObject
+| Compares to the retain-until-date specified in the `x-amz-object-lock-retain-until-date` request header or computed from the bucket default retention period to make sure that these values are within the allowable range for the following requests:
+
+* PutObject
+* CopyObject
+* CreateMultipartUpload
+
+| s3:object-lock-remaining-retention-days
+| s3:PutObjectRetention
+| Compares to the retain-until-date specified in the PutObjectRetention request to ensure that it is within the allowable range.
+
+| s3:prefix
+| 
+s3:ListBucket and
+
+s3:ListBucketVersions permissions
+| Will compare to the prefix parameter specified in a ListObjects or ListObjectVersions request.
+
+| s3:RequestObjectTag/<tag-key>
+| s3:PutObject
+
+s3:PutObjectTagging
+
+s3:PutObjectVersionTagging
+| Will require a specific tag key and value when the object request includes tagging.
+|===
+
+== Specify variables in a policy
+
+You can use variables in policies to populate policy information when it is available. You can use policy variables in the `Resource` element and in string comparisons in the `Condition` element.
+
+In this example, the variable `${aws:username}` is part of the Resource element: 
+
+----
+"Resource": "arn:aws:s3:::bucket-name/home/${aws:username}/*"
+----
+
+In this example, the variable `${aws:username}` is part of the condition value in the condition block:
+
+----
+"Condition": {
+    "StringLike": {
+      "s3:prefix": "${aws:username}/*"
+		...
+},
+		...
+----
+
+[cols="1a,2a" options="header"]
+|===
+| Variable| Description
+
+| `${aws:SourceIp}`
+| Uses the SourceIp key as the provided variable.
+
+| `${aws:username}`
+| Uses the username key as the provided variable.
+
+| `${s3:prefix}`
+| Uses the service-specific prefix key as the provided variable.
+
+| `${s3:max-keys}`
+| Uses the service-specific max-keys key as the provided variable.
+
+| `${*}`
+| Special character. Uses the character as a literal * character.
+
+| `${?}`
+| Special character. Uses the character as a literal ? character.
+
+| `${$}`
+| Special character. Uses the character as a literal $ character.
+|===
+
+== Create policies requiring special handling
+
+Sometimes a policy can grant permissions that are dangerous for security or dangerous for continued operations, such as locking out the root user of the account. The StorageGRID S3 REST API implementation is less restrictive during policy validation than Amazon, but equally strict during policy evaluation.
+
+[cols="2a,1a,2a,2a" options="header"]
+|===
+| Policy description| Policy type| Amazon behavior| StorageGRID behavior
+
+| Deny self any permissions to the root account
+| Bucket
+| Valid and enforced, but root user account retains permission for all S3 bucket policy operations
+| Same
+
+| Deny self any permissions to user/group
+| Group
+| Valid and enforced
+| Same
+
+| Allow a foreign account group any permission
+| Bucket
+| Invalid principal
+| Valid, but permissions for all S3 bucket policy operations return a 405 Method Not Allowed error when allowed by a policy
+
+| Allow a foreign account root or user any permission
+| Bucket
+| Valid, but permissions for all S3 bucket policy operations return a 405 Method Not Allowed error when allowed by a policy
+| Same
+
+| Allow everyone permissions to all actions
+| Bucket
+| Valid, but permissions for all S3 bucket policy operations return a 405 Method Not Allowed error for the foreign account root and users
+| Same
+
+| Deny everyone permissions to all actions
+| Bucket
+| Valid and enforced, but root user account retains permission for all S3 bucket policy operations
+| Same
+
+| Principal is a non-existent user or group
+| Bucket
+| Invalid principal
+| Valid
+
+| Resource is a non-existent S3 bucket
+| Group
+| Valid
+| Same
+
+| Principal is a local group
+| Bucket
+| Invalid principal
+| Valid
+
+| Policy grants a non-owner account (including anonymous accounts) permissions to put objects.
+| Bucket
+| Valid. Objects are owned by the creator account, and the bucket policy does not apply. The creator account must grant access permissions for the object using object ACLs.
+| Valid. Objects are owned by the bucket owner account. Bucket policy applies.
+|===
+
+== Write-once-read-many (WORM) protection
+
+You can create write-once-read-many (WORM) buckets to protect data, user-defined object metadata, and S3 object tagging. You configure the WORM buckets to allow the creation of new objects and to prevent overwrites or deletion of existing content. Use one of the approaches described here.
+
+To ensure that overwrites are always denied, you can:
+
+* From the Grid Manager, go to *CONFIGURATION* > *Security* > *Security settings* > *Network and objects*, and select the *Prevent client modification* checkbox.
+* Apply the following rules and S3 policies:
+ ** Add a PutOverwriteObject DENY operation to the S3 policy.
+ ** Add a DeleteObject DENY operation to the S3 policy.
+ ** Add a PutObject ALLOW operation to the S3 policy.
+
+NOTE: Setting DeleteObject to DENY in an S3 policy does not prevent ILM from deleting objects when a rule such as "zero copies after 30 days" exists.
+
+NOTE: Even when all of these rules and policies are applied, they don't guard against concurrent writes (see Situation A). They do guard against sequential completed overwrites (see Situation B).
+
+*Situation A*: Concurrent writes (not guarded against)
+
+----
+/mybucket/important.doc
+PUT#1 ---> OK
+PUT#2 -------> OK
+----
+
+*Situation B*: Sequential completed overwrites (guarded against)
+
+----
+/mybucket/important.doc
+PUT#1 -------> PUT#2 ---X (denied)
+----
+
+.Related information
+
+* link:how-storagegrid-ilm-rules-manage-objects.html[How StorageGRID ILM rules manage objects]
+
+* link:example-bucket-policies.html[Example bucket policies]
+
+* link:example-group-policies.html[Example group policies]
+
+* link:../ilm/index.html[Manage objects with ILM]
+
+* link:../tenant/index.html[Use a tenant account]
+
+// 2023 OCT 5, SGWS-27457

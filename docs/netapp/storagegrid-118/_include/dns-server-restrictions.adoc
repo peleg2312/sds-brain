@@ -1,0 +1,5 @@
+//used in configuring-dns-servers, expand/configuring-expanded-storagegrid-system, IGs, and more
+
+To ensure proper operation, specify two or three DNS servers. If you specify more than three, it is possible that only three will be used because of known OS limitations on some platforms. If you have routing restrictions in your environment, you can link:../maintain/modifying-dns-configuration-for-single-grid-node.html[customize the DNS server list] for individual nodes (typically all nodes at a site) to use a different set of up to three DNS servers.
+
+If possible, use DNS servers that each site can access locally to ensure that an islanded site can resolve the FQDNs for external destinations.

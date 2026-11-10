@@ -1,0 +1,4 @@
+---
+permalink: maintain/decommissioning-disconnected-storage-nodes.html
+redirect: storagegrid-118/maintain/considerations-for-decommissioning-storage-nodes.html
+---

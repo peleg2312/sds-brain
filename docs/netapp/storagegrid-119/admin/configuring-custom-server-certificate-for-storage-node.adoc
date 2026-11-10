@@ -1,0 +1,200 @@
+---
+permalink: admin/configuring-custom-server-certificate-for-storage-node.html
+sidebar: sidebar
+keywords: global S3 API certificate
+summary: 'You can replace or restore the server certificate that is used for S3 client connections to Storage Nodes or to load balancer endpoints. The replacement custom server certificate is specific to your organization.'
+---
+= Configure S3 API certificates
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can replace or restore the server certificate that is used for S3 client connections to Storage Nodes or to load balancer endpoints. The replacement custom server certificate is specific to your organization.
+
+TIP: Swift details have been removed from this version of the doc site. See https://docs.netapp.com/us-en/storagegrid-118/admin/configuring-custom-server-certificate-for-storage-node.html[StorageGRID 11.8: Configure S3 and Swift API certificates^].
+
+.About this task
+
+By default, every Storage Node is issued a X.509 server certificate signed by the grid CA. These CA signed certificates can be replaced by a single common custom server certificate and corresponding private key. 
+
+A single custom server certificate is used for all Storage Nodes, so you must specify the certificate as a wildcard or multi-domain certificate if clients need to verify the hostname when connecting to the storage endpoint. Define the custom certificate such that it matches all Storage Nodes in the grid.
+
+After completing configuration on the server, you might also need to install the Grid CA certificate in the S3 API client you will use to access the system, depending on the root certificate authority (CA) you are using.
+
+NOTE: To ensure that operations aren't disrupted by a failed server certificate, the *Expiration of global server certificate for S3 API* alert is triggered when the root server certificate is about to expire. As required, you can view when the current certificate expires by selecting *CONFIGURATION* > *Security* > *Certificates* and looking at the Expiration date for the S3 API certificate on the Global tab.
+
+You can upload or generate a custom S3 API certificate.
+
+== Add a custom S3 API certificate
+
+.Steps
+
+. Select *CONFIGURATION* > *Security* > *Certificates*.
+. On the *Global* tab, select *S3 API certificate*.
+. Select *Use custom certificate*.
+. Upload or generate the certificate.
++
+[role="tabbed-block"]
+====
+
+.Upload certificate
+--
+Upload the required server certificate files.
+
+.. Select *Upload certificate*.
+
+.. Upload the required server certificate files:
+
+* *Server certificate*: The custom server certificate file (PEM encoded).
+* *Certificate private key*: The custom server certificate private key file (`.key`).
++
+NOTE: EC private keys must be 224 bits or larger. RSA private keys must be 2048 bits or larger.
+
+* *CA bundle*: A single optional file containing the certificates from each intermediate issuing certificate authority. The file should contain each of the PEM-encoded CA certificate files, concatenated in certificate chain order.
+
+.. Select the certificate details to display the metadata and PEM for each custom S3 API certificate that was uploaded. If you uploaded an optional CA bundle, each certificate displays on its own tab.
++
+* Select *Download certificate* to save the certificate file or select *Download CA bundle* to save the certificate bundle.
++
+Specify the certificate file name and download location. Save the file with the extension `.pem`.
++
+For example: `storagegrid_certificate.pem`
+* Select *Copy certificate PEM* or *Copy CA bundle PEM* to copy the certificate contents for pasting elsewhere.
+
+.. Select *Save*.
++
+The custom server certificate is used for subsequent new S3 client connections.
+
+--
+
+.Generate certificate
+--
+
+Generate the server certificate files. 
+
+.. Select *Generate certificate*.
+.. Specify the certificate information:
++
+[cols="1a,3a" options="header"]
+|===
+|Field| Description
+
+| Domain name
+| One or more fully qualified domain names to include in the certificate. Use an * as a wildcard to represent multiple domain names.
+
+| IP
+| One or more IP addresses to include in the certificate.
+
+|Subject (optional)
+| X.509 subject or distinguished name (DN) of the certificate owner.
+
+If no value is entered in this field, the generated certificate uses the first domain name or IP address as the subject common name (CN).
+
+| Days valid
+| Number of days after creation that the certificate expires.
+
+| Add key usage extensions
+| If selected (default and recommended), key usage and extended key usage extensions are added to the generated certificate.
+
+These extensions define the purpose of the key contained in the certificate.
+
+*Note*: Leave this checkbox selected unless you experience connection problems with older clients when certificates include these extensions.
+
+|===
++
+.. Select *Generate*. 
+
+.. Select *Certificate Details* to display the metadata and PEM for the custom S3 API certificate that was generated.
++
+* Select *Download certificate* to save the certificate file.
++
+Specify the certificate file name and download location. Save the file with the extension `.pem`.
++
+For example: `storagegrid_certificate.pem`
+* Select *Copy certificate PEM* to copy the certificate contents for pasting elsewhere.
+
+.. Select *Save*.
++
+The custom server certificate is used for subsequent new S3 client connections.
+
+--
+
+====
+
+. Select a tab to display metadata for the default StorageGRID server certificate, a CA signed certificate that was uploaded, or a custom certificate that was generated.
++
+NOTE: After uploading or generating a new certificate, allow up to one day for any related certificate expiration alerts to clear.
+
+. Refresh the page to ensure the web browser is updated.
+
+. After you add a custom S3 API certificate the S3 API certificate page displays detailed certificate information for the custom S3 API certificate that is in use. +
+You can download or copy the certificate PEM as required.
+
+
+== Restore the default S3 API certificate
+
+You can revert to using the default S3 API certificate for S3 client connections to Storage Nodes. However, you can't use the default S3 API certificate for a load balancer endpoint.
+
+.Steps
+
+. Select *CONFIGURATION* > *Security* > *Certificates*.
+. On the *Global* tab, select *S3 API certificate*.
+. Select *Use default certificate*.
++
+When you restore the default version of the global S3 API certificate, the custom server certificate files you configured are deleted and can't be recovered from the system. The default S3 API certificate will be used for subsequent new S3 client connections to Storage Nodes. 
+
+. Select *OK* to confirm the warning and restore the default S3 API certificate.
++
+If you have Root access permission and the custom S3 API certificate was used for load balancer endpoint connections, a list is displayed of load balancer endpoints that will no longer be accessible using the default S3 API certificate. Go to link:../admin/configuring-load-balancer-endpoints.html[Configure load balancer endpoints] to edit or remove the affected endpoints.
+
+. Refresh the page to ensure the web browser is updated.
+
+[[download-or-copy-the-s3-api-certificate]]
+== Download or copy the S3 API certificate
+
+You can save or copy the S3 API certificate contents for use elsewhere.
+
+.Steps
+
+. Select *CONFIGURATION* > *Security* > *Certificates*.
+. On the *Global* tab, select *S3 API certificate*.
+. Select the *Server* or *CA bundle* tab and then download or copy the certificate.
++
+[role="tabbed-block"]
+====
+
+.Download certificate file or CA bundle
+--
+
+Download the certificate or CA bundle `.pem` file. If you are using an optional CA bundle, each certificate in the bundle displays on its own sub-tab.
+
+.. Select *Download certificate* or *Download CA bundle*.
++
+If you are downloading a CA bundle, all the certificates in the CA bundle secondary tabs download as a single file.
+.. Specify the certificate file name and download location. Save the file with the extension `.pem`.
++
+For example: `storagegrid_certificate.pem`
+
+--
+
+.Copy certificate or CA bundle PEM
+--
+
+Copy the certificate text to paste elsewhere. If you are using an optional CA bundle, each certificate in the bundle displays on its own sub-tab.
+
+.. Select *Copy certificate PEM* or *Copy CA bundle PEM*.
++
+If you are copying a CA bundle, all the certificates in the CA bundle secondary tabs copy together.
+.. Paste the copied certificate into a text editor.
+.. Save the text file with the extension `.pem`.
++
+For example: `storagegrid_certificate.pem`
+--
+
+====
+
+.Related information
+
+* link:../s3/index.html[Use S3 REST API]
+
+* link:configuring-s3-api-endpoint-domain-names.html[Configure S3 endpoint domain names]

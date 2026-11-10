@@ -1,0 +1,94 @@
+---
+permalink: upgrade/whats-new.html
+sidebar: sidebar
+keywords: what is new in StorageGRID 11.8
+summary: 'This release of StorageGRID introduces the following features.'
+---
+= What's new in StorageGRID 11.8
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+This release of StorageGRID introduces the following features and functional changes.
+
+
+== Install, upgrade, hotfix
+
+Temporary installation passwords:: When you link:../vmware/deploying-storagegrid-node-as-virtual-machine.html[deploy a StorageGRID node as a virtual machine] or use VMware vSphere to link:../vmware/automating-grid-node-deployment-in-vmware-vsphere.html[automate grid node deployment], you are now prompted to set a temporary installation password. This password is used only if you need to access the VM console or use SSH before the new node joins the grid.
+
+
+== Appliances
+
+Documentation site for appliances:: The documentation for StorageGRID appliances was moved to a new link:https://docs.netapp.com/us-en/storagegrid-appliances/[appliances documentation site^].
+
+FIPS support:: Support for FIPS 140-2 validated cryptography.
+
+SGF6112 improvements:: StorageGRID 11.8 and StorageGRID Appliance Installer firmware version 3.8.0 support:
++
+* Significantly improved PUT performance for new SGF6112 installations.
+* UEFI secure boot on both upgraded and new SGF6112 nodes.
+* Local key manager for DAS NVMe SSD drive passwords.
+
+== Configure and manage
+
+Consistency grid-wide default:: You can change the link:../s3/consistency-controls.html[grid-wide default consistency] using the Grid Manager or the grid-config endpoint of the link:../admin/using-grid-management-api.html[Grid Management private API]. The new default will be applied to buckets created after the change.
+
+Default audit destinations:: Fresh installations of StorageGRID 11.8 default to local node audit destinations. Previously, audit messages were sent to the audit log (`/var/local/log/audit.log`) on Admin Nodes only.
++
+For information about changing audit log destinations, refer to link:../monitor/configure-audit-messages.html#select-audit-information-destinations[Select audit information destinations].
+
+ILM policy tags:: Allows per-bucket ILM policies controlled with bucket tags. Multiple active and inactive ILM policies can exist at the same time. See link:../ilm/ilm-policy-overview.html[ILM policies:Overview].
+
+Kafka endpoints:: Support for Kafka endpoints for link:../tenant/understanding-notifications-for-buckets.html[bucket event notifications].
+
+Load balancer for management interface traffic:: Create load balancer endpoints to manage the management interface workload on Admin Nodes. See link:../admin/managing-load-balancing.html[considerations for load balancing]. As part of this change, you can now use Grid Manager and Tenant Manager ports 443, 8443, and 9443 when creating HTTPS load balancer endpoints for S3 or Swift client access. 
+
+Manage drives tab:: Added link:../monitor/viewing-manage-drives-tab.html[Manage drives tab] for the SGF6112 appliance.
+
+Metadata-only Storage Nodes:: You can now specify that a new link:../primer/what-storage-node-is.html#types-of-storage-nodes[software-based Storage Node] will be used to store only metadata instead of both objects and metadata.
+
+SSO supports user principal names:: When link:../admin/configuring-sso.html[configuring single sign-on (SSO)] for Active Directory Federation Service (AD FS) or PingFederate, you can now map the user principal name to `Name ID` in the claims rule or to `sAMAccountName=${username}` in the adapter instance.
+
+TLS policy configuration and KMIP support:: 
++
+* StorageGRID now supports either the TLS 1.2 or TLS 1.3 protocol for KMIP connections. See link:../admin/kms-considerations-and-requirements.html[Considerations and requirements for using a key management server].
+* link:../admin/kms-configuring-storagegrid-as-client.html[Hashicorp is now fully supported for KMIP].
+* Enhancements were made to link:../admin/manage-tls-ssh-policy.html[TLS policy configuration].
+
+
+== Expand grid, maintain grid, recover or replace nodes
+
+Account clone improvement:: Existing accounts can be cloned to a remote grid. See link:../admin/grid-federation-what-is-account-clone.html[What is account clone].
+
+Archive Nodes can be decommissioned:: You can now use the Decommission Nodes procedure to remove any unused Archive Nodes that are disconnected from the grid. See link:../maintain/decommissioning-disconnected-grid-nodes.html[Decommission disconnected grid nodes].
++
+NOTE: Archive Nodes were deprecated in StorageGRID 11.7. 
+
+Automatic volume restoration:: Added a toggle for volume restoration to occur automatically. See link:../maintain/restoring-volume.html[Restore object data using Grid Manager].
+
+Erasure coding, changes to configurations and rebalance procedure:: Improvements to erasure coding configurations.
++
+Redistribute erasure-coded fragments among existing and new Storage Nodes. Recalculate the balance during maintenance tasks to provide better distribution when tasks are complete. See link:../expand/rebalancing-erasure-coded-data-after-adding-storage-nodes.html[Erasure coding rebalance procedure].
+
+Management API stack trace:: The *Management API stack trace* security setting lets you control whether a stack trace is returned in Grid Manager and Tenant Manager API error responses. See link:../admin/changing-browser-session-timeout-interface.html[Change interface security settings].
+
+Rolling reboot procedure:: You can now use the link:../maintain/rolling-reboot-procedure.html[rolling reboot procedure] to reboot multiple grid nodes without causing a service disruption.
+
+
+== Grid Manager
+
+Untrusted Client Networks, information about additional ports:: The Grid Manager list of ports open to the untrusted Client Network is now located in a column named, "Open to untrusted Client network" at *CONFIGURATION* > *Network* > *Load balancer endpoints* > *Management interface* (previously located on the Firewall control page). See link:../admin/configuring-load-balancer-endpoints.html[Configure load balancer endpoints].
+
+
+== Tenant Manager
+
+S3 Console no longer experimental:: Additional functionality described in link:../tenant/use-s3-console.html[Use S3 Console].
+
+Tenant permission:: The link:../tenant/tenant-management-permissions.html[tenant management permission], View all buckets, has been added.
+
+
+== S3 REST API
+
+* link:../s3/changes-to-s3-rest-api-support.html[Changes to S3 REST API support].
+* S3 delete markers with UUIDs. See link:../ilm/how-objects-are-deleted.html#delete-s3-versioned-objects[How objects are deleted] and link:../audit/sdel-s3-delete.html[SDEL: S3 DELETE].
+* link:../s3/select-object-content.html[S3 Select ScanRange] is used when provided in requests for CSV and Parquet files.

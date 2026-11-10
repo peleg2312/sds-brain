@@ -1,0 +1,4 @@
+---
+permalink: troubleshoot/searching-for-and-restoring-potentially-lost-objects.html
+redirect: storagegrid/troubleshoot/investigating-potentially-lost-objects.html
+---

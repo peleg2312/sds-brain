@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/cpu-and-ram-requirements.html
+redirect: storagegrid/swnodes/cpu-and-ram-requirements.html
+---

@@ -1,0 +1,33 @@
+---
+permalink: troubleshoot/troubleshooting-delivery-platform-services-messages.html
+sidebar: sidebar
+keywords: how to troubleshoot delivery of platform services message, how to troubleshoot smtt alarm
+summary: 'The Total Events \(SMTT\) alarm is triggered in the Grid Manager if a platform service message is delivered to an destination that cannot accept the data.'
+---
+= Troubleshoot delivery of platform services messages (SMTT alarm)
+:icons: font
+:imagesdir: ../media/
+
+
+[.lead]
+The Total Events (SMTT) alarm is triggered in the Grid Manager if a platform service message is delivered to an destination that can't accept the data.
+
+.About this task
+For example, an S3 multipart upload can succeed even though the associated replication or notification message can't be delivered to the configured endpoint. Or, a message for CloudMirror replication can fail to be delivered if the metadata is too long.
+
+The SMTT alarm contains a Last Event message that says, `Failed to publish notifications for _bucket-name object key_` for the last object whose notification failed.
+
+Event messages are also listed in the `/var/local/log/bycast-err.log` log file. See the link:../monitor/logs-files-reference.html[Log files reference].
+
+For additional information, see the link:../admin/troubleshooting-platform-services.html[Troubleshoot platform services]. You might need to link:../tenant/signing-in-to-tenant-manager.html[access the tenant from the Tenant Manager] to debug a platform service error.
+
+.Steps
+. To view the alarm, select *NODES* > *_site_* > *_grid node_* > *Events*.
+. View Last Event at the top of the table.
++
+Event messages are also listed in `/var/local/log/bycast-err.log`.
+
+. Follow the guidance provided in the SMTT alarm contents to correct the issue.
+. Select *Reset event counts*.
+. Notify the tenant of the objects whose platform services messages have not been delivered.
+. Instruct the tenant to trigger the failed replication or notification by updating the object's metadata or tags.

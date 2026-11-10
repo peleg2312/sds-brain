@@ -1,0 +1,158 @@
+---
+permalink: maintain/rename-grid-site-node-overview.html
+sidebar: sidebar
+keywords: rename grid, rename site, rename node, display name, system name
+summary: 'As required, you can change the display names that are shown throughout the Grid Manager for your entire grid, each site, and each node. You can update display names safely and whenever you need.'
+---
+= Use the rename procedure
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+As required, you can change the display names that are shown throughout the Grid Manager for the entire grid, each site, and each node. You can update display names safely and whenever you need. 
+
+== What is the rename procedure?
+
+When you install StorageGRID initially, you specify a name for the grid, each site, and each node. These initial names are known as _system names_, and they are the names initially shown throughout StorageGRID.
+
+System names are required for internal StorageGRID operations and can't be changed. However, you can use the rename procedure to define new _display names_ for the grid, each site, and each node. These display names appear in various StorageGRID locations instead of (or in some cases, in addition to) the underlying system names. 
+
+Use the rename procedure to correct typos, to implement a different naming convention, or to indicate that a site and all of its nodes have been relocated. Unlike system names, display names can be updated whenever required and without impacting StorageGRID operations. 
+
+== Where do system and display names appear?
+The following table summarizes where system names and display names are shown in the StorageGRID user interface and in StorageGRID files.
+
+[cols="2a,2a,3a" options="header"]
+|===
+// header row
+| Location
+| System name
+| Display name
+
+| Grid Manager pages
+| Shown unless the item is renamed 
+
+| If an item is renamed, shown instead of the system name in these locations:
+
+* Dashboard
+* Nodes page
+* Configuration pages for high availability groups, load balancer endpoints, VLAN interfaces, key management servers, grid passwords, and firewall control
+* Alerts
+* Storage pool definitions
+* Object metadata lookup page
+* Pages related to maintenance procedures, including upgrade, hotfix, SANtricity OS upgrade, decommission, expansion, recovery, and object existence check
+* Support pages (logs and diagnostics)
+* Single sign-on page, next to the Admin Node hostname in the table for Admin Node details
+
+| *NODES* > *Overview* tab for a node
+| Always shown 
+| Shown only if the item is renamed
+
+| Legacy pages in the Grid Manager (for example, *SUPPORT* > *Grid Topology*)
+| Shown 
+| Not shown
+
+| *node-health* API
+| Always returned
+| Returned only if the item is renamed
+
+| Prompt when using SSH to access a node
+
+| Shown as the primary name unless the item has been renamed:
+
+`admin@SYSTEM-NAME: ~ $`
+
+Included in parentheses when the item is renamed:
+
+`admin@DISPLAY-NAME(SYSTEM-NAME):~ $`
+
+
+| Shown as the primary name when the item is renamed:
+
+`admin@DISPLAY-NAME(SYSTEM-NAME):~ $`
+
+| `Passwords.txt` file in the Recovery Package
+| Shown as `Server Name`
+| Shown as `Display Name`
+
+| `/etc/hosts` file on all nodes
+
+For example:
+
+`10.96.99.128 SYSTEM-NAME 28989c59-a2c3-4d30-bb09-6879adf2437f DISPLAY-NAME localhost-grid # storagegrid-gen-host`
+
+| Always shown in the second column
+| When the item is renamed, shown in the fourth column
+
+| `topology-display-names.json`, included with AutoSupport data
+| Not included
+| Empty unless items have been renamed; otherwise, maps grid, site, and node IDs to their display names. 
+
+// table end
+|===
+
+== Display name requirements
+
+Before using this procedure, review the requirements for display names. 
+
+=== Display names for nodes
+Display names for nodes must follow these rules:
+
+* Must be unique across your StorageGRID system.
+* Can't be the same as the system name for any other item in your StorageGRID system.
+* Must contain at least 1 and no more than 32 characters.
+* Can contain numbers, hyphens (-), and uppercase and lowercase letters.
+* Can start or end with a letter or number, but can't start or end with a hyphen.
+* Can't be all numbers.
+* Are case-insensitive. For example, `DC1-ADM` and `dc1-adm` are considered to be duplicates.
+
+You can rename a node with a display name that was previously used by a different node, as long as the rename doesn't result in a duplicate display name or system name.
+
+
+=== Display names for grid and sites
+
+Display names for the grid and sites follow the same rules with these exceptions:
+
+* Can include spaces.
+* Can include these special characters: `= - _ : , . @ !`
+* Can start and end with the special characters, including hyphens.
+* Can be all numbers or special characters.
+
+
+== Display name best practices
+
+If you plan to rename multiple items, document your general naming scheme before using this procedure. Come up with a system that ensures that names are unique, consistent, and easy to understand at a glance.
+
+You can use any naming convention that fits your organizational requirements. Consider these basic suggestions of what to include:
+
+* *Site indicator*: If you have multiple sites, add a site code to each node name. 
+* *Node type*: Node names typically indicate the node's type. You can use abbreviations like `s`, `adm`, and `gw` (Storage Node, Admin Node, and Gateway Node).
+* *Node number*: If a site contains more than one of a particular type of node, add a unique number to each node's name.
+
+Think twice before adding specific details to the names that are likely to change over time. For example, don't include IP addresses in node names because these addresses can be changed. Similarly, rack locations or appliance model numbers can change if you move equipment or upgrade the hardware.
+
+
+=== Example display names 
+Suppose your StorageGRID system has three data centers and has nodes of different types at each data center. Your display names might be as simple as these:
+
+* *Grid*: `StorageGRID Deployment`
+
+* *First site*: `Data Center 1`
+
+** `dc1-adm1`
+** `dc1-s1`
+** `dc1-s2`
+** `dc1-s3`
+** `dc1-gw1`
+
+* *Second site*: `Data Center 2`
+** `dc2-adm2`
+** `dc2-s1`
+** `dc2-s2`
+** `dc2-s3`
+
+* *Third site*: `Data Center 3`
+** `dc3-s1`
+** `dc3-s2`
+** `dc3-s3`
+

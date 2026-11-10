@@ -1,0 +1,105 @@
+---
+permalink: upgrade/whats-new.html
+sidebar: sidebar
+keywords: what is new in StorageGRID 11.9
+summary: 'This release of StorageGRID introduces the following features.'
+---
+= What's new in StorageGRID 11.9
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+This release of StorageGRID introduces the following features and functional changes.
+
+== Scalability
+
+=== Data-only Storage Nodes
+To allow for more granular scaling, you can now install link:../primer/what-storage-node-is.html#types-of-storage-nodes[data-only Storage Nodes]. Where metadata processing isn't critical, you can optimize your infrastructure cost-effectively. This flexibility helps accommodate varying workloads and growth patterns.
+
+== Cloud Storage Pool enhancements
+
+=== IAM Roles Anywhere
+StorageGRID now supports short term credentials using link:../ilm/creating-cloud-storage-pool.html[IAM Roles Anywhere in Amazon S3 for Cloud Storage Pools].
+
+Using long-term credentials to access S3 buckets poses security risks if these credentials are compromised. Short-term credentials have a limited lifespan, which reduces the risk of unauthorized access.
+
+=== S3 Object Lock buckets
+You can now link:../ilm/creating-cloud-storage-pool.html[configure a Cloud Storage Pool using an Amazon S3 endpoint]. S3 Object Lock helps prevent accidental or malicious deletion of objects. If you tier data from StorageGRID to Amazon S3, having object lock enabled on both systems enhances data protection across the data's lifecycle.
+
+== Multi-tenancy
+
+=== Bucket limits 
+By link:../tenant/creating-s3-bucket.html[setting limits on S3 buckets], you can prevent tenants from monopolizing capacity. Additionally, uncontrolled growth can result in unexpected costs. By having defined limits, you can better estimate tenant storage expenses.
+
+=== 5,000 buckets per tenant
+To enhance scalability, StorageGRID now supports up to link:../s3/operations-on-buckets.html[5,000 S3 buckets per tenant]. Each grid can have a maximum of 100,000 buckets.
+
+To support 5,000 buckets, each Storage Node in the grid must have a minimum of 64 GB of RAM.
+
+== S3 Object Lock improvements
+Per-tenant configuration capabilities provide the appropriate balance of flexibility and data security. You can now configure per-tenant retention settings to:
+
+* Allow or disallow compliance mode
+* Set a maximum retention period
+
+Refer to:
+
+* link:../ilm/managing-objects-with-s3-object-lock.html[Manage objects with S3 Object Lock]
+* link:../ilm/how-object-retention-is-determined.html#how-grid-administrators-control-object-retention[How grid administrators control object retention]
+* link:../admin/creating-tenant-account.html[Create tenant account]
+
+== S3 compatibility
+
+=== x-amz-checksum-sha256 checksum
+* The S3 REST API now provides support for link:../s3/operations-on-objects.html[`x-amz-checksum-sha256` checksum].
+
+* StorageGRID now provides SHA-256 checksum support for PUT, GET and HEAD operations. These checksums enhance data integrity.
+
+=== Changes to S3 protocol support
+* Added support for Mountpoint for Amazon S3, which allows applications to connect directly to S3 buckets as if they were local file systems. You can now use StorageGRID with more applications and more use cases.
+* As part of adding support for Mountpoint, StorageGRID 11.9 contains link:../s3/index.html#updates-to-rest-api-support[additional changes to S3 protocol support].
+
+== Maintenance and Supportability
+
+=== AutoSupport
+link:../admin/what-is-autosupport.html[AutoSupport] now automatically creates hardware failure cases for legacy appliances.
+
+=== Expanded node clone operations  
+Node clone usability has been expanded to support larger storage nodes. 
+
+=== Improved ILM handling of expired delete markers
+ILM ingest time rules with a time period of Days now also remove expired object delete markers. Delete markers are only removed when a time period of Days has passed and the current delete maker has become expired (there are no non-current versions).
+
+Refer to link:../ilm/how-objects-are-deleted.html#delete-s3-versioned-objects[How S3 versioned objects are deleted] and link:../ilm/example-8-priorities-for-s3-bucket-lifecycle-and-ilm-policy.html#example-of-bucket-lifecycle-taking-priority-over-ilm-policy[Example of bucket lifecycle taking priority over ILM policy].
+
+=== Improved node decommissioning 
+To provide a smooth and efficient transition to StorageGRID next-generation hardware, link:../maintain/grid-node-decommissioning.html[node decommissioning] has been improved.
+
+=== Syslog for load balancer endpoints
+Load balancer endpoint access logs contain troubleshooting information, such as HTTP status codes.
+StorageGRID now supports link:../monitor/configure-audit-messages.html[exporting these logs to an external syslog server]. This enhancement allows for more efficient log management and integration with existing monitoring and alerting systems.
+
+=== Additional enhancements for maintenance and supportability
+* Metrics UI update	 
+
+* New operating system qualifications 
+
+* Support for new third-party components 
+
+== Security
+
+=== SSH access keys rotation 
+
+Grid administrators can now link:../admin/change-ssh-access-passwords.html[update and rotate SSH keys]. The ability to rotate SSH keys is a security best practice and a proactive defense mechanism.
+
+=== Alerts for root logins 
+
+When an unknown entity signs in to the Grid Manager as root, link:../monitor/alerts-reference.html[an alert is triggered]. Monitoring root SSH logins is a proactive step toward safeguarding your infrastructure.
+
+== Grid Manager enhancements
+
+=== Erasure-coding profiles page moved
+The Erasure-coding profiles page is now located at *CONFIGURATION* > *System* > *Erasure coding*. It used to be in the ILM menu.
+
+=== Search enhancements
+The link:../primer/exploring-grid-manager.html#search-field[search field in the Grid Manager] now includes better matching logic, allowing you to find pages by searching for common abbreviations and by the names of certain settings within a page. You can also search for more types of items, like nodes, users, and tenant accounts.

@@ -1,0 +1,26 @@
+[cols="1a,3a" options="header"]
+|===
+| Permission | If selected...
+
+| Allow platform services
+| The tenant can use S3 platform services such as CloudMirror. See link:../admin/manage-platform-services-for-tenants.html[Manage platform services for S3 tenant accounts].
+
+| Use own identity source 
+| The tenant can configure and manage its own identity source for federated groups and users. This option is disabled if you have link:../admin/configuring-sso.html[configured SSO] for your StorageGRID system.
+
+| Allow S3 Select
+| The tenant can issue S3 SelectObjectContent API requests to filter and retrieve object data. See link:../admin/manage-s3-select-for-tenant-accounts.html[Manage S3 Select for tenant accounts].
+
+*Important*: SelectObjectContent requests can decrease load-balancer performance for all S3 clients and all tenants. Enable this feature only when required and only for trusted tenants.
+
+| Use grid federation connection
+| The tenant can use a grid federation connection.
+
+Selecting this option:
+
+* Causes this tenant and all tenant groups and users added to the account to be cloned from this grid (the _source grid_) to the other grid in the selected connection (the _destination grid_). 
+
+* Allows this tenant to configure cross-grid replication between corresponding buckets on each grid.
+
+See link:../admin/grid-federation-manage-tenants.html[Manage the permitted tenants for grid federation].
+|===

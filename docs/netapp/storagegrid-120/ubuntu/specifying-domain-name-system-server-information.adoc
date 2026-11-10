@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/specifying-domain-name-system-server-information.html
+redirect: storagegrid/swnodes/specifying-domain-name-system-server-information.html
+---

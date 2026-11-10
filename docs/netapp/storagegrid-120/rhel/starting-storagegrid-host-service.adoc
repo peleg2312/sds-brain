@@ -1,0 +1,4 @@
+---
+permalink: rhel/starting-storagegrid-host-service.html
+redirect: storagegrid/swnodes/starting-storagegrid-host-service.html
+---

@@ -1,0 +1,45 @@
+---
+permalink: audit/ebkr-empty-bucket-request.html
+sidebar: sidebar
+keywords: storagegrid, audit, message, EBKR, Empty Bucket Request 
+summary: 'This message indicates a user sent a request to turn empty bucket on or off (that is, to delete bucket objects or to stop deleting objects).'
+---
+= EBKR: Empty Bucket Request
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+This message indicates a user sent a request to turn empty bucket on or off (that is, to delete bucket objects or to stop deleting objects).	 
+
+[cols="1a,1a,4a" options="header"]
+|===
+| Code| Field| Description
+a|
+BUID	
+a|
+Bucket UUID	
+a|
+The bucket ID.
+
+a|
+EBJS	
+a|
+Empty Bucket JSON Configuration	
+a|
+Contains the JSON representing the current Empty Bucket configuration.		
+
+a|
+S3AI
+a|
+S3 tenant account ID	
+a|
+The tenant account ID of the user who sent the request. An empty value indicates anonymous access.	
+
+a|
+S3BK	
+a|
+S3 Bucket	
+a|
+The S3 bucket name.			
+
+|===

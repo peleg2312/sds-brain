@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/installing-storagegrid-webscale-host-services.html
+redirect: storagegrid/swnodes/installing-storagegrid-webscale-host-services.html
+---

@@ -1,0 +1,26 @@
+{
+  "prometheus-api.md": {
+    "title": "Prometheus HTTP API",
+    "url": "https://prometheus.io/docs/prometheus/latest/querying/api/"
+  },
+  "prometheus-exporters.md": {
+    "title": "Writing Prometheus exporters",
+    "url": "https://prometheus.io/docs/instrumenting/writing_exporters/"
+  },
+  "prometheus-exposition.md": {
+    "title": "Prometheus exposition formats",
+    "url": "https://prometheus.io/docs/instrumenting/exposition_formats/"
+  },
+  "prometheus-functions.md": {
+    "title": "PromQL query functions",
+    "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/"
+  },
+  "prometheus-histograms.md": {
+    "title": "Prometheus histograms and summaries",
+    "url": "https://prometheus.io/docs/practices/histograms/"
+  },
+  "prometheus-naming.md": {
+    "title": "Prometheus metric and label naming",
+    "url": "https://prometheus.io/docs/practices/naming/"
+  }
+}

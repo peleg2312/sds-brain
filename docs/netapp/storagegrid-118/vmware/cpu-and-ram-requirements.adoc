@@ -1,0 +1,41 @@
+---
+permalink: vmware/cpu-and-ram-requirements.html
+sidebar: sidebar
+keywords: cpu, ram, cpu cores
+summary: 'Before installing StorageGRID software, verify and configure the hardware so that it is ready to support the StorageGRID system.'
+---
+= CPU and RAM requirements
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Before installing StorageGRID software, verify and configure the hardware so that it is ready to support the StorageGRID system.
+
+Each StorageGRID node requires the following minimum resources:
+
+* CPU cores: 8 per node
+* RAM: At least 24 GB per node, and 2 to 16 GB less than the total system RAM, depending on the total RAM available and the amount of non-StorageGRID software running on the system
+
+Software-based metadata-only node resources must match the existing Storage Nodes resources. For example: 
+
+* If the existing StorageGRID site is using SG6000 or SG6100 appliances, the software-based metadata-only nodes must meet the following minimum requirements:
+** 128 GB RAM
+** 8 core CPU
+** 8 TB SSD or equivalent storage for the Cassandra database (rangedb/0)
+* If the existing StorageGRID site is using virtual Storage Nodes with 24 GB RAM, 8 core CPU, and 3 TB or 4TB of metadata storage, the software-based metadata-only nodes should use similar resources (24 GB RAM, 8 core CPU, and 4TB of metadata storage (rangedb/0). 
+
+When adding a new StorageGRID site, the new site total metadata capacity should, at minimum, match existing StorageGRID sites and new site resources should match the Storage Nodes at existing StorageGRID sites.
+
+Ensure that the number of StorageGRID nodes you plan to run on each physical or virtual host does not exceed the number of CPU cores or the physical RAM available. If the hosts aren't dedicated to running StorageGRID (not recommended), be sure to consider the resource requirements of the other applications.
+
+CAUTION: Monitor your CPU and memory usage regularly to ensure that these resources continue to accommodate your workload. For example, doubling the RAM and CPU allocation for virtual Storage Nodes would provide similar resources to those provided for StorageGRID appliance nodes. Additionally, if the amount of metadata per node exceeds 500 GB, consider increasing the RAM per node to 48 GB or more. For information about managing object metadata storage, increasing the Metadata Reserved Space setting, and monitoring CPU and memory usage, see the instructions for link:../admin/index.html[administering], link:../monitor/index.html[monitoring], and link:../upgrade/index.html[upgrading] StorageGRID.
+
+If hyperthreading is enabled on the underlying physical hosts, you can provide 8 virtual cores (4 physical cores) per node. If hyperthreading is not enabled on the underlying physical hosts, you must provide 8 physical cores per node.
+
+If you are using virtual machines as hosts and have control over the size and number of VMs, you should use a single VM for each StorageGRID node and size the VM accordingly.
+
+For production deployments, you should not run multiple Storage Nodes on the same physical storage hardware or virtual host. Each Storage Node in a single StorageGRID deployment should be in its own isolated failure domain. You can maximize the durability and availability of object data if you ensure that a single hardware failure can only impact a single Storage Node.
+
+See also link:storage-and-performance-requirements.html[Storage and performance requirements].
+
+// 2023 AUG 31, SGRIDDOC-17

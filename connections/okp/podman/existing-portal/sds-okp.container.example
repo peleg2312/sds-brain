@@ -1,0 +1,22 @@
+# Replace the image and Solr URL. The URL is reached from inside this container.
+[Unit]
+Description=SDS Red Hat OKP MCP for an existing portal
+
+[Container]
+Image=registry.example.invalid/sds/okp-mcp@sha256:REPLACE_WITH_APPROVED_DIGEST
+ContainerName=sds-okp-mcp
+PublishPort=127.0.0.1:8000:8000
+Environment=MCP_TRANSPORT=streamable-http
+Environment=MCP_HOST=0.0.0.0
+Environment=MCP_PORT=8000
+Environment=MCP_SOLR_URL=http://rhokp.example.invalid:8983
+Environment=MCP_OKP_HTML_URL=-
+Environment=MCP_MAX_RESPONSE_CHARS=30000
+Environment=MCP_GLITCHTIP_DSN=
+Pull=never
+PodmanArgs=--http-proxy=false
+
+[Service]
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=120

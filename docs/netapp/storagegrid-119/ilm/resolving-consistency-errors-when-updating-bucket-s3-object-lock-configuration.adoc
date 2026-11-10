@@ -1,0 +1,34 @@
+---
+permalink: ilm/resolving-consistency-errors-when-updating-bucket-s3-object-lock-configuration.html
+sidebar: sidebar
+keywords: consistency error, s3 object lock and consistency
+summary: 'If a data center site or multiple Storage Nodes at a site become unavailable, you might need to help S3 tenant users apply changes to the S3 Object Lock or legacy Compliance configuration.'
+---
+= Resolve consistency errors when updating the S3 Object Lock or legacy Compliance configuration
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+If a data center site or multiple Storage Nodes at a site become unavailable, you might need to help S3 tenant users apply changes to the S3 Object Lock or legacy Compliance configuration.
+
+Tenant users who have buckets with S3 Object Lock (or legacy Compliance) enabled can change certain settings. For example, a tenant user using S3 Object Lock might need to put an object version under legal hold.
+
+When a tenant user updates the settings for an S3 bucket or an object version, StorageGRID attempts to immediately update the bucket or object metadata across the grid. If the system is unable to update the metadata because a data center site or multiple Storage Nodes are unavailable, it returns an error:
+----
+503: Service Unavailable
+Unable to update compliance settings because the settings can't be consistently applied on enough storage services. Contact your grid administrator for assistance.
+----
+
+To resolve this error, follow these steps:
+
+. Attempt to make all Storage Nodes or sites available again as soon as possible.
+. If you are unable to make enough of the Storage Nodes at each site available, contact technical support, who can help you recover nodes and ensure that changes are consistently applied across the grid.
+. Once the underlying issue has been resolved, remind the tenant user to retry their configuration changes.
+
+.Related information
+
+* link:../tenant/index.html[Use a tenant account]
+
+* link:../s3/index.html[Use S3 REST API]
+
+* link:../maintain/index.html[Recover and maintain]

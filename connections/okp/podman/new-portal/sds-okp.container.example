@@ -1,0 +1,25 @@
+# Replace the image reference with the approved, already-loaded image digest or local image ID.
+[Unit]
+Description=SDS Red Hat OKP MCP
+Requires=sds-rhokp.service
+After=sds-rhokp.service
+
+[Container]
+Image=registry.example.invalid/sds/okp-mcp@sha256:REPLACE_WITH_APPROVED_DIGEST
+ContainerName=sds-okp-mcp
+Network=sds-okp.network
+PublishPort=127.0.0.1:8000:8000
+Environment=MCP_TRANSPORT=streamable-http
+Environment=MCP_HOST=0.0.0.0
+Environment=MCP_PORT=8000
+Environment=MCP_SOLR_URL=http://sds-rhokp:8983
+Environment=MCP_OKP_HTML_URL=http://sds-rhokp:8080
+Environment=MCP_MAX_RESPONSE_CHARS=30000
+Environment=MCP_GLITCHTIP_DSN=
+Pull=never
+PodmanArgs=--http-proxy=false
+
+[Service]
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=120

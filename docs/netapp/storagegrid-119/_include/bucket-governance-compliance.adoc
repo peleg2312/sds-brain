@@ -1,0 +1,21 @@
+[cols="1a,2a" options="header"]
+|===
+| Default retention mode| Description
+
+| Governance
+
+|* Users with the `s3:BypassGovernanceRetention` permission can use the `x-amz-bypass-governance-retention: true` request header to bypass retention settings.
+
+* These users can delete an object version before its retain-until-date is reached.
+
+* These users can increase, decrease, or remove an object's retain-until-date.
+
+| Compliance
+| * The object can't be deleted until its retain-until-date is reached.
+
+* The object's retain-until-date can be increased, but it can't be decreased.
+
+* The object's retain-until-date can't be removed until that date is reached.
+
+*Note*: Your grid administrator must allow you to use compliance mode.
+|===

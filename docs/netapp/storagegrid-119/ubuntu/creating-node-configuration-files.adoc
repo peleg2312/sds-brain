@@ -1,0 +1,14 @@
+---
+permalink: ubuntu/creating-node-configuration-files.html
+sidebar: sidebar
+keywords: how to create ubuntu or debian node configuration files, port, remap, port remap
+summary: 'Node configuration files are small text files that provide the information the StorageGRID host service needs to start a node and connect it to the appropriate network and block storage resources. Node configuration files are used for virtual nodes and are not used for appliance nodes.'
+---
+= Create node configuration files for Ubuntu or Debian deployments
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Node configuration files are small text files that provide the information the StorageGRID host service needs to start a node and connect it to the appropriate network and block storage resources. Node configuration files are used for virtual nodes and aren't used for appliance nodes.
+
+include::../_include/installation-create-node-configuration-files.adoc[]

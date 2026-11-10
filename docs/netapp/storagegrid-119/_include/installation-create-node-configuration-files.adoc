@@ -1,0 +1,756 @@
+//used in rhel, ubuntu
+== Location for node configuration files
+
+Place the configuration file for each StorageGRID node in the `/etc/storagegrid/nodes` directory on the host where the node will run. For example, if you plan to run one Admin Node, one Gateway Node, and one Storage Node on HostA, you must place three node configuration files in `/etc/storagegrid/nodes` on HostA.
+
+You can create the configuration files directly on each host using a text editor, such as vim or nano, or you can create them elsewhere and move them to each host.
+
+== Naming of node configuration files
+
+The names of the configuration files are significant. The format is `node-name.conf`, where `node-name` is a name you assign to the node. This name appears in the StorageGRID Installer and is used for node maintenance operations, such as node migration.
+
+Node names must follow these rules:
+
+* Must be unique
+* Must start with a letter
+* Can contain the characters A through Z and a through z
+* Can contain the numbers 0 through 9
+* Can contain one or more hyphens (-)
+* Must be no more than 32 characters, not including the `.conf` extension
+
+Any files in `/etc/storagegrid/nodes` that don't follow these naming conventions will not be parsed by the host service.
+
+If you have a multi-site topology planned for your grid, a typical node naming scheme might be:
+
+`site-nodetype-nodenumber.conf`
+
+For example, you might use `dc1-adm1.conf` for the first Admin Node in Data Center 1, and `dc2-sn3.conf` for the third Storage Node in Data Center 2. However, you can use any scheme you like, as long as all node names follow the naming rules.
+
+== Contents of a node configuration file
+
+A configuration file contains key/value pairs, with one key and one value per line. For each key/value pair, follow these rules:
+
+* The key and the value must be separated by an equal sign (`=`) and optional whitespace.
+* The keys can contain no spaces.
+* The values can contain embedded spaces.
+* Any leading or trailing whitespace is ignored.
+
+The following table defines the values for all supported keys. Each key has one of the following designations:
+
+* *Required*: Required for every node or for the specified node types
+* *Best practice*: Optional, although recommended
+* *Optional*: Optional for all nodes
+
+=== Admin Network keys
+
+==== ADMIN_IP
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Grid Network IPv4 address of the primary Admin Node for the grid to which this node belongs. Use the same value you specified for GRID_NETWORK_IP for the grid node with NODE_TYPE = VM_Admin_Node and ADMIN_ROLE = Primary. If you omit this parameter, the node attempts to discover a primary Admin Node using mDNS.
+
+link:how-grid-nodes-discover-primary-admin-node.html[How grid nodes discover the primary Admin Node]
+
+*Note*: This value is ignored, and might be prohibited, on the primary Admin Node.
+| Best practice
+|===
+
+==== ADMIN_NETWORK_CONFIG
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| DHCP, STATIC, or DISABLED
+| Optional
+|===
+
+==== ADMIN_NETWORK_ESL
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Comma-separated list of subnets in CIDR notation to which this node should communicate using the Admin Network gateway.
+
+Example: `172.16.0.0/21,172.17.0.0/21`
+| Optional
+|===
+
+==== ADMIN_NETWORK_GATEWAY
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| IPv4 address of the local Admin Network gateway for this node. Must be on the subnet defined by ADMIN_NETWORK_IP and ADMIN_NETWORK_MASK. This value is ignored for DHCP-configured networks.
+
+Examples:
+
+`1.1.1.1`
+
+`10.224.4.81`
+| Required if `ADMIN_NETWORK_ESL` is specified. Optional otherwise.
+|===
+
+==== ADMIN_NETWORK_IP
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| IPv4 address of this node on the Admin Network. This key is only required when ADMIN_NETWORK_CONFIG = STATIC; don't specify it for other values.
+
+Examples:
+
+`1.1.1.1`
+
+`10.224.4.81`
+| Required when ADMIN_NETWORK_CONFIG = STATIC.
+
+Optional otherwise.
+|===
+
+==== ADMIN_NETWORK_MAC
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| The MAC address for the Admin Network interface in the container.
+
+This field is optional. If omitted, a MAC address will be generated automatically.
+
+Must be 6 pairs of hexadecimal digits separated by colons.
+
+Example: `b2:9c:02:c2:27:10`
+| Optional
+|===
+
+==== ADMIN_NETWORK_MASK
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| IPv4 netmask for this node, on the Admin Network. Specify this key when ADMIN_NETWORK_CONFIG = STATIC; don't specify it for other values.
+
+Examples:
+
+`255.255.255.0`
+
+`255.255.248.0`
+| Required if ADMIN_NETWORK_IP is specified and ADMIN_NETWORK_CONFIG = STATIC.
+
+Optional otherwise.
+|===
+
+==== ADMIN_NETWORK_MTU
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| The maximum transmission unit (MTU) for this node on the Admin Network. Don't specify if ADMIN_NETWORK_CONFIG = DHCP. If specified, the value must be between 1280 and 9216. If omitted, 1500 is used.
+
+If you want to use jumbo frames, set the MTU to a value suitable for jumbo frames, such as 9000. Otherwise, keep the default value.
+
+*IMPORTANT*: The MTU value of the network must match the value configured on the switch port the node is connected to. Otherwise, network performance issues or packet loss might occur.
+
+Examples:
+
+`1500`
+
+`8192`
+| Optional
+|===
+
+==== ADMIN_NETWORK_TARGET
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Name of the host device that you will use for Admin Network access by the StorageGRID node. Only network interface names are supported. Typically, you use a different interface name than what was specified for GRID_NETWORK_TARGET or CLIENT_NETWORK_TARGET.
+
+*Note*: Don't use bond or bridge devices as the network target. Either configure a VLAN (or other virtual interface) on top of the bond device, or use a bridge and virtual Ethernet (veth) pair.
+
+*Best practice*:Specify a value even if this node will not initially have an Admin Network IP address. Then you can add an Admin Network IP address later, without having to reconfigure the node on the host.
+
+Examples:
+
+`bond0.1002`
+
+`ens256`
+| Best practice
+|===
+
+==== ADMIN_NETWORK_TARGET_TYPE
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Interface (This is the only supported value.)
+| Optional
+|===
+
+==== ADMIN_NETWORK_TARGET_TYPE_INTERFACE_CLONE_MAC
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| True or False
+
+Set the key to "true" to cause the StorageGRID container use the MAC address of the host host target interface on the Admin Network.
+
+*Best practice:* In networks where promiscuous mode would be required, use the ADMIN_NETWORK_TARGET_TYPE_INTERFACE_CLONE_MAC key instead.
+
+For more details on MAC cloning:
+
+* link:../rhel/configuring-host-network.html#considerations-and-recommendations-for-mac-address-cloning[Considerations and recommendations for MAC address cloning (Red Hat Enterprise Linux)]
+
+* link:../ubuntu/configuring-host-network.html#considerations-and-recommendations-for-mac-address-cloning[Considerations and recommendations for MAC address cloning (Ubuntu or Debian)]
+| Best practice
+|===
+
+==== ADMIN_ROLE
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Primary or non-primary
+
+This key is only required when NODE_TYPE = VM_Admin_Node; don't specify it for other node types.
+| Required when NODE_TYPE = VM_Admin_Node
+
+Optional otherwise.
+|===
+
+=== Block device keys
+
+==== BLOCK_DEVICE_AUDIT_LOGS
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Path and name of the block device special file this node will use for persistent storage of audit logs.
+
+Examples:
+
+`/dev/disk/by-path/pci-0000:03:00.0-scsi-0:0:0:0`
+
+`/dev/disk/by-id/wwn-0x600a09800059d6df000060d757b475fd`
+
+`/dev/mapper/sgws-adm1-audit-logs`
+| Required for nodes with NODE_TYPE = VM_Admin_Node. Don't specify it for other node types.
+|===
+
+==== BLOCK_DEVICE_RANGEDB_nnn
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Path and name of the block device special file this node will use for persistent object storage. This key is only required for nodes with NODE_TYPE = VM_Storage_Node; don't specify it for other node types.
+
+Only BLOCK_DEVICE_RANGEDB_000 is required; the rest are optional. The block device specified for BLOCK_DEVICE_RANGEDB_000 must be at least 4 TB; the others can be smaller.
+
+Don't leave gaps. If you specify BLOCK_DEVICE_RANGEDB_005, you must also specify BLOCK_DEVICE_RANGEDB_004.
+
+*Note*: For compatibility with existing deployments, two-digit keys are supported for upgraded nodes.
+
+Examples:
+
+`/dev/disk/by-path/pci-0000:03:00.0-scsi-0:0:0:0`
+
+`/dev/disk/by-id/wwn-0x600a09800059d6df000060d757b475fd`
+
+`/dev/mapper/sgws-sn1-rangedb-000`
+
+| Required:
+
+BLOCK_DEVICE_RANGEDB_000
+
+Optional:
+
+BLOCK_DEVICE_RANGEDB_001
+
+BLOCK_DEVICE_RANGEDB_002
+
+BLOCK_DEVICE_RANGEDB_003
+
+BLOCK_DEVICE_RANGEDB_004
+
+BLOCK_DEVICE_RANGEDB_005
+
+BLOCK_DEVICE_RANGEDB_006
+
+BLOCK_DEVICE_RANGEDB_007
+
+BLOCK_DEVICE_RANGEDB_008
+
+BLOCK_DEVICE_RANGEDB_009
+
+BLOCK_DEVICE_RANGEDB_010
+
+BLOCK_DEVICE_RANGEDB_011
+
+BLOCK_DEVICE_RANGEDB_012
+
+BLOCK_DEVICE_RANGEDB_013
+
+BLOCK_DEVICE_RANGEDB_014
+
+BLOCK_DEVICE_RANGEDB_015
+|===
+
+==== BLOCK_DEVICE_TABLES
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Path and name of the block device special file this node will use for persistent storage of database tables. This key is only required for nodes with NODE_TYPE = VM_Admin_Node; don't specify it for other node types.
+
+Examples:
+
+`/dev/disk/by-path/pci-0000:03:00.0-scsi-0:0:0:0`
+
+`/dev/disk/by-id/wwn-0x600a09800059d6df000060d757b475fd`
+
+`/dev/mapper/sgws-adm1-tables`
+| Required
+|===
+
+==== BLOCK_DEVICE_VAR_LOCAL
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Path and name of the block device special file this node will use for its `/var/local` persistent storage.
+
+Examples:
+
+`/dev/disk/by-path/pci-0000:03:00.0-scsi-0:0:0:0`
+
+`/dev/disk/by-id/wwn-0x600a09800059d6df000060d757b475fd`
+
+`/dev/mapper/sgws-sn1-var-local`
+
+| Required
+|===
+
+=== Client Network keys
+
+==== CLIENT_NETWORK_CONFIG
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| DHCP, STATIC, or DISABLED
+| Optional
+|===
+
+==== CLIENT_NETWORK_GATEWAY
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+| IPv4 address of the local Client Network gateway for this node, which must be on the subnet defined by CLIENT_NETWORK_IP and CLIENT_NETWORK_MASK. This value is ignored for DHCP-configured networks.
+
+Examples:
+
+`1.1.1.1`
+
+`10.224.4.81`
+| Optional
+|===
+
+==== CLIENT_NETWORK_IP
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| IPv4 address of this node on the Client Network.
+
+This key is only required when CLIENT_NETWORK_CONFIG = STATIC; don't specify it for other values.
+
+Examples:
+
+`1.1.1.1`
+
+`10.224.4.81`
+| Required when CLIENT_NETWORK_CONFIG = STATIC
+
+Optional otherwise.
+|===
+
+==== CLIENT_NETWORK_MAC
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| The MAC address for the Client Network interface in the container.
+
+This field is optional. If omitted, a MAC address will be generated automatically.
+
+Must be 6 pairs of hexadecimal digits separated by colons.
+
+Example: `b2:9c:02:c2:27:20`
+| Optional
+|===
+
+==== CLIENT_NETWORK_MASK
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| IPv4 netmask for this node on the Client Network.
+
+Specify this key when CLIENT_NETWORK_CONFIG = STATIC; don't specify it for other values.
+
+Examples:
+
+`255.255.255.0`
+
+`255.255.248.0`
+| Required if CLIENT_NETWORK_IP is specified and CLIENT_NETWORK_CONFIG = STATIC
+
+Optional otherwise.
+|===
+
+==== CLIENT_NETWORK_MTU
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| The maximum transmission unit (MTU) for this node on the Client Network. Don't specify if CLIENT_NETWORK_CONFIG = DHCP. If specified, the value must be between 1280 and 9216. If omitted, 1500 is used.
+
+If you want to use jumbo frames, set the MTU to a value suitable for jumbo frames, such as 9000. Otherwise, keep the default value.
+
+*IMPORTANT*: The MTU value of the network must match the value configured on the switch port the node is connected to. Otherwise, network performance issues or packet loss might occur.
+
+Examples:
+
+`1500`
+
+`8192`
+| Optional
+|===
+
+==== CLIENT_NETWORK_TARGET
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Name of the host device that you will use for Client Network access by the StorageGRID node. Only network interface names are supported. Typically, you use a different interface name than what was specified for GRID_NETWORK_TARGET or ADMIN_NETWORK_TARGET.
+
+*Note*: Don't use bond or bridge devices as the network target. Either configure a VLAN (or other virtual interface) on top of the bond device, or use a bridge and virtual Ethernet (veth) pair.
+
+*Best practice:* Specify a value even if this node will not initially have a Client Network IP address. Then you can add a Client Network IP address later, without having to reconfigure the node on the host.
+
+Examples:
+
+`bond0.1003`
+
+`ens423`
+| Best practice
+|===
+
+==== CLIENT_NETWORK_TARGET_TYPE
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Interface (This is only supported value.)
+| Optional
+|===
+
+==== CLIENT_NETWORK_TARGET_TYPE_INTERFACE_CLONE_MAC
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| True or False
+
+Set the key to "true" to cause the StorageGRID container to use the MAC address of the host target interface on the Client Network.
+
+*Best practice:* In networks where promiscuous mode would be required, use the CLIENT_NETWORK_TARGET_TYPE_INTERFACE_CLONE_MAC key instead.
+
+For more details on MAC cloning:
+
+* link:../rhel/configuring-host-network.html#considerations-and-recommendations-for-mac-address-cloning[Considerations and recommendations for MAC address cloning (Red Hat Enterprise Linux)]
+
+* link:../ubuntu/configuring-host-network.html#considerations-and-recommendations-for-mac-address-cloning[Considerations and recommendations for MAC address cloning (Ubuntu or Debian)]
+| Best practice
+|===
+
+=== Grid Network keys
+
+==== GRID_NETWORK_CONFIG
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| STATIC or DHCP
+
+Defaults to STATIC if not specified.
+| Best practice
+|===
+
+==== GRID_NETWORK_GATEWAY
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| IPv4 address of the local Grid Network gateway for this node, which must be on the subnet defined by GRID_NETWORK_IP and GRID_NETWORK_MASK. This value is ignored for DHCP-configured networks.
+
+If the Grid Network is a single subnet with no gateway, use either the standard gateway address for the subnet (X.Y.Z.1) or this node's GRID_NETWORK_IP value; either value will simplify potential future Grid Network expansions.
+| Required
+|===
+
+==== GRID_NETWORK_IP
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| IPv4 address of this node on the Grid Network. This key is only required when GRID_NETWORK_CONFIG = STATIC; don't specify it for other values.
+
+Examples:
+
+`1.1.1.1`
+
+`10.224.4.81`
+| Required when GRID_NETWORK_CONFIG = STATIC
+
+Optional otherwise.
+|===
+
+==== GRID_NETWORK_MAC
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| The MAC address for the Grid Network interface in the container.
+
+Must be 6 pairs of hexadecimal digits separated by colons.
+
+Example: `b2:9c:02:c2:27:30`
+| Optional
+
+If omitted, a MAC address will be generated automatically.
+|===
+
+==== GRID_NETWORK_MASK
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| IPv4 netmask for this node on the Grid Network. Specify this key when GRID_NETWORK_CONFIG = STATIC; don't specify it for other values.
+
+Examples:
+
+`255.255.255.0`
+
+`255.255.248.0`
+| Required when GRID_NETWORK_IP is specified and GRID_NETWORK_CONFIG = STATIC.
+
+Optional otherwise.
+|===
+
+==== GRID_NETWORK_MTU
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| The maximum transmission unit (MTU) for this node on the Grid Network. Don't specify if GRID_NETWORK_CONFIG = DHCP. If specified, the value must be between 1280 and 9216. If omitted, 1500 is used.
+
+If you want to use jumbo frames, set the MTU to a value suitable for jumbo frames, such as 9000. Otherwise, keep the default value.
+
+*IMPORTANT*: The MTU value of the network must match the value configured on the switch port the node is connected to. Otherwise, network performance issues or packet loss might occur.
+
+*IMPORTANT*: For the best network performance, all nodes should be configured with similar MTU values on their Grid Network interfaces. The *Grid Network MTU mismatch* alert is triggered if there is a significant difference in MTU settings for the Grid Network on individual nodes. The MTU values don't have to be the same for all network types.
+
+Examples:
+
+`1500`
+
+`8192`
+| Optional
+|===
+
+==== GRID_NETWORK_TARGET
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Name of the host device that you will use for Grid Network access by the StorageGRID node. Only network interface names are supported. Typically, you use a different interface name than what was specified for ADMIN_NETWORK_TARGET or CLIENT_NETWORK_TARGET.
+
+*Note*: Don't use bond or bridge devices as the network target. Either configure a VLAN (or other virtual interface) on top of the bond device, or use a bridge and virtual Ethernet (veth) pair.
+
+Examples:
+
+`bond0.1001`
+
+`ens192`
+| Required
+|===
+
+==== GRID_NETWORK_TARGET_TYPE
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Interface (This is the only supported value.)
+| Optional
+|===
+
+==== GRID_NETWORK_TARGET_TYPE_INTERFACE_CLONE_MAC
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| True or False
+
+Set the value of the key to "true" to cause the StorageGRID container to use the MAC address of the host target interface on the Grid Network.
+
+*Best practice:* In networks where promiscuous mode would be required, use the GRID_NETWORK_TARGET_TYPE_INTERFACE_CLONE_MAC key instead.
+
+For more details on MAC cloning:
+
+* link:../rhel/configuring-host-network.html#considerations-and-recommendations-for-mac-address-cloning[Considerations and recommendations for MAC address cloning (Red Hat Enterprise Linux)]
+
+* link:../ubuntu/configuring-host-network.html#considerations-and-recommendations-for-mac-address-cloning[Considerations and recommendations for MAC address cloning (Ubuntu or Debian)]
+| Best practice
+|===
+
+=== Installation password key (temporary)
+
+==== CUSTOM_TEMPORARY_PASSWORD_HASH
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| For the primary Admin Node, set a default temporary password for the StorageGRID Installation API during installation.
+
+*Note*: Set an installation password on the primary Admin Node only. If you attempt to set a password on another  node type, validation of the node configuration file will fail.
+
+Setting this value has no effect when installation has completed.
+
+If this key is omitted, by default no temporary password is set. Alternatively, you can set a temporary password using the StorageGRID Installation API.
+
+Must be a `crypt()` SHA-512 password hash with format `$6$<salt>$<password hash>` for a password of at least 8 and no more than 32 characters.
+
+This hash can be generated using CLI tools, such as the `openssl passwd` command in SHA-512 mode.
+| Best practice
+|===
+
+=== Interfaces key
+
+==== INTERFACE_TARGET_nnnn
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Name and optional description for an extra interface you want to add to this node. You can add multiple extra interfaces to each node.
+
+For _nnnn_, specify a unique number for each INTERFACE_TARGET entry you are adding.
+
+For the value, specify the name of the physical interface on the bare-metal host. Then, optionally, add a comma and provide a description of the interface, which is displayed on the VLAN interfaces page and the HA groups page. 
+
+Example: `INTERFACE_TARGET_0001=ens256, Trunk`
+
+If you add a trunk interface, you must configure a VLAN interface in StorageGRID. If you add an access interface, you can add the interface directly to an HA group; you don't need to configure a VLAN interface. 
+| Optional
+|===
+
+=== Maximum RAM key
+
+==== MAXIMUM_RAM
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| The maximum amount of RAM that this node is allowed to consume. If this key is omitted, the node has no memory restrictions. When setting this field for a production-level node, specify a value that is at least 24 GB and 16 to 32 GB less than the total system RAM.
+
+*Note*: The RAM value affects a node's actual metadata reserved space. See the link:../admin/managing-object-metadata-storage.html[description of what Metadata Reserved Space is].
+
+The format for this field is `_numberunit_`, where `_unit_` can be `b`, `k`, `m`, or `g`.
+
+Examples:
+
+`24g`
+
+`38654705664b`
+
+*Note*: If you want to use this option, you must enable kernel support for memory cgroups.
+| Optional
+|===
+
+=== Node type keys
+
+==== NODE_TYPE
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Type of node:
+
+* VM_Admin_Node
+* VM_Storage_Node
+* VM_Archive_Node
+* VM_API_Gateway
+| Required
+|===
+
+==== STORAGE_TYPE
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Defines the type of objects a Storage Node contains. For more information, see link:../primer/what-storage-node-is.html#types-of-storage-nodes[Types of Storage Nodes]. This key is only required for nodes with NODE_TYPE = VM_Storage_Node; don't specify it for other node types. Storage types:
+
+* combined
+* data
+* metadata
+
+*Note*: If the STORAGE_TYPE is not specified, the Storage Node type is set to combined (data and metadata) by default.
+| Optional
+|===
+
+
+
+
+
+
+=== Port remap keys
+
+==== PORT_REMAP
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Remaps any port used by a node for internal grid node communications or external communications. Remapping ports is necessary if enterprise networking policies restrict one or more ports used by StorageGRID, as described in link:../network/internal-grid-node-communications.html[Internal grid node communications] or link:../network/external-communications.html[External communications].
+
+*IMPORTANT*: Don't remap the ports you are planning to use to configure load balancer endpoints.
+
+*Note*: If only PORT_REMAP is set, the mapping that you specify is used for both inbound and outbound communications. If PORT_REMAP_INBOUND is also specified, PORT_REMAP applies only to outbound communications.
+
+The format used is: `_network type_/_protocol_/_default port used by grid node_/_new port_`, where `_network type_` is grid, admin, or client, and `_protocol_` is tcp or udp.
+
+Example: `PORT_REMAP = client/tcp/18082/443`
+
+You can also remap multiple ports using a comma-separated list.
+
+Example: `PORT_REMAP = client/tcp/18082/443, client/tcp/18083/80`
+| Optional
+|===
+
+==== PORT_REMAP_INBOUND
+[cols="4a,2a" option="header"]
+|===
+| Value| Designation
+
+| Remaps inbound communications to the specified port. If you specify PORT_REMAP_INBOUND but don't specify a value for PORT_REMAP, outbound communications for the port are unchanged.
+
+*IMPORTANT*: Don't remap the ports you are planning to use to configure load balancer endpoints.
+
+The format used is: `_network type_/_protocol_/_remapped port_/_default port used by grid node_`, where `_network type_` is grid, admin, or client, and `_protocol_` is tcp or udp.
+
+Example: `PORT_REMAP_INBOUND = grid/tcp/3022/22`
+
+You can also remap multiple inbound ports using a comma-separated list.
+
+Example: `PORT_REMAP_INBOUND = grid/tcp/3022/22, admin/tcp/3022/22`
+| Optional
+|===

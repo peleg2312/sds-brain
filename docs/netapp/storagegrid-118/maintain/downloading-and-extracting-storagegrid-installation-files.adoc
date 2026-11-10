@@ -1,0 +1,75 @@
+---
+permalink: maintain/downloading-and-extracting-storagegrid-installation-files.html
+sidebar: sidebar
+keywords: storagegrid, installation files, download
+summary: 'Before you can recover StorageGRID nodes, you must download the software and extract the files.'
+---
+= Download and extract StorageGRID installation files
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Before you can recover StorageGRID nodes, you must download the software and extract the files.
+
+You must use the version of StorageGRID that is currently running on the grid.
+
+.Steps
+
+. Determine which version of the software is currently installed. From the top of the Grid Manager, select the help icon and select *About*.
+. Go to the NetApp Downloads page for StorageGRID.
++
+https://mysupport.netapp.com/site/products/all/details/storagegrid/downloads-tab[NetApp Downloads: StorageGRID^]
+
+. Select the version of StorageGRID that is currently running on the grid.
++
+StorageGRID software versions have this format: 11.x.y.
+
+. Sign in with the username and password for your NetApp account.
+. Read the End User License Agreement, select the checkbox, and then select *Accept & Continue*.
+. In the *Install StorageGRID* column of the download page, select the `.tgz` or `.zip` file for your platform.
++
+The version shown in the installation archive file must match the version of the software that is currently installed.
++
+Use the `.zip` file if you are running Windows.
++
+[cols="1a,2a" options="header"]
+|===
+| Platform| Installation archive
+
+|Red Hat Enterprise Linux
+m|
+include::../_include/installation-archives-rhel.adoc[]
+
+|Ubuntu or Debian or Appliances
+m|
+include::../_include/installation-archives-ubuntu.adoc[]
+
+|VMware
+m|
+include::../_include/installation-archives-vmware.adoc[]
+
+|===
+
+. Download and extract the archive file.
+. Follow the appropriate step for your platform to choose the files you need, based on your platform and which grid nodes you need to recover.
++
+The paths listed in the step for each platform are relative to the top-level directory installed by the archive file.
+
+. If you are recovering a link:../rhel/index.html[Red Hat Enterprise Linux system], select the appropriate files.
++
+include::../_include/installation-files-rhel.adoc[]
+
+[start=10]
+. If you are recovering an link:../ubuntu/index.html[Ubuntu or Debian system], select the appropriate files.
++
+include::../_include/installation-files-ubuntu.adoc[]
+
+[start=11]
+. If you are recovering a link:../vmware/index.html[VMware system], select the appropriate files.
++
+include::../_include/installation-files-vmware.adoc[]
+
+[start=12]
+. If you are recovering a StorageGRID appliance-based system, select the appropriate files.
++
+include::../_include/installation-files-appliance.adoc[]

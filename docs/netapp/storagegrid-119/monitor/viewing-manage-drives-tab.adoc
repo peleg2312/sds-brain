@@ -1,0 +1,22 @@
+---
+permalink: monitor/viewing-manage-drives-tab.html
+sidebar: sidebar
+keywords: Manage drives tab, hardware diagnostics, fail drive, logically replace drive
+summary: 'The Manage drives tab enables you to access details and perform troubleshooting and maintenance tasks on drives in the appliances that support this feature.'
+---
+= View the Manage drives tab
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The Manage drives tab enables you to access details and perform troubleshooting and maintenance tasks on drives in the appliances that support this feature.
+
+Using the Manage drives tab, you can do the following:
+
+* View a layout of the data storage drives in the appliance
+* View a table that lists each drive location, type, status, firmware version, and serial number
+* Perform troubleshooting and maintenance functions on each drive
+
+To access the Manage drives tab, you must have the link:../admin/admin-group-permissions.html[Storage appliance administrator or Root access permission].
+
+For information about using the Manage drives tab, see https://docs.netapp.com/us-en/storagegrid-appliances/commonhardware/manage-drives-tab.html[Use the Manage drives tab^].

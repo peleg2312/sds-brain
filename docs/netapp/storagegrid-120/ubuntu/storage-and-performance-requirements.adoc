@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/storage-and-performance-requirements.html
+redirect: storagegrid/swnodes/storage-and-performance-requirements.html
+---

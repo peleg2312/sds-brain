@@ -1,0 +1,4 @@
+---
+permalink: rhel/where-to-go-next.html
+redirect: storagegrid/swnodes/where-to-go-next.html
+---

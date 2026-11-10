@@ -1,0 +1,5 @@
+---
+permalink: rhel/example-etc-sysconfig-network-scripts.html
+redirect: storagegrid/swnodes/example-etc-sysconfig-network-scripts.html
+---
+

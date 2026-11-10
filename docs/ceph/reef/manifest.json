@@ -1,0 +1,10 @@
+{
+  "ceph-reef-health.md": {
+    "title": "Ceph Reef health checks",
+    "url": "https://docs.ceph.com/en/reef/rados/operations/health-checks/"
+  },
+  "ceph-reef-pg-json.md": {
+    "title": "ceph-reef-pg-json",
+    "url": "https://github.com/ceph/ceph/blob/reef/qa/tasks/ceph_manager.py"
+  }
+}

@@ -1,0 +1,5 @@
+---
+permalink: ilm/simulating-ilm-policy.html
+redirect: storagegrid/ilm/simulating-ilm-policy-examples.html
+---
+// 2024-10-18, SGRIDOC108

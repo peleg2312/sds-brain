@@ -1,0 +1,4 @@
+---
+permalink: rhel/troubleshooting-installation-issues.html
+redirect: storagegrid/swnodes/troubleshooting-installation-issues.html
+---

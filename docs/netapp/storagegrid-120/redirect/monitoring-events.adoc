@@ -1,0 +1,4 @@
+---
+permalink: monitor/monitoring-events.html
+redirect: storagegrid/monitor/monitoring-put-and-get-performance.html
+---

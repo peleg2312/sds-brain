@@ -1,0 +1,24 @@
+---
+permalink: expand/adding-storage-capacity-for-erasure-coded-objects.html
+sidebar: sidebar
+keywords: erasure coding, capacity, storage nodes, ec, expand, expansion
+summary: 'If your ILM policy includes a rule that makes erasure-coded copies, you must plan where to add new storage and when to add new storage. The amount of storage you add and the timing of the addition can affect the grid’s usable storage capacity.'
+---
+= Add storage capacity for erasure-coded objects
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+If your ILM policy includes a rule that makes erasure-coded copies, you must plan where to add new storage and when to add new storage. The amount of storage you add and the timing of the addition can affect the grid's usable storage capacity.
+
+The first step in planning a storage expansion is to examine the rules in your ILM policy that create erasure-coded objects. Because StorageGRID creates _k+m_ fragments for every erasure-coded object and stores each fragment on a different Storage Node, you must ensure that at least _k+m_ Storage Nodes have space for new erasure-coded data after the expansion. If the erasure-coding profile provides site-loss protection, you must add storage to each site. See link:../ilm/what-erasure-coding-schemes-are.html[What are erasure-coding schemes] for information about erasure-coding profiles.
+
+The number of nodes you need to add also depends on how full the existing nodes are when you perform the expansion.
+
+== General recommendation for adding storage capacity for erasure-coded objects
+
+If you want to avoid detailed calculations, you can add two Storage Nodes per site when existing Storage Nodes reach 70% capacity.
+
+This general recommendation provides reasonable results across a wide range of erasure-coding schemes for both single-site grids and for grids where erasure coding provides site-loss protection.
+
+To better understand the factors that led to this recommendation or to develop a more precise plan for your site, see link:considerations-for-rebalancing-erasure-coded-data.html[Considerations for rebalancing erasure-coded data]. For a custom recommendation optimized for your situation, contact your NetApp Professional Services consultant.

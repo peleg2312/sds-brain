@@ -1,0 +1,5 @@
+---
+permalink: upgrade/increasing-metadata-reserved-space-setting.html
+redirect: storagegrid/admin/increasing-metadata-reserved-space-setting.html
+---
+// 2024-10-18, SGRIDOC108

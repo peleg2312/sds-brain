@@ -1,0 +1,14 @@
+---
+permalink: tenant/tenant-management-api-versioning.html
+sidebar: sidebar
+keywords: tenant management api version
+summary: 'The Tenant Management API uses versioning to support non-disruptive upgrades.'
+---
+= Tenant Management API versioning
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The Tenant Management API uses versioning to support non-disruptive upgrades.
+
+include::../_include/management-api-versioning.adoc[]

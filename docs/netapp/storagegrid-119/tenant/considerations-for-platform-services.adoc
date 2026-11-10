@@ -1,0 +1,142 @@
+---
+permalink: tenant/considerations-for-platform-services.html
+sidebar: sidebar
+keywords: considerations for using platform services
+summary: 'Before implementing platform services, review the overview and considerations for using these services.'
+---
+= Platform services overview and considerations
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Before implementing platform services, review the overview and considerations for using these services.
+
+For information about S3, see link:../s3/index.html[Use S3 REST API].
+
+== Overview of platform services
+StorageGRID platform services can help you implement a hybrid cloud strategy by allowing you to send event notifications and copies of S3 objects and object metadata to external destinations.
+
+Because the target location for platform services is typically external to your StorageGRID deployment, platform services give you the power and flexibility that comes from using external storage resources, notification services, and search or analysis services for your data.
+
+Any combination of platform services can be configured for a single S3 bucket. For example, you could configure both the link:../tenant/understanding-cloudmirror-replication-service.html[CloudMirror service] and link:../tenant/understanding-notifications-for-buckets.html[notifications] on a StorageGRID S3 bucket so that you can mirror specific objects to the Amazon Simple Storage Service (S3), while sending a notification about each such object to a third party monitoring application to help you track your AWS expenses.
+
+TIP: The use of platform services must be enabled for each tenant account by a StorageGRID administrator using the Grid Manager or the Grid Management API.
+
+== How platform services are configured
+Platform services communicate with external endpoints that you configure using the link:configuring-platform-services-endpoints.html[Tenant Manager] or the link:understanding-tenant-management-api.html[Tenant Management API]. Each endpoint represents an external destination, such as a StorageGRID S3 bucket, an Amazon Web Services bucket, an Amazon SNS topic, or an Elasticsearch cluster hosted locally, on AWS, or elsewhere.
+
+After you create an external endpoint, you can enable a platform service for a bucket by adding XML configuration to the bucket. The XML configuration identifies the objects that the bucket should act on, the action that the bucket should take, and the endpoint that the bucket should use for the service.
+
+You must add separate XML configurations for each platform service that you want to configure. For example:
+
+* If you want all objects whose keys start with `/images` to be replicated to an Amazon S3 bucket, you must add a replication configuration to the source bucket.
+* If you also want to send notifications when these objects are stored to the bucket, you must add a notifications configuration.
+* If you want to index the metadata for these objects, you must add the metadata notification configuration that is used to implement search integration.
+
+The format for the configuration XML is governed by the S3 REST APIs used to implement StorageGRID platform services:
+
+[cols="1a,2a,1a" options="header"]
+|===
+| Platform service| S3 REST API | Refer to
+
+| CloudMirror replication
+| 
+* GetBucketReplication
+* PutBucketReplication
+
+| * link:configuring-cloudmirror-replication.html[CloudMirror replication]
+* link:../s3/operations-on-buckets.html[Operations on buckets]
+
+| Notifications
+| 
+* GetBucketNotificationConfiguration
+* PutBucketNotificationConfiguration
+
+| * link:configuring-event-notifications.html[Notifications]
+* link:../s3/operations-on-buckets.html[Operations on buckets]
+
+| Search integration
+| 
+* GET Bucket metadata notification configuration
+* PUT Bucket metadata notification configuration
+
+| * link:configuring-search-integration-service.html[Search integration]
+* link:../s3/custom-operations-on-buckets.html[StorageGRID custom operations]
+|===
+
+== Considerations for using platform services
+
+[cols="1a,3a" options="header"]
+|===
+| Consideration| Details
+
+| Destination endpoint monitoring
+| You must monitor the availability of each destination endpoint. If connectivity to the destination endpoint is lost for an extended period of time and a large backlog of requests exists, additional client requests (such as PUT requests) to StorageGRID will fail. You must retry these failed requests when the endpoint becomes reachable.
+
+| Destination endpoint throttling
+a| StorageGRID software might throttle incoming S3 requests for a bucket if the rate at which the requests are being sent exceeds the rate at which the destination endpoint can receive the requests. Throttling only occurs when there is a backlog of requests waiting to be sent to the destination endpoint.
+
+The only visible effect is that the incoming S3 requests will take longer to execute. If you start to detect significantly slower performance, you should reduce the ingest rate or use an endpoint with higher capacity. If the backlog of requests continues to grow, client S3 operations (such as PUT requests) will eventually fail.
+
+CloudMirror requests are more likely to be affected by the performance of the destination endpoint because these requests typically involve more data transfer than search integration or event notification requests.
+
+| Ordering guarantees
+a| StorageGRID guarantees ordering of operations on an object within a site. As long as all operations against an object are within the same site, the final object state (for replication) will always equal the state in StorageGRID.
+
+StorageGRID makes a best effort attempt to order requests when operations are made across StorageGRID sites. For example, if you write an object initially to site A and then later overwrite the same object at site B, the final object replicated by CloudMirror to the destination bucket is not guaranteed to be the newer object.
+
+| ILM-driven object deletions
+a| To match the deletion behavior of the AWS CRR and Amazon Simple Notification Service, CloudMirror and event notification requests aren't sent when an object in the source bucket is deleted because of StorageGRID ILM rules. For example, no CloudMirror or event notifications requests are sent if an ILM rule deletes an object after 14 days.
+
+In contrast, search integration requests are sent when objects are deleted because of ILM.
+
+| Using Kafka endpoints
+a| For Kafka endpoints, Mutual TLS is not supported. As a result, if you have `ssl.client.auth` set to `required` in your Kafka broker configuration, it might cause Kafka endpoint configuration issues.
+
+The authentication of Kafka endpoints uses the following authentication types. These types are different from those used for the authentication of other endpoints, such as Amazon SNS, and require username and password credentials.
+
+* SASL/PLAIN
+* SASL/SCRAM-SHA-256
+* SASL/SCRAM-SHA-512
+
+*Note:* Configured storage proxy settings do not apply to Kafka platform services endpoints.
+|===
+
+== Considerations for using CloudMirror replication service
+
+[cols="1a,3a" options="header"]
+|===
+| Consideration| Details
+
+| Replication status
+| StorageGRID does not support the `x-amz-replication-status` header.
+
+| Object size
+a| The maximum size for objects that can be replicated to a destination bucket by the CloudMirror replication service is 5 TiB, which is the same as the maximum _supported_ object size.
+
+*Note*: The maximum _recommended_ size for a single PutObject operation is 5 GiB (5,368,709,120 bytes). If you have objects that are larger than 5 GiB, use multipart upload instead. 
+
+| Bucket versioning and version IDs
+a| If the source S3 bucket in StorageGRID has versioning enabled, you should also enable versioning for the destination bucket.
+
+When using versioning, note that the ordering of object versions in the destination bucket is best effort and not guaranteed by the CloudMirror service, due to limitations in the S3 protocol.
+
+*Note*: Version IDs for the source bucket in StorageGRID aren't related to the version IDs for the destination bucket.
+
+| Tagging for object versions
+a| The CloudMirror service does not replicate any PutObjectTagging or DeleteObjectTagging requests that supply a version ID, due to limitations in the S3 protocol. Because version IDs for the source and destination aren't related, there is no way to ensure that a tag update to a specific version ID will be replicated.
+
+In contrast, the CloudMirror service does replicate PutObjectTagging requests or DeleteObjectTagging requests that don't specify a version ID. These requests update the tags for the latest key (or the latest version if the bucket is versioned). Normal ingests with tags (not tagging updates) are also replicated.
+
+| Multipart uploads and `ETag` values
+| When mirroring objects that were uploaded using a multipart upload, the CloudMirror service does not preserve the parts. As a result, the `ETag` value for the mirrored object will be different than the `ETag` value of the original object.
+
+| Objects encrypted with SSE-C (server-side encryption with customer-provided keys)
+| The CloudMirror service does not support objects that are encrypted with SSE-C. If you attempt to ingest an object into the source bucket for CloudMirror replication and the request includes the SSE-C request headers, the operation fails.
+
+| Bucket with S3 Object Lock enabled
+| Replication is not supported for source or destination buckets with S3 Object Lock enabled.
+|===
+
+// 2024 JUN 28, SGRIDDOC-67
+// 2023 SEP 25, SGWS-27676

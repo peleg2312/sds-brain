@@ -1,0 +1,202 @@
+---
+permalink: admin/managing-load-balancing.html
+sidebar: sidebar
+keywords: manage load balancing, balance workload, client ingest, client retrieval, distribute connection
+summary: "You can use load balancing to handle ingest and retrieval workloads from S3 clients."
+---
+= Learn about StorageGRID load balancing
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+You can use load balancing to handle ingest and retrieval workloads from S3 clients. 
+
+== What is load balancing?
+
+When a client application saves or retrieves data from a StorageGRID system, StorageGRID uses a load balancer to manage the ingest and retrieval workload. Load balancing maximizes speed and connection capacity by distributing the workload across multiple Storage Nodes.
+
+The StorageGRID Load Balancer service is installed on all Admin Nodes and all Gateway Nodes and provides Layer 7 load balancing. It performs Transport Layer Security (TLS) termination of client requests, inspects the requests, and establishes new secure connections to the Storage Nodes.
+
+The Load Balancer service on each node operates independently when forwarding client traffic to the Storage Nodes. Through a weighting process, the Load Balancer service routes more requests to Storage Nodes with higher CPU availability.
+
+NOTE: Although the StorageGRID Load Balancer service is the recommended load balancing mechanism, you might want to integrate a third-party load balancer instead. For information, contact your NetApp account representative or refer to https://docs.netapp.com/us-en/storagegrid-enable/technical-reports/load-balancer-index.html[Use third-party load balancers with StorageGRID^].
+
+== How many load balancing nodes do I need?
+
+As a general best practice, each site in your StorageGRID system should include two or more nodes with the Load Balancer service. For example, a site might include two Gateway Nodes or both an Admin Node and a Gateway Node. Make sure that there is adequate networking, hardware, or virtualization infrastructure for each load-balancing node, whether you are using services appliances, bare metal nodes, or virtual machine (VM) based nodes.
+
+== What is a load balancer endpoint?
+
+A load balancer endpoint defines the port and the network protocol (HTTPS or HTTP) that incoming and outgoing client application requests will use to access those nodes that contain the Load Balancer service. The endpoint also defines the client type (S3), the binding mode, and optionally a list of allowed or blocked tenants. 
+
+To create a load balancer endpoint, either use the Grid Manager or complete the S3 setup and FabricPool wizards:
+
+* link:configuring-load-balancer-endpoints.html[Configure load balancer endpoints]
+* link:use-s3-setup-wizard-steps.html[Use the S3 setup wizard]
+* link:../fabricpool/use-fabricpool-setup-wizard-steps.html[Use the FabricPool setup wizard]
+
+=== Considerations for load balancer caching
+
+Caching significantly improves performance when a workload operates on a subset of data and accesses objects multiple times. Additionally, caching provides remote access to object storage without a full grid deployment. Load balancer caching is available only for Gateway Nodes.
+
+As you're creating load balancer endpoints:
+
+* Enable caching only for workloads that are cacheable. Workloads that access un-cached data more often than cached data will perform worse than if they had not been serviced by the cache. In some cases, workloads with high overwrite and eviction rates might also exceed warrantied drive-write endurance.
+
+* Consider adding additional endpoints or nodes for caching individual workloads that are good candidates for caching.
+
+* Use distinct endpoints for cacheable and un-cacheable workloads. This separation ensures that caching mechanisms are applied appropriately and don't interfere with non-cacheable data processing.
+
+* Evaluate a potential cacheable workload by directing it to the cache-enabled endpoint. Monitor and verify the cache hit rate to determine the suitability of the workload for caching. This assessment helps in optimizing performance and ensuring efficient use of cache resources.
+
+* link:../audit/index.html[Review audit logs] to determine if an existing workload would be a good candidate for caching. For a given time period, determine what percentage of GETs are for unique objects. To be suitable for caching, this value should be below 50%.
+
+==== Examples of workloads that might be good candidates for caching
+
+* Data lakes
+* High-performance computing (HPC)
+* AI/ML training
+* Content Distribution Networks (CDN)
+* Media asset management
+* Video production
+
+[NOTE]
+====
+* Multiple object versions can be cached.
+* Range read operations are supported.
+====
+
+==== Examples of workloads that aren't good candidates for caching
+
+* Fabric Pool
+* Backup applications
+* Storage tiering
+
+CAUTION: If any content to be served by the cache requires encryption at rest, https://docs.netapp.com/us-en/storagegrid-appliances/installconfig/optional-enabling-node-encryption.html[enable node or drive encryption^] on the cache node.
+
+==== Types of objects and requests that won't be cached
+
+*	The `response-content-encoding` query parameter
+*	The `partNumber` query parameter
+*	Conditional headers
+** `If-Match`
+** `If-Modified-Since`
+** `If-None-Match`
+** `If-Unmodified-Since`
+*	Requests that were encrypted at rest with any of the following:
+** SSE (server-side encryption with StorageGRID-managed keys)
+** SSE-C (server-side encryption with customer-provided keys)
+** Stored object encryption 
+
+Any requests that aren't cached are forwarded to an upstream LDR as if the cache were not enabled.
+
+.Related information
+
+* link:../troubleshoot/troubleshooting-load-balancer-caching.html[Troubleshoot load balancer caching]
+
+* For more information about load balancer caching, contact technical support.
+
+=== Considerations for the port
+The port for a load balancer endpoint defaults to 10433 for the first endpoint you create, but you can specify any unused external port between 1 and 65535. If you use port 80 or 443, the endpoint will use the Load Balancer service on Gateway Nodes only. These ports are reserved on Admin Nodes. If you use the same port for more than one endpoint, you must specify a different binding mode for each endpoint.
+
+Ports used by other grid services aren't permitted. See link:../network/internal-grid-node-communications.html#storagegrid-internal-ports[StorageGRID internal ports].
+
+=== Considerations for the network protocol
+
+In most cases, the connections between client applications and StorageGRID should use Transport Layer Security (TLS) encryption. Connecting to StorageGRID without TLS encryption is supported but not recommended, especially in production environments. When you select the network protocol for the StorageGRID load balancer endpoint, you should select *HTTPS*. 
+
+=== Considerations for load balancer endpoint certificates
+
+If you select *HTTPS* as the network protocol for the load balancer endpoint, you must provide a security certificate. You can use any of these three options when you create the load balancer endpoint:
+
+* *Upload a signed certificate (recommended)*. This certificate can be signed by either a publicly trusted or a private certificate authority (CA). Using a publicly trusted CA server certificate to secure the connection is the best practice. In contrast to generated certificates, certificates signed by a CA can be rotated nondisruptively, which can help avoid expiration issues.
++
+You must obtain the following files before you create the load balancer endpoint:
+
+** The custom server certificate file.
+** The custom server certificate private key file.
+** Optionally, a CA bundle of the certificates from each intermediate issuing certificate authority. 
+
+* *Generate a self-signed certificate*. 
+
+* *Use the global StorageGRID S3 certificate*. You must upload or generate a custom version of this certificate before you can select it for the load balancer endpoint. See link:../admin/configuring-custom-server-certificate-for-storage-node.html[Configure S3 API certificates]. 
+
+==== What values do I need?
+
+To create the certificate, you must know all of the domain names and IP addresses that S3 client applications will use to access the endpoint.
+
+The *Subject DN* (Distinguished Name) entry for the certificate must include the fully qualified domain name that the client application will use for StorageGRID. For example:
+
+----
+Subject DN: /C=Country/ST=State/O=Company,Inc./CN=s3.storagegrid.example.com
+----
+
+
+As required, the certificate can use wildcards to represent the fully qualified domain names of all Admin Nodes and Gateway Nodes running the Load Balancer service. For example, `*.storagegrid._example_.com` uses the * wildcard to represent `adm1.storagegrid._example_.com` and `gn1.storagegrid._example_.com`. 
+
+
+If you plan to use S3 virtual hosted-style requests, the certificate must also include an *Alternative Name* entry for each link:../admin/configuring-s3-api-endpoint-domain-names.html[S3 endpoint domain name] you have configured, including any wildcard names. For example:
+
+----
+Alternative Name: DNS:*.s3.storagegrid.example.com
+----
+
+
+NOTE: If you use wildcards for domain names, review the link:../harden/hardening-guideline-for-server-certificates.html[Hardening guidelines for server certificates].
+
+You must also define a DNS entry for each name in the security certificate.
+
+
+==== How do I manage expiring certificates?
+
+CAUTION: If the certificate used to secure the connection between the S3 application and StorageGRID expires, the application might temporarily lose access to StorageGRID. 
+
+To avoid certificate expiration issues, follow these best practices:
+
+* Carefully monitor any alerts that warn of approaching certificate expiration dates, such as the *Expiration of load balancer endpoint certificate* and *Expiration of global server certificate for S3 API* alerts.
+
+* Always keep the StorageGRID and S3 application's versions of the certificate in sync. If you replace or renew the certificate used for a load balancer endpoint, you must replace or renew the equivalent certificate used by the S3 application.
+
+* Use a publicly signed CA certificate. If you use a certificate signed by a CA, you can replace soon-to-expire certificates nondisruptively. 
+
+* If you have generated a self-signed StorageGRID certificate and that certificate is about to expire, you must manually replace the certificate in both StorageGRID and in the S3 application before the existing certificate expires. 
+
+=== Considerations for the binding mode
+
+The binding mode lets you control which IP addresses can be used to access a load balancer endpoint. If an endpoint uses a binding mode, client applications can only access the endpoint if they use an allowed IP address or its corresponding fully qualified domain name (FQDN). Client applications using any other IP address or FQDN can't access the endpoint. 
+
+You can specify any of the following binding modes:
+
+* *Global* (default): Client applications can access the endpoint using the IP address of any Gateway Node or Admin Node, the virtual IP (VIP) address of any HA group on any network, or a corresponding FQDN. Use this setting unless you need to restrict the accessibility of an endpoint.
+
+* *Virtual IPs of HA groups*. Client applications must use a virtual IP address (or corresponding FQDN) of an HA group.
+
+* *Node interfaces*. Clients must use the IP addresses (or corresponding FQDNs) of selected node interfaces.
+
+* *Node type*. Based on the type of node you select, clients must use either the IP address (or corresponding FQDN) of any Admin Node or the IP address (or corresponding FQDN) of any Gateway Node.
+
+=== Considerations for tenant access
+
+Tenant access is an optional security feature that lets you control which StorageGRID tenant accounts can use a load balancer endpoint to access their buckets. You can allow all tenants to access an endpoint (default), or you can specify a list of the allowed or blocked tenants for each endpoint.
+
+You can use this feature to provide better security isolation between tenants and their endpoints. For example, you might use this feature to ensure that the top-secret or highly classified materials owned by one tenant remain completely inaccessible to other tenants.
+
+NOTE: For the purpose of access control, the tenant is determined from the access keys used in the client request, if no access keys are provided as part of the request (such as with anonymous access) the bucket owner is used to determine the tenant.
+
+==== Tenant access example
+To understand how this security feature works, consider the following example:
+
+. You have created two load balancer endpoints, as follows:
++
+* *Public* endpoint: Uses port 10443 and allows access to all tenants.
+* *Top secret* endpoint: Uses port 10444 and allows access to the *Top secret* tenant only. All other tenants are blocked from accessing this endpoint.
+
+. The `top-secret.pdf` is in a bucket owned by the *Top secret* tenant. 
+
+To access the `top-secret.pdf`, a user in the *Top secret* tenant can issue a GET request to `\https://w.x.y.z:10444/top-secret.pdf`. Because this tenant is allowed to use the 10444 endpoint, the user can access the object. However, if a user belonging to any other tenant issues the same request to the same URL, they receive an immediate Access Denied message. Access is denied even if the credentials and signature are valid. 
+
+== CPU availability
+
+The Load Balancer service on each Admin Node and Gateway Node operates independently when forwarding S3 traffic to the Storage Nodes. Through a weighting process, the Load Balancer service routes more requests to Storage Nodes with higher CPU availability. Node CPU load information is updated every few minutes, but weighting might be updated more frequently. All Storage Nodes are assigned a minimal base weight value, even if a node reports 100% utilization or fails to report its utilization.
+
+In some cases, information about CPU availability is limited to the site where the Load Balancer service is located.

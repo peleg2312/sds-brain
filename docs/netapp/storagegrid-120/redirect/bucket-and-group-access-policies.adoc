@@ -1,0 +1,4 @@
+---
+permalink: s3/bucket-and-group-access-policies.html
+redirect: storagegrid/s3/use-access-policies.html
+---

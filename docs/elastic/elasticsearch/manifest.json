@@ -1,0 +1,10 @@
+{
+  "elastic-health-api.md": {
+    "title": "Elasticsearch cluster health API",
+    "url": "https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-cluster-health"
+  },
+  "elastic-search-api.md": {
+    "title": "Elasticsearch Search API",
+    "url": "https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search"
+  }
+}

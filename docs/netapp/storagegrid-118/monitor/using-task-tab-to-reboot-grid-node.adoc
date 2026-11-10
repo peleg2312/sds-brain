@@ -1,0 +1,20 @@
+---
+permalink: monitor/using-task-tab-to-reboot-grid-node.html
+sidebar: sidebar
+keywords: Tasks tab, rename node, reboot node, maintenance mode
+summary: 'The Tasks tab  is shown for all nodes. You can use this tab to rename or reboot a node or to put an appliance node into maintenance mode.'
+---
+= Use the Tasks tab
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+The Tasks tab is shown for all nodes. You can use this tab to rename or reboot a node or to put an appliance node into maintenance mode.
+
+For the complete requirements and instructions for each option on this tab, see the following:
+
+* link:../maintain/rename-grid-site-node-overview.html[Rename grid, sites, and nodes]
+
+* link:../maintain/rebooting-grid-node-from-grid-manager.html[Reboot grid node]
+
+* https://docs.netapp.com/us-en/storagegrid-appliances/commonhardware/placing-appliance-into-maintenance-mode.html[Place appliance into maintenance mode^]

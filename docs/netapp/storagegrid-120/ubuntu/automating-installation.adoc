@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/automating-installation.html
+redirect: storagegrid/swnodes/automating-installation-linux.html
+---

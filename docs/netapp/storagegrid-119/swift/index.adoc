@@ -1,0 +1,14 @@
+---
+permalink: swift/index.html
+sidebar: sidebar
+keywords: openstack swift api support, swift rest api
+summary: 'Support for the Swift API has reached end of life and will be removed in a future release.'
+---
+= Use Swift REST API
+:icons: font
+:imagesdir: ../media/
+
+[.lead]
+Support for the Swift API has reached end of life and will be removed in a future release.
+
+TIP: Swift details have been removed from this version of the doc site. See https://docs.netapp.com/us-en/storagegrid-118/swift/index.html[StorageGRID 11.8: Use Swift REST API^].

@@ -1,0 +1,4 @@
+---
+permalink: ubuntu/download-files-verify.html
+redirect: storagegrid/swnodes/download-files-verify.html
+---

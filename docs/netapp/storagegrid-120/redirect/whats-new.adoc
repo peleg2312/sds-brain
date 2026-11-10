@@ -1,0 +1,4 @@
+---
+permalink: upgrade/whats-new.html
+redirect: storagegrid/release-notes/whats-new.html
+---

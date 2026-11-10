@@ -1,0 +1,5 @@
+---
+permalink: s3/monitoring-object-ingest-and-retrieval-rates.html
+redirect: storagegrid/monitor/monitoring-object-ingest-and-retrieval-rates.html
+---
+// 2024-10-18, SGRIDOC108

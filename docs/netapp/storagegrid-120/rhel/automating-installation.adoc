@@ -1,0 +1,4 @@
+---
+permalink: rhel/automating-installation.html
+redirect: storagegrid/swnodes/automating-installation-linux.html
+---
