@@ -14,6 +14,7 @@ rules/                            main.md (golden rules), persona.md, storage.md
                                   domain), guard-allow.txt: the team's own, loaded every session
 knowledge/                        environment.md, notes.md, tool-map.md (loaded every session), notes/, runbooks/,
                                   captures/, incidents/, INDEX.md (generated): what the team learns
+templates/                        topic, capture, page, runbook, incident, metric: copied into knowledge/
 docs/                             the vendor documentation the library is built from (LIBRARY.md)
 connections/                      Grafana (bundled, read-only), Objectify, Red Hat offline portal (okp)
 join.sh  vm-setup.py  check.py  test_brain.py
@@ -81,6 +82,9 @@ once are merged automatically. Each person needs push access to the repository a
 - "Curate the captures": Claude proposes what to promote, merge or discard; you decide.
 - "Save this as a runbook": after you ran a change and it worked (`knowledge/runbooks/`, empty until then).
 - "Write a postmortem": an incident report under `knowledge/incidents/`.
+
+Each of these starts from a file in `templates/` (`templates/README.md` says which is for what); you can copy one by
+hand too.
 
 The 19 investigation procedures (Ceph health, slow ops, daemons, RGW, multisite, S3 403 / signature / latency /
 multipart, StorageGRID capacity / ILM / connectivity / quota, host pressure / network / SELinux, hardware, Grafana,

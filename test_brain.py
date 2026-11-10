@@ -157,6 +157,7 @@ for path, want in (("rules/main.md", "block"), ("rules/guard-allow.txt", "block"
                    ("brain-sds/hooks/hooks.json", "block"), ("brain-sds/tools/docs_server.py", "block"), ("brain-sds/.mcp.json", "block"),
                    ("brain-sds/skills/ceph-health/SKILL.md", "block"), ("connections/grafana/launch.py", "block"),
                    ("join.sh", "block"), (".claude-plugin/marketplace.json", "block"), (".git/config", "block"),
+                   ("templates/runbook.md", "block"),
                    ("knowledge/notes/ceph.md", "approve"), ("knowledge/captures/2026-11-10-x.md", "approve"),
                    ("knowledge/environment.md", "approve"), ("docs/redhat/rhcs-8.1/notes.md", "allow"),
                    ("/tmp/elsewhere/main.md", "allow")):

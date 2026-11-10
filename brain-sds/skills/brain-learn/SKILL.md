@@ -14,19 +14,12 @@ it and pushes it to the team, and the search index follows by itself.
 1. Worth it? Only if a teammate in three months saves real time. Not generic vendor facts the library already has.
 2. `grep -ri <keyword> ~/.claude/sds-brain/knowledge/{notes,captures,runbooks}` first: update an existing line instead of
    adding one.
-3. Destination: confident and the topic is clear -> a dated line in `knowledge/notes/<topic>.md`
-   (`- <date> · <fact> · <verified|observed|documented|user-reported|hypothesis> · <source>`; a new topic file starts with `# Topic: what is in it`).
-   Otherwise a capture `knowledge/captures/<date>-<slug>.md`:
-   ```
-   # <title>
-   ## Symptom        exact error text, so a search finds it
-   ## Cause
-   ## Fix / workaround   commands in a code block, placeholders instead of real names
-   ## Scope          cluster / grid, releases, hardware where it applies; where it is known not to
-   ## How we know    what was observed, when, confidence: verified | observed | documented | user-reported | hypothesis
-   ## History        <date>: created
-   ```
-   A fact that needs sections but is settled is a page `knowledge/notes/<topic>-<slug>.md` (line 1 `# <title>`).
+3. Destination, each from its template in `~/.claude/sds-brain/templates/` (read it, fill it, never change it):
+   confident and the topic is clear -> a dated line in `knowledge/notes/<topic>.md`
+   (`- <date> · <fact> · <verified|observed|documented|user-reported|hypothesis> · <source>`; a new topic file starts
+   from `topic.md`). Otherwise a capture `knowledge/captures/<date>-<slug>.md` from `capture.md`. A settled finding
+   that needs sections: a page `knowledge/notes/<topic>-<slug>.md` from `page.md`. An exporter metric the team has
+   understood: a block from `metric.md` in `notes/observability.md`.
 4. Tell the user the file and a two-line summary.
 
 ## b) Curate ("curate the captures")
@@ -41,27 +34,14 @@ A change procedure the **user ran and that worked** (add an RGW zone, replace an
 certificate) becomes `knowledge/runbooks/<topic>-<task>.md`. Not run yet, or fixed on the way and not re-checked: a
 capture instead. Search first (`ls knowledge/runbooks`): an existing runbook is updated, never duplicated. Every
 command is for the user to run; placeholders (`<fsid>`, `<osd-id>`, `<tenant-id>`) plus the read-only command that
-shows each value. Sections (`check.py` requires the four marked *):
-```
-# <Verb phrase: Replace a failed OSD drive on an Apollo 4200>
-When to use: ...   Impact while running: ...   Prerequisites: ...
-## Pre-checks *      read-only commands and what each must show before going on
-## Procedure *       numbered steps, one command block each, with why
-## Verification *    commands that prove it worked
-## Rollback *        how to undo each step, or "not reversible after step N"
-## Scope             clusters / grids, releases, hardware it was run on
-## History           <date>: created, run on <cluster, release> by <who> · verified
-```
+shows each value. Start from `templates/runbook.md`: Pre-checks, Procedure, Verification and Rollback are required
+(`check.py` fails a runbook without them), then Scope and History.
 Show it to the user and wait for the go-ahead before saving. When asked for change steps later, a matching runbook
 is the answer: follow it, say which one, add a History line when the user reports it worked again.
 
 ## d) Incident report
-Blameless postmortem in `knowledge/incidents/<yyyy>/<date>-<slug>.md`. Search the library and `knowledge/` for
-related history first. Sections, in order: **Header** (title, date, severity sev1-sev4, status, clusters / grids
-affected, started / detected / mitigated / resolved with time zone), **Impact**, **Timeline** (one line per event),
-**Root cause** (with a confidence word, and the alternative explanations it was weighed against), **Contributing
-factors**, **What fixed it** (only the changes actually made, and how they were verified), **What was tried and did
-not work**, **Evidence** (redacted request IDs, log lines, health checks, alerts, document references; suggested
-commands marked apart from executed ones), **Learning** (what becomes a note, a runbook or a skill change),
-**Action items** (owner, due). Times in UTC. A correlated timing is a lead, not the root cause.
+Blameless postmortem in `knowledge/incidents/<yyyy>/<date>-<slug>.md`, from `templates/incident.md` (header,
+impact, UTC timeline, root cause with its confidence and the alternatives weighed, contributing factors, what fixed
+it, what did not, evidence, learning, action items). Search the library and `knowledge/` for related history first.
+Mark suggested commands apart from executed ones; a correlated timing is a lead, not the root cause.
 Then one dated line in `notes/<topic>.md` pointing to the report.

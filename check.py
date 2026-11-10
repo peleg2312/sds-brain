@@ -123,7 +123,13 @@ notes = os.path.join(b.KNOWLEDGE, "notes.md")
 if os.path.isfile(notes):
     n = len(open(notes, encoding="utf-8").read().splitlines())
     ok("knowledge/notes.md under 60 lines", n <= 60, f"{n} lines: move facts into knowledge/notes/<topic>.md")
-for f in tracked("knowledge/runbooks/*.md"):
+learn = open(os.path.join(PLUG, "skills", "brain-learn", "SKILL.md"), encoding="utf-8").read()
+for name in sorted(set(re.findall(r"`(?:templates/)?([a-z]+\.md)` *(?:\)|from|:|\.|,| )", learn)) & {"topic.md", "capture.md", "page.md", "runbook.md", "incident.md", "metric.md"}):
+    ok("templates/" + name, os.path.isfile(os.path.join(ROOT, "templates", name)), "the brain-learn skill names it, the file is missing")
+for f in tracked("templates/*.md"):
+    found = b.findings(f)
+    ok("no secret in " + rel(f), not found, "; ".join(x.split(": ", 1)[-1] for x in found[:5]))
+for f in tracked("knowledge/runbooks/*.md", "templates/runbook.md"):
     heads = {m.group(1).strip().lower() for m in re.finditer(r"^##\s+(.+?)\s*$", open(f, encoding="utf-8", errors="replace").read(), re.M)}
     missing = [h for h in RUNBOOK_SECTIONS if not any(x.startswith(h.lower()) for x in heads)]
     ok("runbook " + rel(f), not missing, "missing section(s): " + ", ".join("## " + h for h in missing))
