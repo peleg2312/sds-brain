@@ -18,7 +18,8 @@ import yaml
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sds_mcp", "ceph_api.json")
 DENY = re.compile(r"^/api/(auth|user|settings|feedback|multi-cluster|cluster/user|telemetry|motd|login|logout|"
-                  r"iscsi/discoveryauth|smb/joinauth|smb/usersgroups|rgw/user/get_emails|"
+                  r"iscsi/discoveryauth|smb/joinauth|smb/usersgroups|rgw/user/get_emails|rgw/realm/get_realm_tokens|"
+                  r"rgw/bucket/getEncryptionConfig|mgr/module|"
                   r"rgw/user/[^/]+/(keys|subuser)|rgw/accounts/[^/]+/keys)", re.I)        # credentials, other systems' tokens, people
 
 

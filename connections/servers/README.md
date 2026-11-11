@@ -49,23 +49,25 @@ network with your PyPI mirror (`--pip-index-url`) or a wheelhouse made on a conn
 source and is built offline from it).
 
 ## Tools
-- **storagegrid**: `sg_grids`, `sg_version`, `sg_health`, `sg_alerts` (current alerts, most severe first),
-  `sg_alert_history` (resolved), `sg_node_health`, `sg_topology`, `sg_tenants` (logical usage against quota), `sg_ilm`,
-  `sg_metrics` (Prometheus query on the grid's own metrics, `*_over_time` for a period), `sg_get`.
-- **ceph**: `ceph_clusters`, `ceph_status` (release, health checks), `ceph_alerts` (active Prometheus alerts through
-  the dashboard's Alertmanager), `ceph_metrics` (Prometheus query, now or over the last N minutes, through the
-  dashboard), `ceph_perf_counters`, `ceph_capacity`, `ceph_osds`, `ceph_osd`,
-  `ceph_pools`, `ceph_hosts`, `ceph_services`, `ceph_daemons`, `ceph_logs`, `ceph_rgw_daemons`,
-  `ceph_rgw_sync_status`, `ceph_rgw_buckets`, `ceph_rgw_user` (no keys), `ceph_config`, `ceph_api_get`.
-- **oneview**: `ov_appliances`, `ov_version`, `ov_alerts` (with corrective actions), `ov_utilization` (CPU, power,
-  temperature samples per server or enclosure, as OneView collects them from the iLO), `ov_server_hardware`,
-  `ov_server`, `ov_enclosures`, `ov_interconnects`, `ov_server_profiles`, `ov_tasks`.
-- **ilo**: `ilo_servers`, `ilo_summary` (aggregate health), `ilo_logs` (IML / IEL: the iLO's events, its alerts),
-  `ilo_storage`, `ilo_thermal` and `ilo_power` (current readings), `ilo_firmware`, `ilo_get`.
+Every tool is read-only, has a title, a description of when to use it and what it returns, and a description for
+every parameter (the tests check this). Each server starts with an overview tool that answers the first question in
+one call; the others narrow it down.
 
-Metrics and alerts at a glance: StorageGRID `sg_metrics` + `sg_alerts`; Ceph `ceph_metrics` + `ceph_alerts` (and the
-health checks in `ceph_status`); OneView `ov_utilization` + `ov_alerts`; iLO readings (`ilo_thermal`, `ilo_power`)
-and events (`ilo_logs`). History beyond what each system keeps is Grafana's job (the grafana server).
+| Server | Overview (triage) | Alerts and events | Metrics | Inventory and detail |
+|---|---|---|---|---|
+| storagegrid | `sg_overview` | `sg_alerts`, `sg_alert_history`, `sg_health` | `sg_metrics` (Prometheus, `*_over_time` for a period) | `sg_version`, `sg_node_health`, `sg_topology`, `sg_tenants`, `sg_tenant_buckets`, `sg_ilm`, `sg_get` |
+| ceph | `ceph_overview` | `ceph_alerts`, `ceph_status` (health checks), `ceph_logs` (cluster / audit log) | `ceph_metrics` (Prometheus, now or over N minutes), `ceph_perf_counters` | `ceph_osds`, `ceph_osd`, `ceph_smart`, `ceph_devices`, `ceph_pools`, `ceph_capacity`, `ceph_hosts`, `ceph_services`, `ceph_daemons`, `ceph_rgw_daemons`, `ceph_rgw_sync_status`, `ceph_rgw_buckets`, `ceph_rgw_bucket`, `ceph_rgw_user`, `ceph_config`, `ceph_api_get` |
+| oneview | `ov_overview` | `ov_alerts`, `ov_tasks` (what was done) | `ov_utilization` (CPU, power, temperature over time), `ov_environment` | `ov_version`, `ov_server_hardware`, `ov_server`, `ov_server_firmware`, `ov_enclosures`, `ov_interconnects`, `ov_server_profiles` |
+| ilo | `ilo_fleet_health` (many servers, 8 at a time) | `ilo_logs` (IML / IEL) | `ilo_thermal`, `ilo_power` (readings now) | `ilo_summary`, `ilo_storage`, `ilo_hardware`, `ilo_firmware`, `ilo_get` |
+
+History beyond what each system keeps is Grafana's job (the grafana server).
+
+## Agents and skills that use them
+- Agents (own context, return a short evidenced finding): `ceph-analyst`, `storagegrid-analyst`, `hardware-analyst`
+  (OneView, iLO, and Ceph's device and SMART data).
+- Skills: `morning-check` (every system, one table, red / amber first), `what-changed` (one timeline of Ceph's audit
+  log, OneView tasks, StorageGRID alert history and iLO events for a window), and the investigation skills
+  (ceph-health, sg-ilm-backlog, hardware-triage...) name the tools for each step.
 
 ## Tests
 `python3 connections/servers/test_servers.py` (needs `requirements.txt`): stand-ins of the four APIs over TLS with a

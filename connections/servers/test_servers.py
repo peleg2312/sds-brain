@@ -97,6 +97,8 @@ def sg(method, path, query, h, body):
             "/api/v4/grid/ha-groups": [{"name": "s3-vip", "virtualIps": ["10.0.0.5"]}],
             "/api/v4/grid/alerts": [{"name": "Low object data storage", "severity": "minor", "node": "dc1-sn1"},
                                     {"name": "Node not connected", "severity": "critical", "node": "dc1-sn2"}],
+            "/api/v4/grid/accounts/1/usage": {"dataBytes": 900, "objectCount": 3, "buckets": [
+                {"name": "small", "dataBytes": 100, "objectCount": 1}, {"name": "big", "dataBytes": 800, "objectCount": 2}]},
             "/api/v4/grid/alert-history": [{"name": "Services appliance link down", "severity": "major", "resolvedAt": "2026-11-09T12:00:00Z"}]}
     if path == "/metrics/api/v1/query":
         return 200, {"status": "success", "data": {"resultType": "vector", "result": [{"metric": {"__name__": "storagegrid_ilm_awaiting_client_objects", "node": "dc1-sn1"}, "value": [1, "42"]}]}}, None
@@ -123,7 +125,15 @@ def ceph(method, path, query, h, body):
                          {"osd": 1, "id": 1, "host": {"name": "osd-02"}, "up": 0, "in": 1, "tree": {"device_class": "hdd"}}],
             "/api/rgw/user/acme$app": {"user_id": "app", "tenant": "acme", "suspended": 0, "max_buckets": 1000,
                                         "keys": [{"user": "acme$app", "access_key": "AKIAEXAMPLE", "secret_key": "s3cr3tvalue"}]},
-            "/api/crush_rule": [{"rule_id": 0, "rule_name": "replicated_rule"}]}
+            "/api/crush_rule": [{"rule_id": 0, "rule_name": "replicated_rule"}],
+            "/api/daemon": [{"daemon_name": "osd.1", "hostname": "osd-02", "status": -1, "status_desc": "error"},
+                            {"daemon_name": "mon.a", "hostname": "mon-1", "status": 1, "status_desc": "running"}],
+            "/api/osd/flags": ["noout"], "/api/pool": [{"pool_name": "default.rgw.buckets.data", "stats": {"percent_used": {"latest": 0.86}}},
+                                                       {"pool_name": "rbd", "stats": {"percent_used": {"latest": 0.1}}}],
+            "/api/health/get_cluster_capacity": {"total_bytes": 1000, "total_used_raw_bytes": 700},
+            "/api/prometheus": [{"labels": {"alertname": "CephOSDDown", "severity": "critical"}, "annotations": {"summary": "1 OSD down"}}],
+            "/api/logs/all": {"clog": [{"priority": "[INF]", "message": "ok"}, {"priority": "[WRN]", "message": "Health check failed: 1 osds down (OSD_DOWN)"}], "audit_log": []},
+            "/api/osd/1/smart": {"/dev/sdc": {"smart_status": {"passed": False}, "ata_smart_attributes": {"table": [{"name": "Reallocated_Sector_Ct", "raw": {"value": 112}}]}}}}
     return (200, data[path], None) if path in data else (404, {"detail": "no"}, None)
 
 
@@ -152,6 +162,10 @@ def oneview(method, path, query, h, body):
         assert "refresh=true" not in query.lower(), query                  # never asks the iLO for fresh data
         return 200, {"isFresh": True, "resolution": 300, "metricList": [{"metricName": "CpuUtilization", "metricCapacity": 100,
                                                                           "metricSamples": [[1793520000000, 12], [1793519700000, 15]]}]}, None
+    if path in ("/rest/enclosures", "/rest/interconnects", "/rest/server-profiles"):
+        return page([])
+    if path == "/rest/server-hardware/31393737/firmware":
+        return 200, {"components": [{"componentName": "System ROM", "componentVersion": "U40 v2.80"}, {"componentName": "iLO 5", "componentVersion": "3.10"}]}, None
     if path == "/rest/tasks":
         return page([{"name": "Update firmware", "taskState": "Completed", "owner": "admin", "associatedResource": {"resourceName": "osd-01"}}])
     return 404, {"message": "no"}, None
@@ -182,6 +196,11 @@ def ilo(method, path, query, h, body):
                 {"@odata.id": "/redfish/v1/Systems/1/LogServices/IML/Entries/1/", "Created": "2026-11-09T08:00:00Z", "Severity": "OK", "Message": "Server power restored"},
                 {"@odata.id": "/redfish/v1/Systems/1/LogServices/IML/Entries/2/", "Created": "2026-11-10T09:59:00Z", "Severity": "Critical",
                  "Message": "Drive Array Physical Drive Status Change. Port 1I Box 1 Bay 3 failed", "Oem": {"Hpe": {"Class": 13, "Code": 33}}}]},
+            "/redfish/v1/Systems/1/Memory": {"Members": [{"@odata.id": "/redfish/v1/Systems/1/Memory/proc1dimm1/", "Id": "proc1dimm1", "CapacityMiB": 32768, "Status": {"Health": "OK"}},
+                                                     {"@odata.id": "/redfish/v1/Systems/1/Memory/proc1dimm2/", "Id": "proc1dimm2", "CapacityMiB": 32768, "Status": {"Health": "Critical"}}]},
+            "/redfish/v1/Systems/1/Processors": {"Members": [{"@odata.id": "/redfish/v1/Systems/1/Processors/1/", "Id": "1", "Model": "AMD EPYC", "Status": {"Health": "OK"}}]},
+            "/redfish/v1/Chassis/1/NetworkAdapters": {"Members": [{"@odata.id": "/redfish/v1/Chassis/1/NetworkAdapters/DC080000/", "Id": "DC080000", "Model": "MCX", "Status": {"Health": "OK"},
+                                                                   "Controllers": [{"FirmwarePackageVersion": "16.35"}]}]},
             "/redfish/v1/Chassis/1/Thermal": {"Fans": [{"Name": "Fan 1", "Reading": 30, "Status": {"Health": "OK"}}],
                                               "Temperatures": [{"Name": "01-Inlet Ambient", "ReadingCelsius": 24, "Status": {"Health": "OK"}}]}}
     return (200, data[p], None) if p in data else (404, {"error": "no"}, None)
@@ -229,6 +248,9 @@ def mcp(name, calls):
     tools = [t["name"] for t in out[1]["result"]["tools"]]
     for t in out[1]["result"]["tools"]:
         assert t.get("annotations", {}).get("readOnlyHint") is True and t["annotations"].get("destructiveHint") is False, (name, t["name"])
+        assert t.get("title") and len(t.get("description") or "") >= 40, (name, t["name"], "needs a title and a real description")
+        for pname, prop in (t.get("inputSchema", {}).get("properties") or {}).items():
+            assert prop.get("description"), (name, t["name"], pname, "every parameter needs a description")
     res = []
     for i in range(len(calls)):
         r = out[10 + i].get("result") or {}
@@ -244,6 +266,7 @@ try:
                                    ("sg_metrics", {"grid_name": "grid-a", "query": "storagegrid_ilm_awaiting_client_objects"}),
                                    ("sg_get", {"grid_name": "grid-a", "resource": "grid/ha-groups"}),
                                    ("sg_alerts", {"grid_name": "grid-a"}), ("sg_alert_history", {"grid_name": "grid-a"}),
+                                   ("sg_overview", {"grid_name": "grid-a"}), ("sg_tenant_buckets", {"grid_name": "grid-a", "tenant_id": "1"}),
                                    ("sg_get", {"grid_name": "grid-a", "resource": "grid/users/root/change-password"}),
                                    ("sg_version", {"grid_name": "nope"})])
     assert {"sg_grids", "sg_version", "sg_health", "sg_alerts", "sg_alert_history", "sg_node_health", "sg_topology", "sg_tenants", "sg_ilm",
@@ -256,7 +279,11 @@ try:
     assert r[6]["items"][0]["name"] == "s3-vip"
     assert r[7]["alerts"][0]["severity"] == "critical" and r[7]["count"] == 2, r[7]                      # most severe first
     assert r[8]["alerts"][0]["name"] == "Services appliance link down", r[8]
-    assert "not one of the reads" in r[9]["error"] and "unknown storagegrid 'nope'" in r[10]["error"], (r[9], r[10])
+    ov = r[9]
+    assert ov["alerts"]["top"][0]["severity"] == "critical" and [n["name"] for n in ov["problem_nodes"]] == ["dc1-sn2"], ov
+    assert ov["tenants_over_80_percent"] == [{"id": "1", "name": "aron", "used_percent": 90.0}] and ov["metrics"]["ilm_awaiting_client_objects"] == 42.0, ov
+    assert [b["name"] for b in r[10]["buckets"]] == ["big", "small"] and r[10]["usage"]["dataBytes"] == 900, r[10]
+    assert "not one of the reads" in r[11]["error"] and "unknown storagegrid 'nope'" in r[12]["error"], (r[11], r[12])
     assert SG.writes({("POST", "/api/v4/authorize")}) == [], SG.writes(set())
     print("storagegrid ok")
 
@@ -267,7 +294,8 @@ try:
                             ("ceph_api_get", {"cluster_name": "prod-a", "path": "/api/auth/check"}),
                             ("ceph_api_get", {"cluster_name": "prod-a", "path": "/api/osd/../auth"}),
                             ("ceph_status", {"cluster_name": "bad"}),
-                            ("ceph_metrics", {"cluster_name": "prod-a", "query": "ceph_health_status", "minutes": 60})])
+                            ("ceph_metrics", {"cluster_name": "prod-a", "query": "ceph_health_status", "minutes": 60}),
+                            ("ceph_overview", {"cluster_name": "prod-a"}), ("ceph_smart", {"cluster_name": "prod-a", "osd_id": 1})])
     assert r[0]["health"]["checks"][0]["type"] == "PG_DEGRADED" and "squid" in r[0]["version"], r[0]
     assert [o["id"] for o in r[1]["osds"]] == [1], r[1]
     assert "keys" not in r[2]["user"] and "s3cr3tvalue" not in json.dumps(r) and "AKIAEXAMPLE" not in json.dumps(r), r[2]
@@ -275,19 +303,27 @@ try:
     assert "not a dashboard read" in r[4]["error"] and "dot segments" in r[5]["error"], (r[4], r[5])
     assert "cannot be switched off" in r[6]["error"], r[6]
     assert r[7]["result"][0]["metric"]["__name__"] == "ceph_health_status" and r[7]["minutes"] == 60, r[7]
-    assert {"ceph_alerts", "ceph_metrics", "ceph_perf_counters"} <= set(tools), tools
+    assert {"ceph_alerts", "ceph_metrics", "ceph_perf_counters", "ceph_overview", "ceph_smart", "ceph_devices", "ceph_rgw_bucket"} <= set(tools), tools
+    ov = r[8]
+    assert ov["osds_down_or_out"]["osds"][0]["id"] == 1 and ov["daemons_not_running"]["daemons"][0]["daemon_name"] == "osd.1", ov
+    assert ov["osd_flags"] == ["noout"] and ov["pools_over_80_percent"] == [{"pool": "default.rgw.buckets.data", "percent_used": 0.86}], ov
+    assert ov["active_alerts"]["count"] == 1 and "OSD_DOWN" in ov["recent_log_warnings"][0]["message"] and len(ov["recent_log_warnings"]) == 1, ov
+    assert r[9]["smart"]["/dev/sdc"]["smart_status"]["passed"] is False, r[9]
     assert CEPH.writes({("POST", "/api/auth")}) == [], CEPH.writes(set())
     print("ceph ok")
 
     # ---- OneView, through HPE's SDK
     r, tools = mcp("oneview", [("ov_alerts", {"appliance": "ov-1"}), ("ov_server_hardware", {"appliance": "ov-1"}),
                                ("ov_server", {"appliance": "ov-1", "server_name": "osd-02"}), ("ov_tasks", {"appliance": "ov-1"}),
-                               ("ov_utilization", {"appliance": "ov-1", "name": "osd-02", "metrics": "CpuUtilization"})])
+                               ("ov_utilization", {"appliance": "ov-1", "name": "osd-02", "metrics": "CpuUtilization"}),
+                               ("ov_overview", {"appliance": "ov-1"}), ("ov_server_firmware", {"appliance": "ov-1", "server_name": "osd-02"})])
     assert r[0]["alerts"][0]["description"] == "Drive bay 3 failed" and r[0]["alerts"][0]["correctiveAction"] == "Replace the drive", r[0]
     assert r[1]["count"] == 2 and r[1]["servers"][0]["mpHostInfo.mpIpAddresses"] == [{"address": "10.1.1.1"}], r[1]
     assert r[2]["server"]["status"] == "Critical", r[2]
     assert r[3]["tasks"][0]["name"] == "Update firmware", r[3]
     assert r[4]["metrics"]["CpuUtilization"]["samples"][0] == [1793520000000, 12] and r[4]["resolution"] == 300, r[4]
+    assert r[5]["critical_alerts"][0]["description"] == "Drive bay 3 failed" and r[5]["enclosures_not_ok"] == [] and "servers_not_ok" in r[5], r[5]
+    assert r[6]["firmware"]["components"][0]["componentName"] == "System ROM", r[6]
     assert OV.writes({("POST", "/rest/login-sessions")}) == [], OV.writes(set())
     # the guard: a write through the SDK's own connection is refused before it is sent
     sys.path.insert(0, HERE)
@@ -310,14 +346,19 @@ try:
     # ---- iLO, through HPE's python-ilorest-library
     r, tools = mcp("ilo", [("ilo_summary", {"server_name": "osd-01"}), ("ilo_logs", {"server_name": "osd-01", "only_problems": True}),
                            ("ilo_thermal", {"server_name": "osd-pinned"}), ("ilo_summary", {"server_name": "osd-unverified"}),
-                           ("ilo_get", {"server_name": "osd-01", "path": "/redfish/v1/AccountService/Accounts"})])
+                           ("ilo_get", {"server_name": "osd-01", "path": "/redfish/v1/AccountService/Accounts"}),
+                           ("ilo_fleet_health", {}), ("ilo_hardware", {"server_name": "osd-01", "only_problems": True})])
     assert r[0]["system"]["Model"] == "ProLiant XL420 Gen10 Plus" and r[0]["ilo"]["Model"] == "iLO 5", r[0]
     assert len(r[1]["entries"]) == 1 and "Bay 3 failed" in r[1]["entries"][0]["Message"], r[1]
     assert r[2]["fans"][0]["Name"] == "Fan 1", r[2]                                      # certificate pinned by fingerprint
     assert "give ca_file or fingerprint" in r[3]["error"], r[3]
     assert "not accounts" in r[4]["error"], r[4]
+    fleet = r[5]
+    assert fleet["checked"] == 3 and {p["server"] for p in fleet["problems"]} == {"osd-01", "osd-pinned", "osd-unverified"}, fleet
+    assert next(p for p in fleet["problems"] if p["server"] == "osd-01")["subsystems_not_ok"] == {"Storage": "Critical"}, fleet
+    assert [m["Id"] for m in r[6]["memory"]] == ["proc1dimm2"] and r[6]["processors"] == [] and r[6]["network_adapters"] == [], r[6]
     sessions = [c for c in ILO.calls if c[0] == "POST"]
-    assert len(sessions) == 3 and len([c for c in ILO.calls if c[0] == "DELETE"]) == 3, ILO.calls      # every sign-in signed out
+    assert len(sessions) == len([c for c in ILO.calls if c[0] == "DELETE"]) == 6, ILO.calls      # every sign-in signed out
     assert ILO.writes({("POST", "/redfish/v1/SessionService/Sessions/"), ("DELETE", "/redfish/v1/SessionService/Sessions/s1/")}) == [], ILO.writes(set())
     cl = ilo.connect("osd-01")
     cl.login(auth="session")
@@ -361,7 +402,7 @@ try:
         code, got = post({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "t", "version": "1"}}})
         assert code == 200 and got["result"]["serverInfo"]["name"] == "ceph", (code, got)
         code, got = post({"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "ceph_capacity", "arguments": {"cluster_name": "prod-a"}}})
-        assert code == 200 and "error" in json.dumps(got), got                                 # the stand-in has no capacity: an error, not a crash
+        assert code == 200 and "total_used_raw_bytes" in got["result"]["content"][0]["text"] and not got["result"].get("isError"), got
     finally:
         srv.kill()
     r = subprocess.run([sys.executable, "-m", "sds_mcp", "ceph", "--http", "127.0.0.1:1"], cwd=HERE, env=ENV, capture_output=True, text=True, timeout=30)

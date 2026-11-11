@@ -197,9 +197,30 @@ def tool(fn):
     return wrapper
 
 
-def read_only():
+def read_only(title=None):
+    """the annotations every tool here carries: reads only, safe to repeat, talks to a system outside"""
     from mcp_types import ToolAnnotations
-    return ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=True)
+    return ToolAnnotations(title=title, readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=True)
+
+
+def arg(description, **kw):
+    """a parameter's description in the tool's input schema: Annotated[str, arg("...")]"""
+    from pydantic import Field
+    return Field(description=description, **kw)
+
+
+def gather(parts):
+    """run several reads for one overview; each part's failure is reported in place instead of failing the whole answer.
+    parts: {name: callable}"""
+    out = {}
+    for name, fn in parts.items():
+        try:
+            out[name] = fn()
+        except ToolFailure as e:
+            out[name] = {"error": str(e)}
+        except Exception as e:
+            out[name] = {"error": f"{e.__class__.__name__}: {str(e)[:200]}"}
+    return out
 
 
 def limit_of(n, default=50, most=500):

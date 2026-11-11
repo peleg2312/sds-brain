@@ -18,7 +18,10 @@
   `ceph_daemons`, `ceph_logs`, `ceph_rgw_*`, `ceph_api_get`. **oneview** (read only): `ov_alerts`, `ov_utilization`,
   `ov_server_hardware`, `ov_server`, `ov_tasks` (what changed).
   **ilo** (read only): `ilo_summary`, `ilo_logs` (IML / IEL), `ilo_storage`, `ilo_thermal`, `ilo_power`, `ilo_firmware`.
-  Not set up: their `*_setup` tool says what is missing (`connections/servers/README.md`).
+  Not set up: their `*_setup` tool says what is missing (`connections/servers/README.md`). Start with each server's
+  overview: `sg_overview`, `ceph_overview`, `ov_overview`, `ilo_fleet_health`.
+- **Agents** for long investigations (own context, short evidenced answer): ceph-analyst, storagegrid-analyst,
+  hardware-analyst, docs-researcher. **Skills**: morning-check (every system, one table), what-changed (one timeline).
 - **Shell, run by the user** (Claude runs read commands itself only on a machine that has them, when asked for live
   state): `ceph` / `radosgw-admin` / `cephadm` reads on an admin host, `aws s3api` / `s3cmd` reads, Grid Manager and
   Tenant Manager screens, `ilorest` / `ipmitool` / `smartctl -a` reads, `journalctl`, `sar`, `ss`, `ausearch`.

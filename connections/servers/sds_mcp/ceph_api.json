@@ -437,27 +437,6 @@
     "tentacle"
    ]
   },
-  "/api/mgr/module": {
-   "version": "1.0",
-   "releases": [
-    "squid",
-    "tentacle"
-   ]
-  },
-  "/api/mgr/module/{module_name}": {
-   "version": "1.0",
-   "releases": [
-    "squid",
-    "tentacle"
-   ]
-  },
-  "/api/mgr/module/{module_name}/options": {
-   "version": "1.0",
-   "releases": [
-    "squid",
-    "tentacle"
-   ]
-  },
   "/api/monitor": {
    "version": "1.0",
    "releases": [
@@ -858,13 +837,6 @@
     "tentacle"
    ]
   },
-  "/api/rgw/bucket/getEncryptionConfig": {
-   "version": "1.0",
-   "releases": [
-    "squid",
-    "tentacle"
-   ]
-  },
   "/api/rgw/bucket/lifecycle": {
    "version": "1.0",
    "releases": [
@@ -939,13 +911,6 @@
    ]
   },
   "/api/rgw/realm/get_all_realms_info": {
-   "version": "1.0",
-   "releases": [
-    "squid",
-    "tentacle"
-   ]
-  },
-  "/api/rgw/realm/get_realm_tokens": {
    "version": "1.0",
    "releases": [
     "squid",

@@ -9,7 +9,7 @@ The same structure as the storage team's brains: one team repository holding the
 
 ```
 .claude-plugin/marketplace.json   what makes this repository installable in Claude Code
-brain-sds/                        the plugin: skills/ (22), agents/, hooks/, .mcp.json, team.json, tools/
+brain-sds/                        the plugin: skills/ (24), agents/ (4), hooks/, .mcp.json, team.json, tools/
 rules/                            main.md (golden rules), persona.md, storage.md (identity, versions, evidence, each
                                   domain), guard-allow.txt: the team's own, loaded every session
 knowledge/                        environment.md, notes.md, tool-map.md (loaded every session), notes/, runbooks/,
@@ -90,6 +90,9 @@ hand too.
 The 19 investigation procedures (Ceph health, slow ops, daemons, RGW, multisite, S3 403 / signature / latency /
 multipart, StorageGRID capacity / ILM / connectivity / quota, host pressure / network / SELinux, hardware, Grafana,
 Elasticsearch) are skills in `brain-sds/skills/`: Claude picks them by itself, or call `/brain-sds:<name>`.
+`/brain-sds:morning-check` checks every connected system in one table; `/brain-sds:what-changed` puts the changes and
+events of a time window on one timeline. Long investigations go to the analyst agents (ceph-analyst,
+storagegrid-analyst, hardware-analyst).
 
 ## Connections
 - **Grafana**: set `SDS_GRAFANA_URL` and `SDS_GRAFANA_TOKEN` (a Viewer service-account token) in your shell profile:
