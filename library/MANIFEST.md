@@ -1,6 +1,6 @@
 # SDS library index
 
-Built 2026-11-11 from docs/ (2652:10c1f4aa74108b93); 1885 documents, 8473 sections.
+Built 2026-11-11 from docs/ (2673:23b3a87945edd3eb); 1905 documents, 14946 sections.
 
 | Vendor / product | Documents |
 |---|---|
@@ -18,3 +18,4 @@ Built 2026-11-11 from docs/ (2652:10c1f4aa74108b93); 1885 documents, 8473 sectio
 | podman/podman | 2 |
 | prometheus/prometheus | 6 |
 | redhat/okp-mcp | 3 |
+| redhat/rhcs-9 | 20 |
