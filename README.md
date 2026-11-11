@@ -20,6 +20,10 @@ connections/                      Grafana (bundled, read-only), Objectify, Red H
                                   StorageGRID, Ceph, OneView and iLO servers; http/: the images; openshift/: the pods
 join.sh  vm-setup.py  check.py  test_brain.py
 ```
+`brain-sds/team.json` declares what the brain gives every member by default, as the storage team's team.json does: the
+MCP servers (docs-local, docs-http once set up, grafana, objectify, okp, storagegrid, ceph, oneview, ilo), the 24
+skills, the 4 agents (docs-researcher, ceph-analyst, storagegrid-analyst, hardware-analyst) and the rule files.
+`check.py` keeps it equal to what the plugin carries.
 
 ## Start (each person, once)
 Needs: Claude Code, `python3` 3.9 or newer, `git`. Linux, macOS or WSL.

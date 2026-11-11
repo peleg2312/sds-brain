@@ -66,6 +66,19 @@ ok("plugin.json has no version", "version" not in manifest, "leave it out: Claud
 team = b.team()
 ok("team.json", bool(re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,31}", str(team.get("name", ""))))
    and bool(re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,31}", str(team.get("library", "")))), "needs name and library (lower case)")
+# team.json declares the plugin's defaults, as the storage team's team.json does: they must be what the plugin carries
+on_disk = {"skills": sorted(d for d in os.listdir(os.path.join(PLUG, "skills")) if os.path.isfile(os.path.join(PLUG, "skills", d, "SKILL.md"))),
+           "agents": sorted(f[:-3] for f in os.listdir(os.path.join(PLUG, "agents")) if f.endswith(".md"))}
+for key, have in on_disk.items():
+    listed = sorted(team.get(key) or [])
+    ok(f"team.json {key}", listed == have, f"listed but missing: {sorted(set(listed) - set(have))}; present but not listed: {sorted(set(have) - set(listed))}")
+plugin_servers = set(json.load(open(os.path.join(PLUG, ".mcp.json")))["mcpServers"])
+listed = set(team.get("mcp") or [])
+ok("team.json mcp", plugin_servers <= listed and listed - plugin_servers <= {"docs-http"},
+   f"in .mcp.json but not listed: {sorted(plugin_servers - listed)}; listed but not in .mcp.json: {sorted(listed - plugin_servers - {'docs-http'})}")
+for key in ("persona", "rules", "storage_rules", "environment"):
+    if team.get(key):
+        ok(f"team.json {key}", os.path.isfile(os.path.join(ROOT, team[key])), f"{team[key]} is missing")
 
 skills = tracked("brain-sds/skills/*/SKILL.md")
 ok("skills present", len(skills) > 0)
