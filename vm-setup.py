@@ -66,6 +66,9 @@ def library(team):
     for rel in products:                       # the products this repository carries replace their copies; others stay
         shutil.rmtree(os.path.join(dst, rel), ignore_errors=True)
         shutil.copytree(os.path.join(src, rel), os.path.join(dst, rel))
+    built = os.path.join(HERE, "library", "docs.db")          # the index built ahead: paas-library then only checks it
+    if os.path.isfile(built):
+        shutil.copy(built, os.path.join(lib, "docs.db"))
     tool = os.path.join(ROOT, "bin", "paas-library")
     if os.path.isfile(tool):                   # the VM's own indexer: the index matches the service that reads it
         r = subprocess.run([sys.executable, tool, "build", name], env=dict(os.environ, PAAS_LIBRARIES=os.path.join(ROOT, "libraries")),

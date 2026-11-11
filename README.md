@@ -63,19 +63,15 @@ Two MCP servers and two hooks, as in the storage team's brains:
   (`PG_DEGRADED`), S3 error codes (`SignatureDoesNotMatch`) and error messages it shows. Both search the local index,
   else docs-http, and stay silent when nothing matches well.
 
-To connect the VM, once, as root on the VM, from a clone whose `origin` is the team's git url:
-
-```bash
-sudo python3 vm-setup.py                # then commit and push the two files it names
-```
-It copies `docs/` into the VM's libraries (`/opt/paas/libraries/sds`) and builds the index there, registers the team
-`sds` with the docs service (which then keeps the team's own small knowledge index, refreshed every 10 minutes and
-right after each push), and writes the service's address and token into `brain-sds/.mcp.json`:
+The library's index is built ahead and committed (`library/docs.db`, as the storage team's libraries are): no
+machine indexes the vendor documents at first use. To serve it from the storage team's VM, load it with the VM's own
+tool: `python3 brain-sds/tools/docs_server.py --bundle .` here, then `paas-library import sds sds-library-<date>.tar.gz`
+there, register the team and point the plugin at the service (`LIBRARY.md`, step by step). `sudo python3 vm-setup.py`
+on the VM does all of it in one command, if you prefer. The plugin's entry then looks like:
 ```json
 "docs-http": {"type": "http", "url": "https://<vm>:8443/mcp?team=sds", "headers": {"Authorization": "Bearer <the docs token>"}}
 ```
-That entry is not in the repository until `vm-setup.py` has run: the address and the token exist only on the VM. After the push every member has `docs-http` at their next session. The other teams
-on the VM are not touched. Until then, and on a network without that VM, the brain works with `docs-local` alone.
+Until then, and on a network without that VM, the brain works with `docs-local` alone.
 
 ## How the team shares knowledge
 Nothing to do by hand. When Claude saves a file under `knowledge/`, a hook checks it for keys and passwords, commits

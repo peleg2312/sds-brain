@@ -86,7 +86,12 @@ def stage_gateway(d):
 def stage_docs(d):
     plug = os.path.join(ROOT, "brain-sds")
     shutil.copytree(os.path.join(plug, "tools"), os.path.join(d, "tools"), ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    shutil.copytree(os.path.join(ROOT, "docs"), os.path.join(d, "docs"))
+    sys.path.insert(0, os.path.join(plug, "tools"))
+    import docs_server                                          # the committed index when it matches docs/, else built now
+    if not docs_server.prebuilt_fresh():
+        print("build: library/docs.db does not match docs/: indexing now (commit library/ afterwards)")
+        docs_server.build_library()
+    shutil.copy(docs_server.PREBUILT, os.path.join(d, "docs.db"))
     shutil.copy(os.path.join(plug, "team.json"), d)
     shutil.copy(os.path.join(HERE, "docs-serve.py"), d)
     return commit_of("docs", "brain-sds/tools", "connections/http/docs-serve.py"), ""

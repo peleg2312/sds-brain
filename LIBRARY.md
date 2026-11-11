@@ -1,15 +1,36 @@
 # The offline documentation library (docs/)
 
-`docs/<vendor>/<product>/` holds the documents; who indexes and serves them depends on where the team runs:
+`docs/<vendor>/<product>/` holds the documents, and `library/docs.db` their index, built ahead and committed like the
+storage team's libraries (`library/MANIFEST.md` says what is in it). Nobody indexes the library at first use:
 
-| | Index (the database) | Searched through |
+| Where | The index | Searched through |
 |---|---|---|
-| The team has the VM docs service (`vm-setup.py` was run) | One, on the VM: `/opt/paas/libraries/sds/docs.db`, built from this folder | `docs-http` from every machine; `docs-local` reads it directly on the VM itself |
-| No VM | One per machine: `.cache/docs.db` in the clone, built in a few seconds at the first session | `docs-local` |
+| A member's machine without a VM docs service | `library/docs.db`, copied to `.cache/docs.db` at the first session (instant) | `docs-local` |
+| The storage team's VM | `/opt/paas/libraries/sds/docs.db`, loaded with the VM's own `paas-library import` (below) | `docs-http` from every machine; `docs-local` on the VM itself |
+| OpenShift | inside the docs image (`connections/http/build.py docs` copies `library/docs.db`) | `docs-http` |
 
-The team's own knowledge (`knowledge/`) is a second, small index either way: `docs-local` builds it on each machine
-at every start (`.cache/knowledge.db`), and the VM's docs service keeps one for the team from the repository
-(every 10 minutes, and at once after a note is pushed). Neither database is ever committed.
+The team's own knowledge (`knowledge/`) is a second, small index that is never committed: `docs-local` builds it on
+each machine at every start (`.cache/knowledge.db`), and the VM's docs service keeps one for the team from the
+repository (every 10 minutes, and at once after a note is pushed).
+
+## Loading the library into the VM's docs service (the storage team's way, no script of ours)
+On a machine with a clone: `python3 brain-sds/tools/docs_server.py --bundle .` writes `sds-library-<date>.tar.gz` and
+its `.sha256` (about 8 MB). On the VM, as root:
+```bash
+paas-library import sds sds-library-<date>.tar.gz           # the VM's own tool: checks the .sha256, loads docs/ and docs.db
+install -d /opt/paas/teams/sds                              # the team, so the docs service also indexes its knowledge
+printf '{"name": "sds", "title": "SDS object storage", "library": "sds", "remote": "https://<gitlab>/<group>/sds-brain.git"}\n' \
+  > /opt/paas/teams/sds/team.json
+paas-user git-token <gitlab host>                           # once per git host, if not stored yet: the service pulls with it
+curl -s -X POST -H "Authorization: Bearer $(cat /etc/paas/docs-token)" "https://$(hostname -f):8443/refresh?team=sds"
+```
+Then, in a clone, point the plugin at the service and give members the VM's certificate (join.sh trusts it), commit, push:
+```bash
+cp /etc/paas/market/paas-ui.crt brain-sds/lib/paas-ui.crt   # from the VM (mkdir -p brain-sds/lib first)
+python3 connections/http/use.py docs-http "https://<vm>:8443/mcp?team=sds" --token-file /etc/paas/docs-token
+git add brain-sds/.mcp.json brain-sds/lib && git commit -m "SDS brain: docs-http on the VM" && git push
+```
+`vm-setup.py` does the same in one command, if you prefer it.
 
 | Vendor / product | Contents | Source |
 |---|---|---|
@@ -37,9 +58,10 @@ Each single page's original address and title are in its product's `manifest.jso
 
 ## Add your own documents
 Put PDF, HTML, Markdown, AsciiDoc or text files in `docs/<vendor>/<product>/` (for example `docs/redhat/rhcs-8.1/`),
-add a one-line `SOURCE.md` saying where they came from, commit and push. Then:
-- with the VM: `sudo python3 vm-setup.py` on the VM again (it copies the folder and rebuilds the VM's index);
-- without: nothing, everyone's next session indexes them.
+add a one-line `SOURCE.md` saying where they came from, rebuild the index (`python3 brain-sds/tools/docs_server.py
+--build-library`; `check.py` fails until you do), commit `docs/` and `library/`, and push. Then:
+- with the VM: a new bundle and `paas-library import sds` again (or `vm-setup.py`);
+- without: nothing, everyone's next session copies the new index.
 
 PDF files need the `pypdf` Python package on the machine that indexes; without it they are skipped and the rest is
 indexed. What a machine searches: `python3 brain-sds/tools/docs_server.py --index`.

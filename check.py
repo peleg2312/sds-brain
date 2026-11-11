@@ -186,6 +186,11 @@ for product in tracked("docs/*/*/"):
        or os.path.isfile(os.path.join(product, "SOURCE.md")),
        "say where these documents come from: a SOURCE.md (one line is enough), .source_url or manifest.json") if files else None
 
+if os.path.isfile(os.path.join(ROOT, "library", "docs.db")):
+    sys.path.insert(0, os.path.join(PLUG, "tools", "engine"))
+    import docs_server  # noqa: E402
+    ok("library/docs.db matches docs/", docs_server.prebuilt_fresh(),
+       "documents changed since the index was built: python3 brain-sds/tools/docs_server.py --build-library, then commit library/")
 manifest = os.path.join(ROOT, "connections", "grafana", "release-manifest.json")
 if os.path.isfile(manifest):
     for asset in json.load(open(manifest))["assets"]:

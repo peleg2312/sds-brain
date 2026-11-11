@@ -14,6 +14,9 @@ it was built from the same pages as this clone, so twenty people on the VM do no
 
     python3 brain-sds/tools/docs_server.py            what the plugin's .mcp.json runs
     python3 brain-sds/tools/docs_server.py --index    say which of the three applies, build the local index when it is the third
+    python3 brain-sds/tools/docs_server.py --build-library     index docs/ into library/docs.db, the copy committed with the
+                                                               repository (after documents were added; check.py says when)
+    python3 brain-sds/tools/docs_server.py --bundle <dir>      the library as one tarball for the VM's paas-library import
 
 To add your own documents (Red Hat manuals, internal guides): PDF / HTML / Markdown / text files under
 docs/<vendor>/<product>/, commit, and re-run vm-setup.py on the VM (LIBRARY.md). PDF needs the pypdf package; without
@@ -31,6 +34,8 @@ ROOT = b.ROOT
 DOCS = os.path.join(b.BASE, "docs")
 CACHE = b.CACHE
 DB = os.path.join(CACHE, "docs.db")
+LIBRARY = os.path.join(b.BASE, "library")             # the index built ahead and committed (python3 ... --build-library)
+PREBUILT = os.path.join(LIBRARY, "docs.db")
 
 # Words that mean the same thing in a search (a query word matches any member of its group)
 SYNONYMS = [
@@ -63,8 +68,81 @@ def fingerprint():
     return f"{n}:{h.hexdigest()[:16]}"
 
 
+def content_fingerprint():
+    """what is in docs/, by content (the same in every clone, whatever the files' times): names and their sha1"""
+    import hashlib
+    h, n = hashlib.sha1(), 0
+    for root, dirs, files in os.walk(DOCS):
+        dirs.sort()
+        for f in sorted(files):
+            p = os.path.join(root, f)
+            with open(p, "rb") as fh:
+                h.update(os.path.relpath(p, DOCS).replace(os.sep, "/").encode() + b"\0" + hashlib.sha1(fh.read()).digest())
+            n += 1
+    return f"{n}:{h.hexdigest()[:16]}"
+
+
+def prebuilt_fresh():
+    """the committed library/docs.db, when it was built from exactly this docs/ (its stamp holds the content fingerprint)"""
+    try:
+        with open(PREBUILT + ".stamp", encoding="utf-8") as f:
+            return os.path.isfile(PREBUILT) and f.read().split()[0] == content_fingerprint()
+    except (OSError, IndexError):
+        return False
+
+
+def build_library(log=print):
+    """index docs/ into library/docs.db (the copy committed with the repository) and write its stamp and MANIFEST.md"""
+    import shutil
+    import sqlite3
+    import docs_index
+    os.makedirs(LIBRARY, exist_ok=True)
+    state, tmp = content_fingerprint(), PREBUILT + ".new"
+    if os.path.exists(tmp):
+        os.remove(tmp)
+    docs_index.build(DOCS, tmp, log=lambda *a: None)
+    con = sqlite3.connect(tmp)
+    con.execute("VACUUM")
+    rows = con.execute("SELECT vendor, product, count(*) FROM docs WHERE dup_of IS NULL GROUP BY 1, 2 ORDER BY 1, 2").fetchall()
+    chunks = con.execute("SELECT count(*) FROM chunks").fetchone()[0]
+    con.close()
+    shutil.move(tmp, PREBUILT)
+    with open(PREBUILT + ".stamp", "w", encoding="utf-8") as f:
+        f.write(state + "\n")
+    import time
+    with open(os.path.join(LIBRARY, "MANIFEST.md"), "w", encoding="utf-8") as f:
+        f.write(f"# SDS library index\n\nBuilt {time.strftime('%Y-%m-%d')} from docs/ ({state}); {sum(r[2] for r in rows)} documents, "
+                f"{chunks} sections.\n\n| Vendor / product | Documents |\n|---|---|\n" + "".join(f"| {v}/{p} | {n} |\n" for v, p, n in rows))
+    log(f"library/docs.db: {sum(r[2] for r in rows)} documents in {len(rows)} products, {os.path.getsize(PREBUILT) / 1e6:.1f} MB ({state})")
+
+
+def bundle(dest):
+    """the library as one tarball for the storage team's VM: `paas-library import sds <file>` loads it (docs/, docs.db,
+    MANIFEST.md, and a .sha256 beside it)"""
+    import hashlib
+    import tarfile
+    import time
+    if not prebuilt_fresh():
+        build_library()
+    os.makedirs(dest, exist_ok=True)
+    out = os.path.join(dest, f"sds-library-{time.strftime('%Y.%m.%d')}.tar.gz")
+    with tarfile.open(out, "w:gz") as t:
+        t.add(DOCS, arcname="docs")
+        t.add(PREBUILT, arcname="docs.db")
+        t.add(os.path.join(LIBRARY, "MANIFEST.md"), arcname="MANIFEST.md")
+    h = hashlib.sha256()
+    with open(out, "rb") as f:
+        for block in iter(lambda: f.read(1 << 20), b""):
+            h.update(block)
+    with open(out + ".sha256", "w") as f:
+        f.write(f"{h.hexdigest()}  {os.path.basename(out)}\n")
+    print(f"{out} ({os.path.getsize(out) / 1e6:.0f} MB) and its .sha256: on the VM, as root: paas-library import sds {os.path.basename(out)}")
+    return out
+
+
 def ensure_index(log=lambda *_: None):
-    """build or refresh .cache/docs.db when docs/ changed since the last build (one session builds, the others wait)"""
+    """.cache/docs.db for this machine: the committed library/docs.db when it matches docs/ (a copy, instant), else built
+    here (a few seconds); refreshed when docs/ changes (one session builds, the others wait)"""
     os.makedirs(CACHE, exist_ok=True)
     stamp, state = DB + ".stamp", fingerprint()
 
@@ -84,8 +162,14 @@ def ensure_index(log=lambda *_: None):
             pass
         if fresh():
             return
-        import docs_index
-        docs_index.build(DOCS, DB, log=log)
+        if prebuilt_fresh():                                     # the committed index: copy it
+            import shutil
+            shutil.copyfile(PREBUILT, DB + ".new")
+            os.replace(DB + ".new", DB)
+            log("docs index: library/docs.db (built ahead, matches docs/)")
+        else:
+            import docs_index
+            docs_index.build(DOCS, DB, log=log)
         with open(stamp, "w") as f:
             f.write(state + "\n")
     finally:
@@ -131,6 +215,13 @@ def main():
             return 1
         import stub_mcp
         return stub_mcp.serve("docs-local", "docs_setup", "The team knowledge is not connected: call this to see why.", b.SETUP)
+    if "--build-library" in sys.argv[1:]:
+        build_library()
+        return 0
+    if "--bundle" in sys.argv[1:]:
+        i = sys.argv.index("--bundle")
+        bundle(sys.argv[i + 1] if len(sys.argv) > i + 1 else os.getcwd())
+        return 0
     if "--index" in sys.argv[1:]:
         db, what = library(log=print)
         print("library: " + what)

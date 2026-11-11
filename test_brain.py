@@ -327,6 +327,13 @@ try:
     for i, (q, _, want) in enumerate(GOLDEN, 1):
         top = text(o[i])["results"][0]
         assert f"{top['vendor']}/{top['product']}".startswith(want), (q, top["vendor"], top["product"])
+    # the index built ahead: docs-local copied it instead of indexing; a changed docs/ without a rebuilt index fails check.py
+    assert open(os.path.join(bob, ".cache", "docs.db"), "rb").read() == open(os.path.join(bob, "library", "docs.db"), "rb").read()
+    with open(os.path.join(bob, "docs", "aws", "s3", "zz-new.md"), "w") as f:
+        f.write("# New page\n")
+    r = subprocess.run([sys.executable, "check.py"], cwd=bob, capture_output=True, text=True, env=ENV)
+    assert r.returncode == 1 and "library/docs.db matches docs/" in r.stdout and "--build-library" in r.stdout, r.stdout
+    os.remove(os.path.join(bob, "docs", "aws", "s3", "zz-new.md"))
     print(f"docs-local ok (no VM: the repository's docs/ and the team's knowledge; {len(GOLDEN)} library checks)")
 
     # ---- 4b. docs leads (each request) and docs hints (each result) on the local index

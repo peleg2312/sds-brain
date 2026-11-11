@@ -4,3 +4,5 @@ knowledge/*.md merge=union
 knowledge/**/*.md merge=union
 # the vendored Grafana archives are binary
 connections/grafana/vendor/* binary
+# the library's index, built ahead (python3 brain-sds/tools/docs_server.py --build-library)
+library/docs.db binary
