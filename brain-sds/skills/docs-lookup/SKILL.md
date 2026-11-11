@@ -22,6 +22,7 @@ to docs-local first. Chunk ids belong to the server that returned them. Without 
 | IBM Storage Ceph: architecture book, recovery / backfill, throttles, release-to-package matrix | `ibm` / `storage-ceph` |
 | AWS S3 reference: errors, SigV4, presigned URLs, multipart, versioning, lifecycle, Object Lock, 403 guide | `aws` / `s3` |
 | Grafana (Elasticsearch / Prometheus datasources, service accounts), Prometheus, Elasticsearch APIs | `grafana`, `prometheus`, `elastic` |
+| Red Hat Ceph Storage 9 (9.0 / 9.1 / 9.2): which guide or release notes answer a question, and its PDF link | `redhat` / `rhcs-9` (a catalog, not the manual text, until the PDFs are added) |
 | HPE iLOrest and Redfish | `hpe` / `ilo-redfish` |
 | The team's own knowledge | results marked `library: team knowledge`, or product `brain-notes` / `brain-runbooks` / ... |
 
