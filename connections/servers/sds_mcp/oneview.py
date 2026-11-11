@@ -3,6 +3,7 @@ signs in (POST /rest/login-sessions) and reads; its connection is wrapped so tha
 sign-out can be sent, whatever SDK method is called.
 
 The account: a OneView user with the Read only role (a directory group mapped to it works the same way)."""
+import re
 import threading
 
 from . import common as c
@@ -13,7 +14,7 @@ LOGIN = "/rest/login-sessions"
 
 server = MCPServer("oneview", instructions=(
     "Read-only HPE OneView. Start with ov_appliances; ov_alerts for active alerts (with corrective actions), "
-    "ov_server_hardware for servers (model, serial, power, health, firmware, the iLO address), ov_server for one server, "
+    "ov_utilization for a server's or enclosure's CPU, power and temperature over time, ov_server_hardware for servers (model, serial, power, health, firmware, the iLO address), ov_server for one server, "
     "ov_enclosures, ov_interconnects, ov_server_profiles, ov_tasks for what was done recently. Nothing here changes "
     "OneView or a server (no power, profile or firmware operation exists in this server)."))
 _clients, _lock = {}, threading.Lock()
@@ -189,3 +190,32 @@ def ov_tasks(appliance: str, limit: int = 30, only_errors: bool = False) -> dict
     return {"appliance": appliance, "count": len(rows), "tasks": c.project(items(rows), [
         "name", "taskState", "percentComplete", "owner", "created", "modified", "associatedResource.resourceName",
         "associatedResource.resourceCategory", "taskErrors"])}
+
+
+@server.tool(annotations=RO)
+@c.tool
+def ov_utilization(appliance: str, name: str, resource: str = "server", metrics: str = "CpuUtilization,AveragePower,AmbientTemperature",
+                   limit: int = 60) -> dict:
+    """A server's (or enclosure's) utilization metrics as OneView collects them from the iLO: CPU, power, temperature,
+    newest samples first. resource: server or enclosure; metrics: a comma-separated list
+    (server: CpuUtilization, CpuAverageFreq, AveragePower, PeakPower, PowerCap, AmbientTemperature;
+    enclosure: AveragePower, PeakPower, PowerCap, AmbientTemperature)."""
+    if resource not in ("server", "enclosure") or not re.fullmatch(r"[A-Za-z,]{1,200}", metrics or ""):
+        raise c.ToolFailure("resource: server or enclosure; metrics: names separated by commas")
+
+    def read(ov):
+        res = (ov.server_hardware if resource == "server" else ov.enclosures).get_by_name(name)
+        if res is None:
+            raise c.ToolFailure(f"no {resource} named '{name}' on {appliance}")
+        return res.get_utilization(fields=metrics, refresh=False)      # refresh=False: read what OneView has, ask nothing of the iLO
+    data = call(appliance, read) or {}
+    data = getattr(data, "data", data) if not isinstance(data, dict) else data
+    out = {"appliance": appliance, resource: name}
+    out.update({k: v for k, v in data.items() if k != "metricList" and not isinstance(v, (list, dict))})   # as OneView names them
+    if isinstance(data.get("metricList"), list):
+        out["metrics"] = {m.get("metricName"): {"capacity": m.get("metricCapacity"),
+                                                "samples": (m.get("metricSamples") or [])[:c.limit_of(limit, 60, 1000)]}
+                          for m in data["metricList"] if isinstance(m, dict)}
+    else:
+        out["data"] = data
+    return out

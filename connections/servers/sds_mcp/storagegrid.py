@@ -12,7 +12,7 @@ from mcp.server.mcpserver import MCPServer
 KIND = "storagegrid"
 # GET resources NetApp's code reads (netapp.storagegrid na_sg_grid_info, Harvest); sg_get accepts these only.
 GRID_GET = {
-    "grid/accounts", "grid/accounts-cache", "grid/admin-proxy", "grid/alarms", "grid/audit", "grid/audit-destinations",
+    "grid/accounts", "grid/accounts-cache", "grid/admin-proxy", "grid/alarms", "grid/alerts", "grid/alert-history", "grid/alert-rules", "grid/audit", "grid/audit-destinations",
     "grid/autosupport", "grid/compliance-global", "grid/config", "grid/config/management", "grid/config/product-version",
     "grid/deactivated-features", "grid/dns-servers", "grid/domain-names", "grid/ec-profiles", "grid/expansion",
     "grid/expansion/nodes", "grid/expansion/sites", "grid/firewall-blocked-ports", "grid/firewall-external-ports",
@@ -26,7 +26,7 @@ GRID_GET = {
 
 server = MCPServer("storagegrid", instructions=(
     "Read-only NetApp StorageGRID (Grid Management API). Start with sg_grids, then sg_health / sg_node_health for the "
-    "grid's state, sg_tenants for logical usage against quota (logical, not physical capacity), sg_ilm for policies and "
+    "grid's state, sg_alerts for the current alerts (sg_alert_history: resolved ones), sg_tenants for logical usage against quota (logical, not physical capacity), sg_ilm for policies and "
     "rules, sg_metrics for Prometheus metrics (ILM queue, capacity: see the library's 'commonly used Prometheus metrics' "
     "page for names). Nothing here changes the grid. Check the grid's version (sg_version) before applying documentation."))
 _sessions, _lock = {}, threading.Lock()
@@ -109,6 +109,28 @@ def sg_health(grid_name: str) -> dict:
 
 @server.tool(annotations=RO)
 @c.tool
+def sg_alerts(grid_name: str, limit: int = 50) -> dict:
+    """The grid's current alerts (the Grid Management API's alerts section: severity, rule, node, site, triggered time,
+    as the grid returns them), most severe first."""
+    rows = grid(grid_name).get("grid/alerts") or []
+    rank = {"critical": 0, "major": 1, "minor": 2}
+    if isinstance(rows, list):
+        rows.sort(key=lambda a: rank.get(str(a.get("severity", "")).lower(), 3) if isinstance(a, dict) else 3)
+    return {"grid": grid_name, "count": len(rows) if isinstance(rows, list) else None,
+            "alerts": rows[:c.limit_of(limit)] if isinstance(rows, list) else rows}
+
+
+@server.tool(annotations=RO)
+@c.tool
+def sg_alert_history(grid_name: str, limit: int = 50) -> dict:
+    """Resolved alerts (the alert-history section), as the grid returns them: what fired and cleared before now."""
+    rows = grid(grid_name).get("grid/alert-history") or []
+    return {"grid": grid_name, "count": len(rows) if isinstance(rows, list) else None,
+            "alerts": rows[:c.limit_of(limit)] if isinstance(rows, list) else rows}
+
+
+@server.tool(annotations=RO)
+@c.tool
 def sg_node_health(grid_name: str, only_problems: bool = True, limit: int = 100) -> dict:
     """Every node's health and connection state (by default only the nodes that are not connected and healthy)."""
     nodes = grid(grid_name).get("grid/node-health") or []
@@ -157,8 +179,10 @@ def sg_ilm(grid_name: str) -> dict:
 @server.tool(annotations=RO)
 @c.tool
 def sg_metrics(grid_name: str, query: str, limit: int = 100) -> dict:
-    """A Prometheus query (instant) on the grid's metrics, e.g.
-    storagegrid_ilm_awaiting_client_objects or storagegrid_storage_utilization_data_bytes. Returns up to `limit` series."""
+    """A Prometheus query on the grid's metrics (the grid's own Prometheus, as NetApp's Harvest reads it), e.g.
+    storagegrid_ilm_awaiting_client_objects or storagegrid_storage_utilization_data_bytes. Instant; for a period use a
+    subquery or *_over_time, e.g. max_over_time(storagegrid_ilm_awaiting_client_objects[6h]). Metric names: the library's
+    'commonly used Prometheus metrics' page, or sg_get grid/metric-names. Returns up to `limit` series."""
     if not query.strip() or len(query) > 1000:
         raise c.ToolFailure("query: a Prometheus expression, 1000 characters at most")
     body = grid(grid_name).get("/metrics/api/v1/query?query=" + quote(query, safe=""), raw=True)

@@ -8,6 +8,7 @@ import json
 import os
 import re
 import threading
+import time
 
 from . import common as c
 from mcp.server.mcpserver import MCPServer
@@ -18,7 +19,7 @@ _TEMPLATES = [(re.compile("^" + re.sub(r"\\\{[^}]+\\\}", "[^/]+", re.escape(p)) 
 
 server = MCPServer("ceph", instructions=(
     "Read-only Ceph through the dashboard REST API of the active manager. Start with ceph_clusters, then ceph_status "
-    "(release, health status and checks); ceph_osds, ceph_pools, ceph_capacity, ceph_hosts, ceph_services and the "
+    "(release, health status and checks); ceph_alerts (Prometheus alerts), ceph_metrics (Prometheus queries); ceph_osds, ceph_pools, ceph_capacity, ceph_hosts, ceph_services and the "
     "ceph_rgw_* tools narrow it down; ceph_logs gives the cluster log; ceph_api_get reaches any other dashboard read. "
     "RGW user keys are never returned. Nothing here changes the cluster. RHCS 8 is the Squid family."))
 _sessions, _lock = {}, threading.Lock()
@@ -249,3 +250,33 @@ def ceph_api_get(cluster_name: str, path: str = "", limit: int = 100) -> dict:
     if isinstance(data, list):
         return {"cluster": cluster_name, "path": path, "count": len(data), "items": data[:c.limit_of(limit, 100, 2000)]}
     return {"cluster": cluster_name, "path": path, "data": data}
+
+
+@server.tool(annotations=RO)
+@c.tool
+def ceph_metrics(cluster_name: str, query: str, minutes: int = 0, step_seconds: int = 60, limit: int = 50) -> dict:
+    """A Prometheus query through the dashboard (the cluster's own Prometheus, the one the dashboard's graphs use), e.g.
+    ceph_health_status, ceph_osd_apply_latency_ms, rate(ceph_rgw_req[5m]), ceph_pool_percent_used.
+    minutes=0: the value now; minutes=N: a series over the last N minutes, one point every step_seconds.
+    Needs the dashboard's Prometheus API host set (ceph dashboard set-prometheus-api-host)."""
+    if not query.strip() or len(query) > 1000:
+        raise c.ToolFailure("query: a Prometheus expression, 1000 characters at most")
+    minutes, step = max(0, min(int(minutes or 0), 7 * 24 * 60)), max(15, min(int(step_seconds or 60), 3600))
+    if minutes and minutes * 60 / step > 1000:
+        step = int(minutes * 60 / 1000) + 1                      # never more than 1000 points per series
+    end = int(time.time())
+    data = cluster(cluster_name).get("/api/prometheus/data", params={"params": query, "start": end - minutes * 60, "end": end, "step": step})
+    result = (data or {}).get("result", data) if isinstance(data, dict) else data
+    result = result if isinstance(result, list) else [result]
+    return {"cluster": cluster_name, "query": query, "minutes": minutes, "step_seconds": step, "series": len(result),
+            "result": result[:c.limit_of(limit, 50)]}
+
+
+@server.tool(annotations=RO)
+@c.tool
+def ceph_perf_counters(cluster_name: str, daemon_type: str, daemon_id: str) -> dict:
+    """One daemon's performance counters (osd, mon, mgr, rgw, mds), e.g. daemon_type=osd daemon_id=12."""
+    if daemon_type not in ("osd", "mon", "mgr", "rgw", "mds", "rbd-mirror", "tcmu-runner") or not re.fullmatch(r"[A-Za-z0-9_.-]{1,100}", daemon_id or ""):
+        raise c.ToolFailure("daemon_type: osd, mon, mgr, rgw, mds; daemon_id: e.g. 12 or the rgw / mds name")
+    return {"cluster": cluster_name, "daemon": f"{daemon_type}.{daemon_id}",
+            "counters": cluster(cluster_name).get(f"/api/perf_counters/{daemon_type}/{daemon_id}")}

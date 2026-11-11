@@ -49,15 +49,23 @@ network with your PyPI mirror (`--pip-index-url`) or a wheelhouse made on a conn
 source and is built offline from it).
 
 ## Tools
-- **storagegrid**: `sg_grids`, `sg_version`, `sg_health`, `sg_node_health`, `sg_topology`, `sg_tenants` (logical usage
-  against quota), `sg_ilm`, `sg_metrics` (Prometheus query), `sg_get`.
-- **ceph**: `ceph_clusters`, `ceph_status` (release, health checks), `ceph_capacity`, `ceph_osds`, `ceph_osd`,
-  `ceph_pools`, `ceph_hosts`, `ceph_services`, `ceph_daemons`, `ceph_logs`, `ceph_alerts`, `ceph_rgw_daemons`,
+- **storagegrid**: `sg_grids`, `sg_version`, `sg_health`, `sg_alerts` (current alerts, most severe first),
+  `sg_alert_history` (resolved), `sg_node_health`, `sg_topology`, `sg_tenants` (logical usage against quota), `sg_ilm`,
+  `sg_metrics` (Prometheus query on the grid's own metrics, `*_over_time` for a period), `sg_get`.
+- **ceph**: `ceph_clusters`, `ceph_status` (release, health checks), `ceph_alerts` (active Prometheus alerts through
+  the dashboard's Alertmanager), `ceph_metrics` (Prometheus query, now or over the last N minutes, through the
+  dashboard), `ceph_perf_counters`, `ceph_capacity`, `ceph_osds`, `ceph_osd`,
+  `ceph_pools`, `ceph_hosts`, `ceph_services`, `ceph_daemons`, `ceph_logs`, `ceph_rgw_daemons`,
   `ceph_rgw_sync_status`, `ceph_rgw_buckets`, `ceph_rgw_user` (no keys), `ceph_config`, `ceph_api_get`.
-- **oneview**: `ov_appliances`, `ov_version`, `ov_alerts`, `ov_server_hardware`, `ov_server`, `ov_enclosures`,
-  `ov_interconnects`, `ov_server_profiles`, `ov_tasks`.
-- **ilo**: `ilo_servers`, `ilo_summary`, `ilo_logs` (IML / IEL), `ilo_storage`, `ilo_thermal`, `ilo_power`,
-  `ilo_firmware`, `ilo_get`.
+- **oneview**: `ov_appliances`, `ov_version`, `ov_alerts` (with corrective actions), `ov_utilization` (CPU, power,
+  temperature samples per server or enclosure, as OneView collects them from the iLO), `ov_server_hardware`,
+  `ov_server`, `ov_enclosures`, `ov_interconnects`, `ov_server_profiles`, `ov_tasks`.
+- **ilo**: `ilo_servers`, `ilo_summary` (aggregate health), `ilo_logs` (IML / IEL: the iLO's events, its alerts),
+  `ilo_storage`, `ilo_thermal` and `ilo_power` (current readings), `ilo_firmware`, `ilo_get`.
+
+Metrics and alerts at a glance: StorageGRID `sg_metrics` + `sg_alerts`; Ceph `ceph_metrics` + `ceph_alerts` (and the
+health checks in `ceph_status`); OneView `ov_utilization` + `ov_alerts`; iLO readings (`ilo_thermal`, `ilo_power`)
+and events (`ilo_logs`). History beyond what each system keeps is Grafana's job (the grafana server).
 
 ## Tests
 `python3 connections/servers/test_servers.py` (needs `requirements.txt`): stand-ins of the four APIs over TLS with a

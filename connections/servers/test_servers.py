@@ -94,7 +94,10 @@ def sg(method, path, query, h, body):
                                              "policy": {"quotaObjectBytes": 1000}}, {"id": "2", "name": "bo", "dataBytes": 10, "policy": {"quotaObjectBytes": None}}],
             "/api/v4/grid/ilm-policies": [{"id": "p1", "name": "baseline", "active": True}],
             "/api/v4/grid/ilm-rules": [{"id": "r1", "displayName": "2 copies"}], "/api/v4/grid/ilm-pools": [],
-            "/api/v4/grid/ha-groups": [{"name": "s3-vip", "virtualIps": ["10.0.0.5"]}]}
+            "/api/v4/grid/ha-groups": [{"name": "s3-vip", "virtualIps": ["10.0.0.5"]}],
+            "/api/v4/grid/alerts": [{"name": "Low object data storage", "severity": "minor", "node": "dc1-sn1"},
+                                    {"name": "Node not connected", "severity": "critical", "node": "dc1-sn2"}],
+            "/api/v4/grid/alert-history": [{"name": "Services appliance link down", "severity": "major", "resolvedAt": "2026-11-09T12:00:00Z"}]}
     if path == "/metrics/api/v1/query":
         return 200, {"status": "success", "data": {"resultType": "vector", "result": [{"metric": {"__name__": "storagegrid_ilm_awaiting_client_objects", "node": "dc1-sn1"}, "value": [1, "42"]}]}}, None
     return (200, {"data": data[path]}, None) if path in data else (404, {"message": "no"}, None)
@@ -109,6 +112,10 @@ def ceph(method, path, query, h, body):
     want = {"/api/osd": "1.1", "/api/host": "1.3", "/api/crush_rule": "2.0"}.get(path, "1.0")      # as in Ceph's openapi.yaml
     if h.get("Accept") != f"application/vnd.ceph.api.v{want}+json":
         return 415, {"detail": f"needs v{want}, got {h.get('Accept')}"}, None
+    if path == "/api/prometheus/data":
+        q = dict(x.split("=", 1) for x in query.split("&") if "=" in x)
+        assert set(q) == {"params", "start", "end", "step"}, q
+        return 200, {"resultType": "matrix", "result": [{"metric": {"__name__": urllib.request.unquote(q["params"])}, "values": [[int(q["end"]), "1"]]}]}, None
     data = {"/api/summary": {"version": "ceph version 19.2.1-100.el9cp (abc) squid (stable)", "health_status": "HEALTH_WARN"},
             "/api/health/minimal": {"health": {"status": "HEALTH_WARN", "checks": [{"type": "PG_DEGRADED", "severity": "HEALTH_WARN", "summary": {"message": "Degraded data redundancy"}}]},
                                     "pg_info": {"object_stats": {"num_objects_degraded": 12}}},
@@ -141,6 +148,10 @@ def oneview(method, path, query, h, body):
         q = urllib.request.unquote(query)
         servers = [x for x in servers if not re.search(r"name='([^']+)'", q) or re.search(r"name='([^']+)'", q).group(1) == x["name"]]
         return page(servers)
+    if path == "/rest/server-hardware/31393737/utilization":
+        assert "refresh=true" not in query.lower(), query                  # never asks the iLO for fresh data
+        return 200, {"isFresh": True, "resolution": 300, "metricList": [{"metricName": "CpuUtilization", "metricCapacity": 100,
+                                                                          "metricSamples": [[1793520000000, 12], [1793519700000, 15]]}]}, None
     if path == "/rest/tasks":
         return page([{"name": "Update firmware", "taskState": "Completed", "owner": "admin", "associatedResource": {"resourceName": "osd-01"}}])
     return 404, {"message": "no"}, None
@@ -232,16 +243,20 @@ try:
                                    ("sg_node_health", {"grid_name": "grid-a"}), ("sg_tenants", {"grid_name": "grid-a"}),
                                    ("sg_metrics", {"grid_name": "grid-a", "query": "storagegrid_ilm_awaiting_client_objects"}),
                                    ("sg_get", {"grid_name": "grid-a", "resource": "grid/ha-groups"}),
+                                   ("sg_alerts", {"grid_name": "grid-a"}), ("sg_alert_history", {"grid_name": "grid-a"}),
                                    ("sg_get", {"grid_name": "grid-a", "resource": "grid/users/root/change-password"}),
                                    ("sg_version", {"grid_name": "nope"})])
-    assert {"sg_grids", "sg_version", "sg_health", "sg_node_health", "sg_topology", "sg_tenants", "sg_ilm", "sg_metrics", "sg_get"} <= set(tools), tools
+    assert {"sg_grids", "sg_version", "sg_health", "sg_alerts", "sg_alert_history", "sg_node_health", "sg_topology", "sg_tenants", "sg_ilm",
+            "sg_metrics", "sg_get"} <= set(tools), tools
     assert r[1]["product_version"] == {"productVersion": "11.9.0.3"} and r[1]["api_version"] == "4", r[1]
     assert r[2]["health"]["alerts"]["critical"] == 1
     assert [n["name"] for n in r[3]["nodes"]] == ["dc1-sn2"], r[3]                        # only the problem node
     assert r[4]["tenants"][0] == {"id": "1", "name": "aron", "capabilities": ["s3"], "data_bytes": 900, "object_count": 3, "quota_bytes": 1000, "used_percent": 90.0}, r[4]
     assert r[5]["result"][0]["value"][1] == "42", r[5]
     assert r[6]["items"][0]["name"] == "s3-vip"
-    assert "not one of the reads" in r[7]["error"] and "unknown storagegrid 'nope'" in r[8]["error"], (r[7], r[8])
+    assert r[7]["alerts"][0]["severity"] == "critical" and r[7]["count"] == 2, r[7]                      # most severe first
+    assert r[8]["alerts"][0]["name"] == "Services appliance link down", r[8]
+    assert "not one of the reads" in r[9]["error"] and "unknown storagegrid 'nope'" in r[10]["error"], (r[9], r[10])
     assert SG.writes({("POST", "/api/v4/authorize")}) == [], SG.writes(set())
     print("storagegrid ok")
 
@@ -251,23 +266,28 @@ try:
                             ("ceph_api_get", {"cluster_name": "prod-a", "path": "/api/crush_rule"}),
                             ("ceph_api_get", {"cluster_name": "prod-a", "path": "/api/auth/check"}),
                             ("ceph_api_get", {"cluster_name": "prod-a", "path": "/api/osd/../auth"}),
-                            ("ceph_status", {"cluster_name": "bad"})])
+                            ("ceph_status", {"cluster_name": "bad"}),
+                            ("ceph_metrics", {"cluster_name": "prod-a", "query": "ceph_health_status", "minutes": 60})])
     assert r[0]["health"]["checks"][0]["type"] == "PG_DEGRADED" and "squid" in r[0]["version"], r[0]
     assert [o["id"] for o in r[1]["osds"]] == [1], r[1]
     assert "keys" not in r[2]["user"] and "s3cr3tvalue" not in json.dumps(r) and "AKIAEXAMPLE" not in json.dumps(r), r[2]
     assert r[3]["items"][0]["rule_name"] == "replicated_rule", r[3]                    # v2.0 media type for crush_rule
     assert "not a dashboard read" in r[4]["error"] and "dot segments" in r[5]["error"], (r[4], r[5])
     assert "cannot be switched off" in r[6]["error"], r[6]
+    assert r[7]["result"][0]["metric"]["__name__"] == "ceph_health_status" and r[7]["minutes"] == 60, r[7]
+    assert {"ceph_alerts", "ceph_metrics", "ceph_perf_counters"} <= set(tools), tools
     assert CEPH.writes({("POST", "/api/auth")}) == [], CEPH.writes(set())
     print("ceph ok")
 
     # ---- OneView, through HPE's SDK
     r, tools = mcp("oneview", [("ov_alerts", {"appliance": "ov-1"}), ("ov_server_hardware", {"appliance": "ov-1"}),
-                               ("ov_server", {"appliance": "ov-1", "server_name": "osd-02"}), ("ov_tasks", {"appliance": "ov-1"})])
+                               ("ov_server", {"appliance": "ov-1", "server_name": "osd-02"}), ("ov_tasks", {"appliance": "ov-1"}),
+                               ("ov_utilization", {"appliance": "ov-1", "name": "osd-02", "metrics": "CpuUtilization"})])
     assert r[0]["alerts"][0]["description"] == "Drive bay 3 failed" and r[0]["alerts"][0]["correctiveAction"] == "Replace the drive", r[0]
     assert r[1]["count"] == 2 and r[1]["servers"][0]["mpHostInfo.mpIpAddresses"] == [{"address": "10.1.1.1"}], r[1]
     assert r[2]["server"]["status"] == "Critical", r[2]
     assert r[3]["tasks"][0]["name"] == "Update firmware", r[3]
+    assert r[4]["metrics"]["CpuUtilization"]["samples"][0] == [1793520000000, 12] and r[4]["resolution"] == 300, r[4]
     assert OV.writes({("POST", "/rest/login-sessions")}) == [], OV.writes(set())
     # the guard: a write through the SDK's own connection is refused before it is sent
     sys.path.insert(0, HERE)
