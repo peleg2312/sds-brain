@@ -1,0 +1,310 @@
+# The read-only StorageGRID, Ceph, HPE OneView and HPE iLO servers (connections/servers): one image, four pods.
+# See README.md beside this file and connections/servers/README.md.
+#
+# 1) The inventory and the CA files, in one ConfigMap mounted at /config (ca_file paths in targets.json are relative to it):
+#      oc create configmap sds-mcp-targets --from-file=targets.json --from-file=storagegrid.pem --from-file=ceph.pem \
+#         --from-file=oneview.pem --from-file=ilo.pem
+# 2) One secret per server: the MCP token Claude Code sends, and the read-only account(s) of the systems:
+#      T() { head -c 24 /dev/urandom | base64 | tr -d '/+='; }
+#      oc create secret generic sds-storagegrid --from-literal=MCP_SERVER_TOKEN=$(T) \
+#         --from-literal=SDS_STORAGEGRID_USERNAME=<read-only user> --from-literal=SDS_STORAGEGRID_PASSWORD=<password>
+#      oc create secret generic sds-ceph --from-literal=MCP_SERVER_TOKEN=$(T) \
+#         --from-literal=SDS_CEPH_USERNAME=<dashboard read-only user> --from-literal=SDS_CEPH_PASSWORD=<password>
+#      oc create secret generic sds-oneview --from-literal=MCP_SERVER_TOKEN=$(T) \
+#         --from-literal=SDS_ONEVIEW_USERNAME=<Read only user> --from-literal=SDS_ONEVIEW_PASSWORD=<password>
+#      oc create secret generic sds-ilo --from-literal=MCP_SERVER_TOKEN=$(T) \
+#         --from-literal=SDS_ILO_USERNAME=<iLO Read Only user> --from-literal=SDS_ILO_PASSWORD=<password>
+#    (per system instead of shared: SDS_<KIND>_<NAME>_USERNAME / _PASSWORD, e.g. SDS_CEPH_PROD_A_PASSWORD)
+# 3) oc apply -f sds-mcp-servers.yaml, then point the plugin at the Routes with connections/http/use.py.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sds-storagegrid
+  labels: {app: sds-storagegrid, app.kubernetes.io/part-of: sds-brain}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: sds-storagegrid}
+  template:
+    metadata:
+      labels: {app: sds-storagegrid, app.kubernetes.io/part-of: sds-brain}
+    spec:
+      automountServiceAccountToken: false               # these servers never talk to the cluster's API
+      containers:
+      - name: storagegrid
+        image: <registry>/sds-brain/sds-mcp:<tag>
+        args: ["storagegrid", "--http", "0.0.0.0:8000"]
+        ports:
+        - {containerPort: 8000, name: http}
+        env:
+        - {name: SDS_MCP_CONFIG, value: /config/targets.json}
+        envFrom:
+        - secretRef: {name: sds-storagegrid}
+        volumeMounts:
+        - {name: config, mountPath: /config, readOnly: true}
+        readinessProbe:
+          httpGet: {path: /health, port: 8000}
+          periodSeconds: 10
+        livenessProbe:
+          httpGet: {path: /health, port: 8000}
+          initialDelaySeconds: 15
+          periodSeconds: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities: {drop: ["ALL"]}
+          seccompProfile: {type: RuntimeDefault}
+        resources:
+          requests: {cpu: 20m, memory: 128Mi}
+          limits: {memory: 512Mi}
+      volumes:
+      - name: config
+        configMap: {name: sds-mcp-targets}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sds-storagegrid
+  labels: {app: sds-storagegrid, app.kubernetes.io/part-of: sds-brain}
+spec:
+  selector: {app: sds-storagegrid}
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: sds-storagegrid
+  labels: {app: sds-storagegrid, app.kubernetes.io/part-of: sds-brain}
+  annotations:
+    haproxy.router.openshift.io/timeout: 180s           # an iLO log or a large OSD list can take a while
+spec:
+  host: sds-storagegrid.<apps domain>
+  to: {kind: Service, name: sds-storagegrid}
+  port: {targetPort: http}
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sds-ceph
+  labels: {app: sds-ceph, app.kubernetes.io/part-of: sds-brain}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: sds-ceph}
+  template:
+    metadata:
+      labels: {app: sds-ceph, app.kubernetes.io/part-of: sds-brain}
+    spec:
+      automountServiceAccountToken: false               # these servers never talk to the cluster's API
+      containers:
+      - name: ceph
+        image: <registry>/sds-brain/sds-mcp:<tag>
+        args: ["ceph", "--http", "0.0.0.0:8000"]
+        ports:
+        - {containerPort: 8000, name: http}
+        env:
+        - {name: SDS_MCP_CONFIG, value: /config/targets.json}
+        envFrom:
+        - secretRef: {name: sds-ceph}
+        volumeMounts:
+        - {name: config, mountPath: /config, readOnly: true}
+        readinessProbe:
+          httpGet: {path: /health, port: 8000}
+          periodSeconds: 10
+        livenessProbe:
+          httpGet: {path: /health, port: 8000}
+          initialDelaySeconds: 15
+          periodSeconds: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities: {drop: ["ALL"]}
+          seccompProfile: {type: RuntimeDefault}
+        resources:
+          requests: {cpu: 20m, memory: 128Mi}
+          limits: {memory: 512Mi}
+      volumes:
+      - name: config
+        configMap: {name: sds-mcp-targets}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sds-ceph
+  labels: {app: sds-ceph, app.kubernetes.io/part-of: sds-brain}
+spec:
+  selector: {app: sds-ceph}
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: sds-ceph
+  labels: {app: sds-ceph, app.kubernetes.io/part-of: sds-brain}
+  annotations:
+    haproxy.router.openshift.io/timeout: 180s           # an iLO log or a large OSD list can take a while
+spec:
+  host: sds-ceph.<apps domain>
+  to: {kind: Service, name: sds-ceph}
+  port: {targetPort: http}
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sds-oneview
+  labels: {app: sds-oneview, app.kubernetes.io/part-of: sds-brain}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: sds-oneview}
+  template:
+    metadata:
+      labels: {app: sds-oneview, app.kubernetes.io/part-of: sds-brain}
+    spec:
+      automountServiceAccountToken: false               # these servers never talk to the cluster's API
+      containers:
+      - name: oneview
+        image: <registry>/sds-brain/sds-mcp:<tag>
+        args: ["oneview", "--http", "0.0.0.0:8000"]
+        ports:
+        - {containerPort: 8000, name: http}
+        env:
+        - {name: SDS_MCP_CONFIG, value: /config/targets.json}
+        envFrom:
+        - secretRef: {name: sds-oneview}
+        volumeMounts:
+        - {name: config, mountPath: /config, readOnly: true}
+        readinessProbe:
+          httpGet: {path: /health, port: 8000}
+          periodSeconds: 10
+        livenessProbe:
+          httpGet: {path: /health, port: 8000}
+          initialDelaySeconds: 15
+          periodSeconds: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities: {drop: ["ALL"]}
+          seccompProfile: {type: RuntimeDefault}
+        resources:
+          requests: {cpu: 20m, memory: 128Mi}
+          limits: {memory: 512Mi}
+      volumes:
+      - name: config
+        configMap: {name: sds-mcp-targets}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sds-oneview
+  labels: {app: sds-oneview, app.kubernetes.io/part-of: sds-brain}
+spec:
+  selector: {app: sds-oneview}
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: sds-oneview
+  labels: {app: sds-oneview, app.kubernetes.io/part-of: sds-brain}
+  annotations:
+    haproxy.router.openshift.io/timeout: 180s           # an iLO log or a large OSD list can take a while
+spec:
+  host: sds-oneview.<apps domain>
+  to: {kind: Service, name: sds-oneview}
+  port: {targetPort: http}
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sds-ilo
+  labels: {app: sds-ilo, app.kubernetes.io/part-of: sds-brain}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: sds-ilo}
+  template:
+    metadata:
+      labels: {app: sds-ilo, app.kubernetes.io/part-of: sds-brain}
+    spec:
+      automountServiceAccountToken: false               # these servers never talk to the cluster's API
+      containers:
+      - name: ilo
+        image: <registry>/sds-brain/sds-mcp:<tag>
+        args: ["ilo", "--http", "0.0.0.0:8000"]
+        ports:
+        - {containerPort: 8000, name: http}
+        env:
+        - {name: SDS_MCP_CONFIG, value: /config/targets.json}
+        envFrom:
+        - secretRef: {name: sds-ilo}
+        volumeMounts:
+        - {name: config, mountPath: /config, readOnly: true}
+        readinessProbe:
+          httpGet: {path: /health, port: 8000}
+          periodSeconds: 10
+        livenessProbe:
+          httpGet: {path: /health, port: 8000}
+          initialDelaySeconds: 15
+          periodSeconds: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities: {drop: ["ALL"]}
+          seccompProfile: {type: RuntimeDefault}
+        resources:
+          requests: {cpu: 20m, memory: 128Mi}
+          limits: {memory: 512Mi}
+      volumes:
+      - name: config
+        configMap: {name: sds-mcp-targets}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sds-ilo
+  labels: {app: sds-ilo, app.kubernetes.io/part-of: sds-brain}
+spec:
+  selector: {app: sds-ilo}
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: sds-ilo
+  labels: {app: sds-ilo, app.kubernetes.io/part-of: sds-brain}
+  annotations:
+    haproxy.router.openshift.io/timeout: 180s           # an iLO log or a large OSD list can take a while
+spec:
+  host: sds-ilo.<apps domain>
+  to: {kind: Service, name: sds-ilo}
+  port: {targetPort: http}
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

@@ -6,6 +6,8 @@ description: Triage Ceph slow operations, stuck or degraded placement groups, re
 
 Read-only (rule 1). Run `ceph-health` first and keep its verified FSID.
 
+When the **ceph** server is connected: `ceph_status`, `ceph_osds` (latencies), `ceph_daemons` and `ceph_logs`.
+
 ## 1. Locate what is affected
 ```bash
 set -o pipefail

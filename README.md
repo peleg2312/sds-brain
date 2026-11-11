@@ -9,15 +9,15 @@ The same structure as the storage team's brains: one team repository holding the
 
 ```
 .claude-plugin/marketplace.json   what makes this repository installable in Claude Code
-brain-sds/                        the plugin: skills/ (22), agents/, hooks/, .mcp.json, team.json, tools/
+brain-sds/                        the plugin: skills/ (24), agents/ (4), hooks/, .mcp.json, team.json, tools/
 rules/                            main.md (golden rules), persona.md, storage.md (identity, versions, evidence, each
                                   domain), guard-allow.txt: the team's own, loaded every session
 knowledge/                        environment.md, notes.md, tool-map.md (loaded every session), notes/, runbooks/,
                                   captures/, incidents/, INDEX.md (generated): what the team learns
 templates/                        topic, capture, page, runbook, incident, metric: copied into knowledge/
 docs/                             the vendor documentation the library is built from (LIBRARY.md)
-connections/                      Grafana (bundled, read-only), Objectify, Red Hat offline portal (okp); http/: the
-                                  images; openshift/: the same as pods
+connections/                      Grafana (bundled, read-only), Objectify, Red Hat offline portal (okp); servers/: the
+                                  StorageGRID, Ceph, OneView and iLO servers; http/: the images; openshift/: the pods
 join.sh  vm-setup.py  check.py  test_brain.py
 ```
 
@@ -90,6 +90,9 @@ hand too.
 The 19 investigation procedures (Ceph health, slow ops, daemons, RGW, multisite, S3 403 / signature / latency /
 multipart, StorageGRID capacity / ILM / connectivity / quota, host pressure / network / SELinux, hardware, Grafana,
 Elasticsearch) are skills in `brain-sds/skills/`: Claude picks them by itself, or call `/brain-sds:<name>`.
+`/brain-sds:morning-check` checks every connected system in one table; `/brain-sds:what-changed` puts the changes and
+events of a time window on one timeline. Long investigations go to the analyst agents (ceph-analyst,
+storagegrid-analyst, hardware-analyst).
 
 ## Connections
 - **Grafana**: set `SDS_GRAFANA_URL` and `SDS_GRAFANA_TOKEN` (a Viewer service-account token) in your shell profile:
@@ -98,6 +101,10 @@ Elasticsearch) are skills in `brain-sds/skills/`: Claude picks them by itself, o
 - **Red Hat offline portal** (RHCS and RHEL manuals, knowledge base): the plugin's `okp` server. Set `SDS_OKP_URL`
   (or the team's url in `connections/okp/config.json`): `connections/okp/README.md`.
 - **Objectify**: the full contract for enabling reads is `connections/objectify/INTEGRATION.md`.
+- **StorageGRID, Ceph (RHCS 8 / 9), HPE OneView, HPE iLO**: the brain's own read-only MCP servers (no vendor publishes
+  one), built on the official MCP SDK and the vendors' own APIs and Python libraries: `connections/servers/README.md`.
+  Run them on OpenShift with read-only accounts: `connections/openshift/README.md`, section 2b (inventory ConfigMap,
+  one secret per server, `sds-mcp-servers.yaml`).
 - **Once for everyone**: every MCP server (docs, Grafana, Objectify, okp) can run as a container that serves HTTP, so
   nobody needs their own index, token or configuration: on OpenShift (`connections/openshift/README.md`) or with
   Podman on the VM (`connections/http/README.md`); `use.py` points the plugin at them.

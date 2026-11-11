@@ -1,0 +1,7 @@
+# The servers' dependencies, pinned (python 3.10 or newer). Installed into the image by connections/http/build.py,
+# or on a machine with `pip install -r connections/servers/requirements.txt` (a wheelhouse for an offline network:
+# pip download -r requirements.txt -d wheels/, then pip install --no-index --find-links wheels/ -r requirements.txt).
+mcp==2.3.0                       # the official MCP Python SDK (MCPServer, streamable HTTP); brings starlette and uvicorn
+httpx==0.28.1                    # the StorageGRID and Ceph REST calls
+hpeOneView==11.5.0               # HPE's OneView SDK (github.com/HewlettPackard/oneview-python)
+python-ilorest-library==7.4.0.0  # HPE's iLO REST / Redfish library (github.com/HewlettPackard/python-ilorest-library)

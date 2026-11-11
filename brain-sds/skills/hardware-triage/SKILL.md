@@ -8,6 +8,9 @@ Read-only (rule 1): inventory, health and existing event records only; no Redfis
 exact HPE model and generation, the Ceph daemon / OSD, RHEL and kernel build, incident interval
 (`knowledge/notes/hardware-hpe-identity.md`). Serials and management addresses stay out of notes.
 
+When the **oneview** and **ilo** servers are connected: `ov_alerts`, `ov_server`, then `ilo_summary`, `ilo_logs`
+(IML), `ilo_storage` (drive status, bay, predicted failure), `ilo_thermal`, `ilo_power`, `ilo_firmware`.
+
 ## Evidence, in order
 1. Existing host and iLO health. System, controller, drive and NIC firmware identifiers, before choosing a support
    document for that generation.

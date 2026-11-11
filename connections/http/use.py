@@ -6,6 +6,7 @@ launcher every person runs on their own machine:
     python3 connections/http/use.py objectify https://vm.example.internal:8445/mcp --token-file /root/objectify-mcp.token
     python3 connections/http/use.py okp       https://okp.example.internal/mcp     [--token-file ...]
     python3 connections/http/use.py docs-http https://sds-docs.apps.example/mcp?team=sds --token-file docs.token
+    python3 connections/http/use.py ceph      https://sds-ceph.apps.example/mcp --token-file ceph.token   (also storagegrid, oneview, ilo)
     python3 connections/http/use.py grafana   --stdio          (docs-http: --stdio removes it, docs-local takes over)
 
 It rewrites that server's entry in brain-sds/.mcp.json (the name stays, so the guard, the tool map and the skills keep
@@ -20,7 +21,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MCP = os.path.join(os.path.dirname(os.path.dirname(HERE)), "brain-sds", ".mcp.json")
-NAMES = ("grafana", "objectify", "okp", "docs-http")
+NAMES = ("grafana", "objectify", "okp", "docs-http", "storagegrid", "ceph", "oneview", "ilo")
 
 
 def main():

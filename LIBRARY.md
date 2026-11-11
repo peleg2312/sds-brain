@@ -19,15 +19,20 @@ at every start (`.cache/knowledge.db`), and the VM's docs service keeps one for 
 | `aws/s3` | S3 API and user guide pages: errors, SigV4, presigned URLs, multipart, versioning, lifecycle, Object Lock, 403 troubleshooting, IAM policy evaluation | docs.aws.amazon.com |
 | `grafana/grafana`, `prometheus/prometheus`, `elastic/elasticsearch` | Datasources, service accounts, query editors, exposition formats, functions, search and health APIs | grafana.com, prometheus.io, elastic.co |
 | `hpe/ilo-redfish` | iLOrest and Redfish concepts and services | servermanagementportal.ext.hpe.com |
-| `redhat/rhcs-9` | Catalog of the Red Hat Ceph Storage 9.0 / 9.1 / 9.2 guides and release notes: what each covers and its PDF link (the PDFs themselves still to be added) | docs.redhat.com/en/documentation/red_hat_ceph_storage/9 |
+| `redhat/rhcs-9` | Catalog of the Red Hat Ceph Storage 9.0 / 9.1 / 9.2 guides and release notes: what each covers and its PDF link, and the PDFs: 9.0 User Guide and chapter guides, 9.0 / 9.1 / 9.2 release notes, 9.1 User Guide | docs.redhat.com/en/documentation/red_hat_ceph_storage/9 |
 | `redhat/okp-mcp`, `podman/podman`, `linux/kernel-admin` | okp-mcp configuration, Quadlet and container inspect, kernel admin guide index | their project sites |
 
 Each single page's original address and title are in its product's `manifest.json`; search results cite them.
 
 ## Not here
-- **Red Hat Ceph Storage and RHEL** manuals and release notes (Red Hat's site refused the download when the library
-  was built). Add them, or connect the Red Hat offline portal (`connections/okp/README.md`). For RHCS 9 the guide list
-  and PDF links are in `redhat/rhcs-9/rhcs-9-catalog.md`: download them into that folder.
+- **Red Hat Ceph Storage and RHEL** manuals and release notes (Red Hat's site refuses automated downloads from some
+  networks, including the one the library was built on). Add them from a machine where docs.redhat.com opens:
+  `python3 fetch-redhat-docs.py rhcs 9` (also `rhcs 8.1`, `rhel 9 --guides ...`) saves each guide as single-page HTML
+  under `docs/redhat/rhcs-9/` with a manifest, so results cite the docs.redhat.com address; where the script is refused
+  too, save the guides in a browser and run it with `--from-dir`. Or connect the Red Hat offline portal
+  (`connections/okp/README.md`).
+- **RHCS 9.1 chapter PDFs and the 9.2 User Guide** (access.redhat.com returned 404 for them on 2026-11-11; the 9.0
+  chapter PDFs from IBM Docs cover the same topics).
 - StorageGRID fixed-issue PDFs (support login), HPE model-specific service guides.
 
 ## Add your own documents
