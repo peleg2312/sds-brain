@@ -7,6 +7,8 @@ description: Diagnose StorageGRID S3 connectivity - DNS, load balancer endpoint,
 Read-only (rule 1). Scope: grid, application path, UTC interval; the exact FQDN, port, TLS hostname, endpoint type and
 release from `knowledge/environment.md`. No scanning of grid addresses.
 
+When the **storagegrid** server is connected: `sg_node_health`, `sg_topology`, `sg_get grid/ha-groups` and `grid/gateway-configs`.
+
 ## Trace the path
 1. Write the real route: client resolver -> VIP / load balancer -> StorageGRID endpoint -> storage service (an
    external proxy only if the inventory has one). Compare the application's hostname / port / trust with the intended

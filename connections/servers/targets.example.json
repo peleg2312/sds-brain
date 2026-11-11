@@ -1,0 +1,19 @@
+{
+  "_note": "Copy to targets.json (or point SDS_MCP_CONFIG at it). Names are yours; no secrets here: credentials come from SDS_<KIND>_<NAME>_USERNAME / _PASSWORD or the shared SDS_<KIND>_USERNAME / _PASSWORD. ca_file is relative to this file.",
+  "storagegrid": {
+    "grid-a": {"url": "https://grid-a-admin.example.internal", "ca_file": "ca/storagegrid.pem"}
+  },
+  "ceph": {
+    "prod-a": {"url": "https://prod-a-mgr.example.internal:8443", "ca_file": "ca/ceph.pem"}
+  },
+  "oneview": {
+    "ov-1": {"host": "oneview.example.internal", "ca_file": "ca/oneview.pem", "login_domain": "LOCAL"}
+  },
+  "ilo": {
+    "defaults": {"ca_file": "ca/ilo.pem"},
+    "servers": {
+      "osd-01": {"host": "osd-01-ilo.example.internal"},
+      "osd-02": {"host": "osd-02-ilo.example.internal", "fingerprint": "<SHA-256 of this iLO's certificate, when no CA signed it>"}
+    }
+  }
+}

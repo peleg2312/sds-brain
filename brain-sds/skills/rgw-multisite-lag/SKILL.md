@@ -8,6 +8,8 @@ Read-only (rule 1). Only when the cluster really runs multisite: several RGWs be
 Scope: source and destination clusters and FSIDs, realm, zonegroup, zones, and the policy that should copy the affected
 bucket. Sync has a direction: a healthy status for another zone, realm or bucket says nothing about this object.
 
+When the **ceph** server is connected: `ceph_rgw_sync_status` and `ceph_rgw_daemons`.
+
 ## 1. State (in the right zone's admin context; never switch the default realm to make a command work)
 ```bash
 radosgw-admin sync status

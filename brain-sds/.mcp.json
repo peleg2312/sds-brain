@@ -30,6 +30,38 @@
         "${CLAUDE_PLUGIN_ROOT}/tools/connect.py",
         "okp"
       ]
+    },
+    "storagegrid": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/tools/connect.py",
+        "storagegrid"
+      ]
+    },
+    "ceph": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/tools/connect.py",
+        "ceph"
+      ]
+    },
+    "oneview": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/tools/connect.py",
+        "oneview"
+      ]
+    },
+    "ilo": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/tools/connect.py",
+        "ilo"
+      ]
     }
   }
 }

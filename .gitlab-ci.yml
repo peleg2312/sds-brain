@@ -4,3 +4,8 @@ check:
   script:
     - python3 check.py
     - python3 test_brain.py
+# The read-only servers against their stand-ins: needs their packages (your PyPI mirror: PIP_INDEX_URL) and openssl.
+servers:
+  script:
+    - pip install -q -r connections/servers/requirements.txt pyyaml
+    - python3 connections/servers/test_servers.py

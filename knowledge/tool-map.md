@@ -12,6 +12,12 @@
   grafana and objectify run on each machine, or once on the VM over HTTP (`connections/http/README.md`): same tools.
 - **okp** (Red Hat offline portal, when configured): RHCS / RHEL manuals and knowledge base; check product and version
   of each result. Not configured: `okp_setup` says what is missing.
+- **storagegrid** (read only): `sg_health`, `sg_node_health`, `sg_tenants` (logical usage vs quota), `sg_ilm`,
+  `sg_metrics` (Prometheus query: ILM queue, capacity), `sg_get`. **ceph** (read only, dashboard API): `ceph_status`
+  (release, health checks), `ceph_osds`, `ceph_pools`, `ceph_capacity`, `ceph_daemons`, `ceph_logs`, `ceph_rgw_*`,
+  `ceph_api_get`. **oneview** (read only): `ov_alerts`, `ov_server_hardware`, `ov_server`, `ov_tasks` (what changed).
+  **ilo** (read only): `ilo_summary`, `ilo_logs` (IML / IEL), `ilo_storage`, `ilo_thermal`, `ilo_power`, `ilo_firmware`.
+  Not set up: their `*_setup` tool says what is missing (`connections/servers/README.md`).
 - **Shell, run by the user** (Claude runs read commands itself only on a machine that has them, when asked for live
   state): `ceph` / `radosgw-admin` / `cephadm` reads on an admin host, `aws s3api` / `s3cmd` reads, Grid Manager and
   Tenant Manager screens, `ilorest` / `ipmitool` / `smartctl -a` reads, `journalctl`, `sar`, `ss`, `ausearch`.

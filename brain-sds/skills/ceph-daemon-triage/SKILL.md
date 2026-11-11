@@ -7,6 +7,8 @@ description: Triage a failed or restarting cephadm daemon or container - compare
 Read-only (rule 1), on the cluster and on the host. Scope: cluster and FSID, then the exact service, daemon and host.
 A host can hold leftovers of another cluster: never treat every local container as part of this FSID.
 
+When the **ceph** server is connected: `ceph_services`, `ceph_daemons only_problems=true`, `ceph_hosts`, `ceph_logs`.
+
 ## 1. Orchestrator view
 ```bash
 ceph fsid

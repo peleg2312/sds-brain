@@ -662,7 +662,76 @@ try:
     assert use("docs-http", "--stdio").returncode == 0 and "docs-http" not in json.load(open(os.path.join(work2, PLUGIN, ".mcp.json")))["mcpServers"]
 finally:
     shutil.rmtree(work2, ignore_errors=True)
+# the read-only servers (StorageGRID, Ceph, OneView, iLO): without their packages the plugin's entry says what to do;
+# with them, connections/servers/test_servers.py runs them against stand-ins of the four APIs
+o = mcp([PLUGIN + "/tools/connect.py", "ceph"], [("ceph_setup", {})], cwd=ROOT)
+if [t["name"] for t in o[99]["tools"]] == ["ceph_setup"]:
+    msg = o[1]["content"][0]["text"]
+    assert "Python packages" in msg or "inventory" in msg, msg
+try:
+    import mcp as _mcp, hpeOneView as _ov, redfish as _rf, httpx as _hx  # noqa: F401,E401
+    r = subprocess.run([sys.executable, os.path.join(ROOT, "connections", "servers", "test_servers.py")], capture_output=True, text=True, env=ENV, timeout=600)
+    assert r.returncode == 0 and "all server tests passed" in r.stdout, (r.stdout + r.stderr)[-2000:]
+    print("read-only servers ok (StorageGRID, Ceph, OneView, iLO against their stand-ins)")
+except ImportError:
+    print("read-only servers not tested here (their packages are not installed: pip install -r connections/servers/requirements.txt)")
 print("connections ok")
+
+# ---- 8b. fetch-redhat-docs.py: a guide list from the product page, one single-page HTML per guide, a manifest with the
+# docs.redhat.com address; the search cites it. A stand-in for the site; a refusal (403) says what to do instead.
+class FakeRedHat(http.server.BaseHTTPRequestHandler):
+    def log_message(self, *a):
+        pass
+
+    def do_GET(self):
+        p = self.path
+        if p == "/en/documentation/red_hat_ceph_storage/9":
+            body = ('<html><body><a href="/en/documentation/red_hat_ceph_storage/9/html/release_notes">Release notes</a>'
+                    '<a href="/en/documentation/red_hat_ceph_storage/9/html/object_gateway_guide/index">Object Gateway Guide</a></body></html>')
+        elif p.endswith("/html-single/release_notes/index"):
+            body = "<html><head><title>Release notes</title></head><body><h1>Release notes</h1><h2>Known issues</h2><p>zzrhcsnine fixes the bucket index.</p></body></html>"
+        elif p.endswith("/html-single/object_gateway_guide/index"):
+            body = "<html><head><title>Object Gateway Guide</title></head><body><h1>Object Gateway Guide</h1><h2>Multisite</h2><p>Configure zones.</p></body></html>"
+        elif p == "/en/documentation/red_hat_ceph_storage/7":
+            self.send_response(403); self.end_headers(); return
+        else:
+            self.send_response(404); self.end_headers(); return
+        data = body.encode()
+        self.send_response(200); self.send_header("Content-Type", "text/html"); self.send_header("Content-Length", str(len(data)))
+        self.end_headers(); self.wfile.write(data)
+
+
+rh = http.server.ThreadingHTTPServer(("127.0.0.1", 0), FakeRedHat)
+threading.Thread(target=rh.serve_forever, daemon=True).start()
+rhdir = tempfile.mkdtemp(prefix="sds-brain-rh-")
+try:
+    base = f"http://127.0.0.1:{rh.server_address[1]}"
+    fetch = lambda *a: subprocess.run([sys.executable, os.path.join(ROOT, "fetch-redhat-docs.py")] + list(a) + ["--base-url", base, "--pause", "0"],
+                                      capture_output=True, text=True, env=ENV, timeout=60)
+    r = fetch("rhcs", "9", "--list")
+    assert r.returncode == 0 and "release_notes" in r.stdout and "object_gateway_guide" in r.stdout, r.stdout + r.stderr
+    dest = os.path.join(rhdir, "docs", "redhat", "rhcs-9")
+    r = fetch("rhcs", "9", "--to", dest)
+    assert r.returncode == 0 and "2 guides" in r.stdout, r.stdout + r.stderr
+    man = json.load(open(os.path.join(dest, "manifest.json")))
+    assert man["release_notes.html"]["url"] == "https://docs.redhat.com/en/documentation/red_hat_ceph_storage/9/html-single/release_notes/index", man
+    r = fetch("rhcs", "7", "--to", dest)
+    assert r.returncode != 0 and "HTTP 403" in r.stderr and "--from-dir" in r.stderr, r.stderr      # never worked around
+    saved = os.path.join(rhdir, "saved"); os.makedirs(saved)
+    with open(os.path.join(saved, "Hardware Guide.html"), "w") as f:
+        f.write('<html><head><title>Hardware Guide</title><link rel="canonical" href="https://docs.redhat.com/en/documentation/'
+                'red_hat_ceph_storage/9/html-single/hardware_guide/index"></head><body><h1>Hardware Guide</h1><p>zzhwnine</p></body></html>')
+    r = fetch("rhcs", "9", "--from-dir", saved, "--to", dest)
+    assert r.returncode == 0 and json.load(open(os.path.join(dest, "manifest.json")))["Hardware_Guide.html"]["url"].endswith("/hardware_guide/index"), r.stdout + r.stderr
+    sh(sys.executable, "-c", "import sys, docs_index; docs_index.build(sys.argv[1], sys.argv[2], log=lambda *a: None)",
+       os.path.join(rhdir, "docs"), os.path.join(rhdir, "docs.db"), cwd=os.path.join(ROOT, PLUGIN, "tools", "engine"))
+    hits = json.loads(sh(sys.executable, os.path.join(ROOT, PLUGIN, "tools", "engine", "search_cli.py"), "--db", os.path.join(rhdir, "docs.db"),
+                         "--json", "search", "zzrhcsnine"))["results"]
+    assert hits and hits[0]["vendor"] == "redhat" and hits[0]["product"] == "rhcs-9" and hits[0]["url"].endswith("/release_notes/index"), hits
+finally:
+    rh.shutdown()
+    shutil.rmtree(rhdir, ignore_errors=True)
+print("fetch-redhat-docs ok")
 
 # ---- 9. the OpenShift manifests: restricted pods, tokens from secrets, Routes over TLS (needs PyYAML; skipped without)
 try:
@@ -675,7 +744,8 @@ if yaml:
     deps = {d["metadata"]["name"]: d for d in objs if d["kind"] == "Deployment"}
     routes = {d["metadata"]["name"]: d for d in objs if d["kind"] == "Route"}
     svcs = {d["metadata"]["name"]: d for d in objs if d["kind"] == "Service"}
-    assert set(deps) == {"sds-docs", "sds-grafana", "sds-objectify", "sds-okp"} == set(routes) == set(svcs), (deps.keys(), routes.keys())
+    assert set(deps) == {"sds-docs", "sds-grafana", "sds-objectify", "sds-okp", "sds-storagegrid", "sds-ceph", "sds-oneview",
+                         "sds-ilo"} == set(routes) == set(svcs), (deps.keys(), routes.keys())
     for name, d in deps.items():
         spec = d["spec"]["template"]["spec"]
         assert spec["automountServiceAccountToken"] is False, name

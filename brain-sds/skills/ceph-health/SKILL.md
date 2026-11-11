@@ -9,6 +9,9 @@ and which client operations fail. Check that `ceph fsid` is the cluster asked ab
 other version-sensitive commands differ between Reef and Squid: check the command's help or the release's
 documentation before suggesting one. Short bounded samples, not repeated full PG / OSD dumps.
 
+When the **ceph** server is connected, `ceph_status` (release, health checks), `ceph_osds`, `ceph_pools` and
+`ceph_capacity` give the same evidence without a shell; the commands below stay the fallback.
+
 ## 1. Snapshot (admin host of that cluster)
 ```bash
 ceph fsid

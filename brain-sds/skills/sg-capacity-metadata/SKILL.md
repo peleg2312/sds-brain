@@ -8,6 +8,8 @@ Read-only (rule 1), from Grid Manager views or the monitoring connection. Scope:
 interval. Written against 11.9: for 11.8 or 12.0 open the same page in that product before trusting labels or
 thresholds (`product="storagegrid-118"` / `"storagegrid-120"`).
 
+When the **storagegrid** server is connected: `sg_health`, `sg_node_health`, `sg_metrics` (the metrics named below).
+
 ## Collect
 1. Current and resolved capacity alerts: nodes / sites, onset, severity, the alert rule as deployed. Do clients see
    failed ingest, failed reads, or only less headroom?

@@ -9,6 +9,8 @@ release, sites, bucket / tenant, first symptom, a UTC window. Ask which question
 copies that cannot be placed, ingest failures, or one object's protection. Written against 11.9; open the same pages
 in the installed version's product.
 
+When the **storagegrid** server is connected: `sg_ilm` for the policies and rules, `sg_metrics` for the ILM queue.
+
 ## Read the evidence
 1. Grid Manager ILM dashboard and the grid's ILM tab, same time window: queue size, client-driven arrivals, all
    arrivals, scan rate, evaluation rate. Spikes are normal; a queue that keeps rising and does not drain is not. A

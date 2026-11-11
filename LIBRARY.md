@@ -24,8 +24,12 @@ at every start (`.cache/knowledge.db`), and the VM's docs service keeps one for 
 Each single page's original address and title are in its product's `manifest.json`; search results cite them.
 
 ## Not here
-- **Red Hat Ceph Storage and RHEL** manuals and release notes (Red Hat's site refused the download when the library
-  was built). Add them, or connect the Red Hat offline portal (`connections/okp/README.md`).
+- **Red Hat Ceph Storage and RHEL** manuals and release notes (Red Hat's site refuses automated downloads from some
+  networks, including the one the library was built on). Add them from a machine where docs.redhat.com opens:
+  `python3 fetch-redhat-docs.py rhcs 9` (also `rhcs 8.1`, `rhel 9 --guides ...`) saves each guide as single-page HTML
+  under `docs/redhat/rhcs-9/` with a manifest, so results cite the docs.redhat.com address; where the script is refused
+  too, save the guides in a browser and run it with `--from-dir`. Or connect the Red Hat offline portal
+  (`connections/okp/README.md`).
 - StorageGRID fixed-issue PDFs (support login), HPE model-specific service guides.
 
 ## Add your own documents

@@ -1,0 +1,1163 @@
+{
+ "source": {
+  "squid": "https://raw.githubusercontent.com/ceph/ceph/squid/src/pybind/mgr/dashboard/openapi.yaml",
+  "tentacle": "https://raw.githubusercontent.com/ceph/ceph/tentacle/src/pybind/mgr/dashboard/openapi.yaml"
+ },
+ "paths": {
+  "/api/block/image": {
+   "version": "2.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/block/image/clone_format_version": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/block/image/default_features": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/block/image/trash": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/block/image/{image_spec}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/block/mirroring/pool/{pool_name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/block/mirroring/pool/{pool_name}/peer": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/block/mirroring/pool/{pool_name}/peer/{peer_uuid}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/block/mirroring/site_name": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/block/mirroring/summary": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/block/mirroring/{pool_name}/{image_name}/summary": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/block/pool/{pool_name}/group": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/block/pool/{pool_name}/group/{group_name}": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/block/pool/{pool_name}/group/{group_name}/snap": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/block/pool/{pool_name}/group/{group_name}/snap/{snapshot_name}": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/block/pool/{pool_name}/namespace": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/snapshot/schedule/{fs}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/subvolume/group/{vol_name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/subvolume/group/{vol_name}/info": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/subvolume/snapshot/{vol_name}/{subvol_name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/subvolume/snapshot/{vol_name}/{subvol_name}/info": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/subvolume/{vol_name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/subvolume/{vol_name}/exists": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/subvolume/{vol_name}/info": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/subvolume/{vol_name}/snapshot-visibility": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/{fs_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/{fs_id}/clients": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/{fs_id}/get_root_directory": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/{fs_id}/ls_dir": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/{fs_id}/mds_counters": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/{fs_id}/quota": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cephfs/{fs_id}/statfs": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cluster": {
+   "version": "0.1",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cluster/upgrade": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cluster/upgrade/status": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cluster_conf": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cluster_conf/filter": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/cluster_conf/{name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/crush_rule": {
+   "version": "2.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/crush_rule/{name}": {
+   "version": "2.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/daemon": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/erasure_code_profile": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/erasure_code_profile/{name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/feature_toggles": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/grafana/url": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/grafana/validation/{params}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/hardware/summary": {
+   "version": "0.1",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/health/full": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/health/get_cluster_capacity": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/health/get_cluster_fsid": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/health/get_telemetry_status": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/health/minimal": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/health/snapshot": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/host": {
+   "version": "1.3",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/host/{hostname}": {
+   "version": "1.2",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/host/{hostname}/daemons": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/host/{hostname}/devices": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/host/{hostname}/inventory": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/host/{hostname}/smart": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/iscsi/target": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/iscsi/target/{target_iqn}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/logs/all": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/mgr/module": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/mgr/module/{module_name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/mgr/module/{module_name}/options": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/monitor": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nfs-ganesha/cluster": {
+   "version": "0.1",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nfs-ganesha/export": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nfs-ganesha/export/{cluster_id}/{export_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/gateway": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/gateway/group": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/gateway/listener_info/{nqn}": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/gateway/log_level": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/gateway/stats": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/gateway/thread_stats": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/gateway/version": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/spdk/log_level": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/subsystem": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/subsystem/{nqn}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/subsystem/{nqn}/connection": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/subsystem/{nqn}/host": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/subsystem/{nqn}/listener": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/subsystem/{nqn}/namespace": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/subsystem/{nqn}/namespace/list_hosts": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/subsystem/{nqn}/namespace/list_locations": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/subsystem/{nqn}/namespace/{nsid}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/nvmeof/subsystem/{nqn}/namespace/{nsid}/io_stats": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/osd": {
+   "version": "1.1",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/osd/flags": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/osd/flags/individual": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/osd/safe_to_delete": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/osd/safe_to_destroy": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/osd/settings": {
+   "version": "0.1",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/osd/{svc_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/osd/{svc_id}/devices": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/osd/{svc_id}/histogram": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/osd/{svc_id}/smart": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/perf_counters": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/perf_counters/mds/{service_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/perf_counters/mgr/{service_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/perf_counters/mon/{service_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/perf_counters/osd/{service_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/perf_counters/rbd-mirror/{service_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/perf_counters/rgw/{service_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/perf_counters/tcmu-runner/{service_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/pool": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/pool/{pool_name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/pool/{pool_name}/configuration": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/prometheus": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/prometheus/alertgroup": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/prometheus/data": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/prometheus/notifications": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/prometheus/prometheus_query_data": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/prometheus/rules": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/prometheus/silences": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/accounts": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/accounts/exists": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/accounts/{account_id}": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/accounts/{account_id}/roles": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/accounts/{account_id}/roles/{role_name}": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/accounts/{account_id}/roles/{role_name}/policy": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/accounts/{account_id}/roles/{role_name}/policy/{policy_name}": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/bucket": {
+   "version": "1.1",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/bucket/getEncryption": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/bucket/getEncryptionConfig": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/bucket/lifecycle": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/bucket/notification": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/bucket/ratelimit": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/bucket/{bucket}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/bucket/{uid}/ratelimit": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/daemon": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/daemon/{svc_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/multisite/sync-policy": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/multisite/sync-policy-group/{group_id}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/multisite/sync_status": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/realm": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/realm/get_all_realms_info": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/realm/get_realm_tokens": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/realm/{realm_name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/roles": {
+   "version": "1.0",
+   "releases": [
+    "squid"
+   ]
+  },
+  "/api/rgw/site": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/topic": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/topic/{key}": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/user": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/user/ratelimit": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/user/{uid}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/user/{uid}/quota": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/user/{uid}/ratelimit": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/zone": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/zone/get_all_zones_info": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/zone/get_pool_names": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/zone/get_user_list": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/zone/{zone_name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/zonegroup": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/zonegroup/get_all_zonegroups_info": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/rgw/zonegroup/get_placement_target_by_placement_id/{placement_id}": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/rgw/zonegroup/{zonegroup_name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/role": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/role/{name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/service": {
+   "version": "2.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/service/known_types": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/service/{service_name}": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/service/{service_name}/daemons": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/smb/cluster": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/smb/cluster/{cluster_id}": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/smb/share": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/smb/share/{cluster_id}/{share_id}": {
+   "version": "1.0",
+   "releases": [
+    "tentacle"
+   ]
+  },
+  "/api/summary": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  },
+  "/api/task": {
+   "version": "1.0",
+   "releases": [
+    "squid",
+    "tentacle"
+   ]
+  }
+ }
+}

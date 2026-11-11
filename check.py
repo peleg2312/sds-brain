@@ -98,7 +98,9 @@ for name, cfg in servers.items():
     ok(f".mcp.json {name}", bool(script) and os.path.isfile(os.path.join(PLUG, script)), "its script is missing")
     if "connect.py" in script:
         conn = next((a for a in cfg.get("args", []) if not a.endswith(".py")), "")
-        ok(f"connection {name}", os.path.isfile(os.path.join(ROOT, "connections", conn, "launch.py")), f"connections/{conn}/launch.py is missing")
+        launcher = os.path.join(ROOT, "connections", "servers", "launch.py") if conn in ("storagegrid", "ceph", "oneview", "ilo") \
+            else os.path.join(ROOT, "connections", conn, "launch.py")
+        ok(f"connection {name}", os.path.isfile(launcher), f"{os.path.relpath(launcher, ROOT)} is missing")
 
 for name, cap in RULE_CAPS.items():
     f = os.path.join(ROOT, "rules", name)

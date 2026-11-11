@@ -8,6 +8,8 @@ Read-only (rule 1): no Objectify resize, recount, regenerate, modify or decommis
 because it is a GET. Scope: Objectify account, grid, tenant ID, release, UTC observation time. Map the account to the
 tenant from a verified source: similar names are not a mapping.
 
+When the **storagegrid** server is connected: `sg_tenants` (logical usage against quota per tenant).
+
 ## Compare
 1. **Objectify** (the `objectify` connection when its reads are enabled, else what the user pastes with keys
    removed): backend kind, tenant mapping, quota / usage and their units, update time.
