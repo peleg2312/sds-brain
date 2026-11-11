@@ -36,7 +36,7 @@ CA files. No secrets: they come from the environment (a Kubernetes or Podman sec
 
 ## Running them: OpenShift (recommended), Podman, or each person's machine
 - **OpenShift**: `connections/openshift/sds-mcp-servers.yaml` (one image, four pods, the inventory as a ConfigMap,
-  one secret per server). Then `python3 connections/http/use.py ceph https://sds-ceph.<apps domain>/mcp --token-file
+  one secret per server); step by step in `connections/openshift/README.md`, section 2b. Then `python3 connections/http/use.py ceph https://sds-ceph.<apps domain>/mcp --token-file
   ceph.token` (and storagegrid, oneview, ilo), commit, push.
 - **Podman on the VM**: the same image, `podman run ... localhost/sds-brain/sds-mcp:<tag> ceph --http 0.0.0.0:8000`
   with the inventory mounted at `/config` and the secrets as environment.

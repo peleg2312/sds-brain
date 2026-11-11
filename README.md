@@ -103,7 +103,8 @@ storagegrid-analyst, hardware-analyst).
 - **Objectify**: the full contract for enabling reads is `connections/objectify/INTEGRATION.md`.
 - **StorageGRID, Ceph (RHCS 8 / 9), HPE OneView, HPE iLO**: the brain's own read-only MCP servers (no vendor publishes
   one), built on the official MCP SDK and the vendors' own APIs and Python libraries: `connections/servers/README.md`.
-  Run them on OpenShift (`connections/openshift/sds-mcp-servers.yaml`) with read-only accounts.
+  Run them on OpenShift with read-only accounts: `connections/openshift/README.md`, section 2b (inventory ConfigMap,
+  one secret per server, `sds-mcp-servers.yaml`).
 - **Once for everyone**: every MCP server (docs, Grafana, Objectify, okp) can run as a container that serves HTTP, so
   nobody needs their own index, token or configuration: on OpenShift (`connections/openshift/README.md`) or with
   Podman on the VM (`connections/http/README.md`); `use.py` points the plugin at them.
