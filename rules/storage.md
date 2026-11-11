@@ -19,6 +19,9 @@ Loaded with the golden rules (main.md) in every session. People change this file
 - The installed vendor's release notes, support matrix and versioned documentation decide what is supported. Upstream
   Ceph and IBM Storage Ceph pages explain behaviour; they do not establish Red Hat support. AWS pages explain AWS S3:
   check behaviour, IAM semantics, error meaning and consistency against the installed RGW / StorageGRID release.
+- RHCS 9 (9.0, 9.1, 9.2) documentation is published as PDF only; its guide list and links are in the library as
+  `redhat` / `rhcs-9` (docs.redhat.com/en/documentation/red_hat_ceph_storage/9). Use the guide for the installed
+  minor release, and say when only the catalog entry, not the guide's text, was available.
 - StorageGRID "12" needs its minor and build; unversioned NetApp pages may describe a newer release than the grid runs.
 - Cite title + url (or the knowledge file) + version, and the date a note was verified. Report conflicts between
   sources and the evidence that is missing. Web or document research is never "tested on the cluster".

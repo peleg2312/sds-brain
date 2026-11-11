@@ -19,13 +19,15 @@ at every start (`.cache/knowledge.db`), and the VM's docs service keeps one for 
 | `aws/s3` | S3 API and user guide pages: errors, SigV4, presigned URLs, multipart, versioning, lifecycle, Object Lock, 403 troubleshooting, IAM policy evaluation | docs.aws.amazon.com |
 | `grafana/grafana`, `prometheus/prometheus`, `elastic/elasticsearch` | Datasources, service accounts, query editors, exposition formats, functions, search and health APIs | grafana.com, prometheus.io, elastic.co |
 | `hpe/ilo-redfish` | iLOrest and Redfish concepts and services | servermanagementportal.ext.hpe.com |
+| `redhat/rhcs-9` | Catalog of the Red Hat Ceph Storage 9.0 / 9.1 / 9.2 guides and release notes: what each covers and its PDF link (the PDFs themselves still to be added) | docs.redhat.com/en/documentation/red_hat_ceph_storage/9 |
 | `redhat/okp-mcp`, `podman/podman`, `linux/kernel-admin` | okp-mcp configuration, Quadlet and container inspect, kernel admin guide index | their project sites |
 
 Each single page's original address and title are in its product's `manifest.json`; search results cite them.
 
 ## Not here
 - **Red Hat Ceph Storage and RHEL** manuals and release notes (Red Hat's site refused the download when the library
-  was built). Add them, or connect the Red Hat offline portal (`connections/okp/README.md`).
+  was built). Add them, or connect the Red Hat offline portal (`connections/okp/README.md`). For RHCS 9 the guide list
+  and PDF links are in `redhat/rhcs-9/rhcs-9-catalog.md`: download them into that folder.
 - StorageGRID fixed-issue PDFs (support login), HPE model-specific service guides.
 
 ## Add your own documents
