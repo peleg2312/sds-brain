@@ -1,0 +1,32 @@
+{
+ "mcp-basic-2025.md": {
+  "title": "Overview - Model Context Protocol",
+  "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ },
+ "mcp-lifecycle-2025.md": {
+  "title": "Lifecycle - Model Context Protocol",
+  "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ },
+ "mcp-schema-2025.md": {
+  "title": "Schema Reference - Model Context Protocol",
+  "url": "https://modelcontextprotocol.io/specification/2025-11-25/schema",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ },
+ "mcp-stdio-2025.md": {
+  "title": "Transports - Model Context Protocol",
+  "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/transports",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ },
+ "mcp-tools-2025.md": {
+  "title": "Tools - Model Context Protocol",
+  "url": "https://modelcontextprotocol.io/specification/2025-11-25/server/tools",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ }
+}

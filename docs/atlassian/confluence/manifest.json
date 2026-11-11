@@ -1,0 +1,20 @@
+{
+ "confluence-cloud-pages.md": {
+  "title": "Page",
+  "url": "https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ },
+ "confluence-dc-content.md": {
+  "title": "How to get page content or child list via REST API",
+  "url": "https://support.atlassian.com/confluence/kb/how-to-get-page-content-or-child-list-via-rest-api/",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ },
+ "confluence-storage-format.md": {
+  "title": "Confluence Storage Format",
+  "url": "https://confluence.atlassian.com/doc/confluence-storage-format-790796544.html",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ }
+}

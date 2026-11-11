@@ -1,0 +1,20 @@
+{
+ "netapp-sg118-docs.md": {
+  "title": "StorageGRID 11.8 documentation",
+  "url": "https://docs.netapp.com/us-en/storagegrid-118/",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ },
+ "netapp-sg119-docs.md": {
+  "title": "StorageGRID 11.9 software documentation",
+  "url": "https://docs.netapp.com/us-en/storagegrid-119/",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ },
+ "netapp-sg120-docs.md": {
+  "title": "StorageGRID 12.0 software documentation",
+  "url": "https://docs.netapp.com/us-en/storagegrid-120/",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ }
+}

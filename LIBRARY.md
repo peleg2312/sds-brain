@@ -42,8 +42,14 @@ git add brain-sds/.mcp.json brain-sds/lib && git commit -m "SDS brain: docs-http
 | `hpe/ilo-redfish` | iLOrest and Redfish concepts and services | servermanagementportal.ext.hpe.com |
 | `redhat/rhcs-9` | Catalog of the Red Hat Ceph Storage 9.0 / 9.1 / 9.2 guides and release notes: what each covers and its PDF link, and the PDFs: 9.0 User Guide and chapter guides, 9.0 / 9.1 / 9.2 release notes, 9.1 User Guide | docs.redhat.com/en/documentation/red_hat_ceph_storage/9 |
 | `redhat/okp-mcp`, `podman/podman`, `linux/kernel-admin` | okp-mcp configuration, Quadlet and container inspect, kernel admin guide index | their project sites |
+| `netapp/storagegrid-landing` | The 11.8, 11.9 and 12.0 documentation landing pages (tables of contents) | docs.netapp.com, captured by the first SDS brain |
+| `anthropic/claude-code` | Claude Code CLI reference, MCP configuration, memory (CLAUDE.md) | code.claude.com, captured by the first SDS brain |
+| `modelcontextprotocol/spec-2025-11-25` | MCP specification 2025-11-25: basics, lifecycle, transports (stdio, HTTP), tools, schema | modelcontextprotocol.io, captured by the first SDS brain |
+| `atlassian/confluence` | Confluence Cloud page API, Data Center page content through REST, the storage format (for exporting pages into the library) | developer.atlassian.com, support / confluence.atlassian.com, captured by the first SDS brain |
 
-Each single page's original address and title are in its product's `manifest.json`; search results cite them.
+Each single page's original address and title are in its product's `manifest.json`; search results cite them. Every
+document of the first SDS brain (github.com/SDS3-6789/sds-brain, `knowledge/vendor/`) is here: its 2,499 StorageGRID
+pages as NetApp's own sources, and its 109 single-page snapshots under their original addresses.
 
 ## Not here
 - **Red Hat Ceph Storage and RHEL** manuals and release notes (Red Hat's site refuses automated downloads from some

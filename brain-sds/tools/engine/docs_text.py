@@ -20,7 +20,7 @@ Red Hat Ceph Storage and RHEL manuals are in the library only if the team added 
 
 SEARCH_DOC = ('Search the vendor docs and the team knowledge. query: technical words; "quoted text" must match verbatim '
               '(error messages); synonyms apply (rgw = object gateway, pg = placement group...). vendor: '
-              'netapp|ceph|ibm|aws|grafana|prometheus|elastic|hpe|redhat. product: substring (storagegrid-119, squid, '
+              'netapp|ceph|ibm|redhat|aws|grafana|prometheus|elastic|hpe|podman|linux|anthropic|modelcontextprotocol|atlassian. product: substring (storagegrid-119, squid, '
               's3...). Up to `limit` hits, max 2 per document; chunk_id feeds read_chunk. read_top (0-3): the full text '
               'of the best hits comes inline (field text), so one call answers. queries: several phrasings at once '
               '(wins over query); merged, with partial / unmatched reported per query in by_query.')

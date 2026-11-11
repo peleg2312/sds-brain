@@ -1,0 +1,20 @@
+{
+ "claude-code-cli-reference.md": {
+  "title": "CLI reference - Claude Code Docs",
+  "url": "https://code.claude.com/docs/en/cli-reference",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ },
+ "claude-mcp.md": {
+  "title": "Connect Claude Code to tools via MCP - Claude Code Docs",
+  "url": "https://code.claude.com/docs/en/mcp",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ },
+ "claude-memory.md": {
+  "title": "How Claude remembers your project - Claude Code Docs",
+  "url": "https://code.claude.com/docs/en/memory",
+  "captured": "2026-11-10",
+  "from": "the first SDS brain (github.com/SDS3-6789/sds-brain, knowledge/vendor/catalog)"
+ }
+}
