@@ -44,10 +44,13 @@ def client(name):
         host = settings.get("host") or ""
         if not host or "/" in host:
             raise c.ToolFailure(f"oneview '{name}': host must be the appliance's name or address (host[:port], no scheme)")
-        c.tls_context(settings)                                            # refuses insecure settings
+        skip = c.unverified(settings)                                      # "verify": false: encrypted, not checked
+        if skip:
+            c.warn_unverified(KIND, name)
         user, password = c.credentials(KIND, name)
         cred = {"userName": user, "password": password, **({"authLoginDomain": settings["login_domain"]} if settings.get("login_domain") else {})}
-        cfg = {"ip": host, "credentials": cred, "ssl_certificate": c.ca_file(settings) or False, "timeout": 60}
+        cfg = {"ip": host, "credentials": cred, "ssl_certificate": False if skip else (c.ca_file(settings) or False),
+               "trust_all_certs": skip, "timeout": 60}
         if settings.get("api_version"):
             cfg["api_version"] = int(settings["api_version"])
         ov = OneViewClient(cfg)                                            # signs in (POST /rest/login-sessions)

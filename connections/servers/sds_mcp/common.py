@@ -1,14 +1,17 @@
 """Shared by the SDS brain's MCP servers (StorageGRID, Ceph, HPE OneView, HPE iLO): the inventory of systems, their
-credentials, TLS that is always verified, an HTTP client that can only read, bounded and redacted answers, and the
+credentials, TLS (verified, unless the inventory says "verify": false for a system), an HTTP client that can only read, bounded and redacted answers, and the
 stdio / HTTP runner. Built on the official MCP Python SDK (mcp 2.x, MCPServer).
 
 Inventory: a JSON file, $SDS_MCP_CONFIG (default: targets.json beside this package's folder), no secrets in it:
     {"storagegrid": {"grid-a": {"url": "https://admin-a.example", "ca_file": "ca.pem"}},
-     "ceph":        {"prod-a": {"url": "https://mgr-a.example:8443"}},
+     "ceph":        {"defaults": {"verify": false},             # every cluster: self-signed dashboards
+                     "prod-a": {"url": "https://mgr-a.example:8443"}, "prod-b": {"url": "https://10.1.2.4:8443"}},
      "oneview":     {"ov-1": {"host": "oneview.example", "login_domain": "LOCAL"}},
      "ilo":         {"defaults": {"ca_file": "ilo-ca.pem"},
                      "servers": {"osd-01": {"host": "osd-01-ilo.example"}, "osd-02": {"host": "10.0.0.12", "fingerprint": "AB:CD:..."}}}}
-ca_file paths are relative to the inventory file. Credentials come from the environment (a Kubernetes / Podman secret):
+"defaults" (every kind) applies to each system of that kind; a system's own settings win. ca_file paths are relative
+to the inventory file. "verify": false: the connection stays encrypted but the certificate is not checked (self-signed
+systems; the log names each one). Credentials come from the environment (a Kubernetes / Podman secret):
 SDS_<KIND>_<NAME>_USERNAME / _PASSWORD, else the kind's shared read-only account SDS_<KIND>_USERNAME / _PASSWORD
 (e.g. SDS_CEPH_PROD_A_PASSWORD, SDS_ILO_USERNAME). Use read-only accounts: StorageGRID a group with read-only access,
 Ceph the dashboard's read-only role, OneView the Read only role, iLO the Read Only role."""
@@ -53,12 +56,16 @@ def config():
 
 
 def targets(kind):
-    """{name: settings} for one kind; for ilo the servers, with the kind's defaults merged in"""
+    """{name: settings} for one kind, each with the kind's "defaults" merged in (one line for every cluster: a ca_file,
+    "verify": false); for ilo the systems are under "servers".
+    """
     section = config().get(kind) or {}
+    defaults = section.get("defaults") if isinstance(section.get("defaults"), dict) else {}
     if kind == "ilo":
-        defaults = section.get("defaults") or {}
-        return {n: dict(defaults, **(s or {})) for n, s in (section.get("servers") or {}).items()}
-    return {n: s for n, s in section.items() if isinstance(s, dict)}
+        found = section.get("servers") or {}
+    else:
+        found = {n: s for n, s in section.items() if n != "defaults" and isinstance(s, dict)}
+    return {n: dict(defaults, **(s or {})) for n, s in found.items()}
 
 
 def target(kind, name):
@@ -99,12 +106,33 @@ def ca_file(settings):
     return ca
 
 
-def tls_context(settings):
-    """certificate verification is never switched off: the target's CA file, else the system's trust store"""
-    if settings.get("insecure") or settings.get("verify") is False:
-        raise ToolFailure("certificate verification cannot be switched off: give the system's CA as ca_file")
-    ca = ca_file(settings)
-    return ssl.create_default_context(cafile=ca or None)
+def unverified(settings):
+    """the inventory says "verify": false for this system (a self-signed or otherwise unknown certificate): the connection
+    stays encrypted, the certificate is not checked. The owner's decision, per system or in "defaults"."""
+    v = settings.get("verify", True)
+    return v is False or str(v).strip().lower() in ("false", "0", "no", "off") or settings.get("insecure") is True
+
+
+_WARNED = set()
+
+
+def warn_unverified(kind, name):
+    """one line in the server's log per system reached without checking its certificate"""
+    if (kind, name) not in _WARNED:
+        _WARNED.add((kind, name))
+        print(f"sds-mcp: WARNING {kind} '{name}': certificate not verified (\"verify\": false in the inventory)",
+              file=sys.stderr, flush=True)
+
+
+def tls_context(settings, kind="", name=""):
+    """the target's CA file, else the system's trust store; with "verify": false encrypted but unchecked"""
+    if unverified(settings):
+        warn_unverified(kind, name)
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+    return ssl.create_default_context(cafile=ca_file(settings) or None)
 
 
 # ---- the read-only HTTP client (StorageGRID, Ceph)
@@ -113,10 +141,10 @@ class ReadOnlyClient:
     """httpx client that sends GET only, plus the exact login / logout requests named in `allow`
     ({("POST", "/api/v4/authorize"), ...}); anything else raises ReadOnlyViolation before it leaves"""
 
-    def __init__(self, base_url, settings, allow=(), headers=None, timeout=30.0):
+    def __init__(self, base_url, settings, allow=(), headers=None, timeout=30.0, kind="", name=""):
         import httpx
         self.allow = {(m.upper(), p) for m, p in allow}
-        self.http = httpx.Client(base_url=base_url.rstrip("/"), verify=tls_context(settings), trust_env=False,
+        self.http = httpx.Client(base_url=base_url.rstrip("/"), verify=tls_context(settings, kind, name), trust_env=False,
                                  follow_redirects=False, headers=headers or {}, timeout=httpx.Timeout(timeout, connect=10.0),
                                  event_hooks={"request": [self._guard]})
 

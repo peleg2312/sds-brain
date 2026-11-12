@@ -207,18 +207,22 @@ def ilo(method, path, query, h, body):
 
 
 SG, CEPH, OV, ILO = Fake(sg), Fake(ceph), Fake(oneview), Fake(ilo)
-inventory = {"storagegrid": {"grid-a": {"url": f"https://127.0.0.1:{SG.port}", "ca_file": "ca.pem"}},
+inventory = {"storagegrid": {"defaults": {"verify": False},                            # one line for every grid
+                             "grid-a": {"url": f"https://127.0.0.1:{SG.port}"}},
              "ceph": {"prod-a": {"url": f"https://127.0.0.1:{CEPH.port}", "ca_file": "ca.pem"},
-                      "bad": {"url": f"https://127.0.0.1:{CEPH.port}", "insecure": True}},
-             "oneview": {"ov-1": {"host": f"127.0.0.1:{OV.port}", "ca_file": "ca.pem"}},
+                      "noca": {"url": f"https://127.0.0.1:{CEPH.port}"},                   # unknown certificate: refused
+                      "selfsigned": {"url": f"https://127.0.0.1:{CEPH.port}", "verify": False}},   # the owner's choice
+             "oneview": {"ov-1": {"host": f"127.0.0.1:{OV.port}", "ca_file": "ca.pem"},
+                         "ov-noverify": {"host": f"127.0.0.1:{OV.port}", "verify": False}},
              "ilo": {"defaults": {"ca_file": "ca.pem"},
                      "servers": {"osd-01": {"host": f"127.0.0.1:{ILO.port}"},
                                  "osd-pinned": {"host": f"127.0.0.1:{ILO.port}", "ca_file": "", "fingerprint": FPR},
-                                 "osd-unverified": {"host": f"127.0.0.1:{ILO.port}", "ca_file": ""}}}}
+                                 "osd-unverified": {"host": f"127.0.0.1:{ILO.port}", "ca_file": ""},
+                                 "osd-noverify": {"host": f"127.0.0.1:{ILO.port}", "ca_file": "", "verify": False}}}}
 with open(os.path.join(WORK, "targets.json"), "w") as f:
     json.dump(inventory, f)
 ENV.update(SDS_MCP_CONFIG=os.path.join(WORK, "targets.json"), PYTHONPATH=HERE, NO_PROXY="127.0.0.1",
-           SDS_STORAGEGRID_USERNAME="sgro", SDS_STORAGEGRID_PASSWORD="sg-pass", SDS_CEPH_PROD_A_USERNAME="ro", SDS_CEPH_PROD_A_PASSWORD="ceph-pass",
+           SDS_STORAGEGRID_USERNAME="sgro", SDS_STORAGEGRID_PASSWORD="sg-pass", SDS_CEPH_USERNAME="ro", SDS_CEPH_PASSWORD="ceph-pass",
            SDS_ONEVIEW_USERNAME="ovro", SDS_ONEVIEW_PASSWORD="ov-pass", SDS_ILO_USERNAME="ilo-ro", SDS_ILO_PASSWORD="ilo-pass")
 
 
@@ -269,6 +273,7 @@ try:
                                    ("sg_overview", {"grid_name": "grid-a"}), ("sg_tenant_buckets", {"grid_name": "grid-a", "tenant_id": "1"}),
                                    ("sg_get", {"grid_name": "grid-a", "resource": "grid/users/root/change-password"}),
                                    ("sg_version", {"grid_name": "nope"})])
+    assert [g["name"] for g in r[0]["grids"]] == ["grid-a"], r[0]                         # "defaults" is not a grid
     assert {"sg_grids", "sg_version", "sg_health", "sg_alerts", "sg_alert_history", "sg_node_health", "sg_topology", "sg_tenants", "sg_ilm",
             "sg_metrics", "sg_get"} <= set(tools), tools
     assert r[1]["product_version"] == {"productVersion": "11.9.0.3"} and r[1]["api_version"] == "4", r[1]
@@ -293,15 +298,17 @@ try:
                             ("ceph_api_get", {"cluster_name": "prod-a", "path": "/api/crush_rule"}),
                             ("ceph_api_get", {"cluster_name": "prod-a", "path": "/api/auth/check"}),
                             ("ceph_api_get", {"cluster_name": "prod-a", "path": "/api/osd/../auth"}),
-                            ("ceph_status", {"cluster_name": "bad"}),
+                            ("ceph_status", {"cluster_name": "noca"}),
                             ("ceph_metrics", {"cluster_name": "prod-a", "query": "ceph_health_status", "minutes": 60}),
-                            ("ceph_overview", {"cluster_name": "prod-a"}), ("ceph_smart", {"cluster_name": "prod-a", "osd_id": 1})])
+                            ("ceph_overview", {"cluster_name": "prod-a"}), ("ceph_smart", {"cluster_name": "prod-a", "osd_id": 1}),
+                            ("ceph_status", {"cluster_name": "selfsigned"})])
     assert r[0]["health"]["checks"][0]["type"] == "PG_DEGRADED" and "squid" in r[0]["version"], r[0]
     assert [o["id"] for o in r[1]["osds"]] == [1], r[1]
     assert "keys" not in r[2]["user"] and "s3cr3tvalue" not in json.dumps(r) and "AKIAEXAMPLE" not in json.dumps(r), r[2]
     assert r[3]["items"][0]["rule_name"] == "replicated_rule", r[3]                    # v2.0 media type for crush_rule
+    assert r[10]["health"]["checks"][0]["type"] == "PG_DEGRADED", r[10]                  # "verify": false
     assert "not a dashboard read" in r[4]["error"] and "dot segments" in r[5]["error"], (r[4], r[5])
-    assert "cannot be switched off" in r[6]["error"], r[6]
+    assert "CERTIFICATE_VERIFY_FAILED" in r[6]["error"] or "certificate verify failed" in r[6]["error"], r[6]
     assert r[7]["result"][0]["metric"]["__name__"] == "ceph_health_status" and r[7]["minutes"] == 60, r[7]
     assert {"ceph_alerts", "ceph_metrics", "ceph_perf_counters", "ceph_overview", "ceph_smart", "ceph_devices", "ceph_rgw_bucket"} <= set(tools), tools
     ov = r[8]
@@ -316,7 +323,8 @@ try:
     r, tools = mcp("oneview", [("ov_alerts", {"appliance": "ov-1"}), ("ov_server_hardware", {"appliance": "ov-1"}),
                                ("ov_server", {"appliance": "ov-1", "server_name": "osd-02"}), ("ov_tasks", {"appliance": "ov-1"}),
                                ("ov_utilization", {"appliance": "ov-1", "name": "osd-02", "metrics": "CpuUtilization"}),
-                               ("ov_overview", {"appliance": "ov-1"}), ("ov_server_firmware", {"appliance": "ov-1", "server_name": "osd-02"})])
+                               ("ov_overview", {"appliance": "ov-1"}), ("ov_server_firmware", {"appliance": "ov-1", "server_name": "osd-02"}),
+                               ("ov_alerts", {"appliance": "ov-noverify"})])
     assert r[0]["alerts"][0]["description"] == "Drive bay 3 failed" and r[0]["alerts"][0]["correctiveAction"] == "Replace the drive", r[0]
     assert r[1]["count"] == 2 and r[1]["servers"][0]["mpHostInfo.mpIpAddresses"] == [{"address": "10.1.1.1"}], r[1]
     assert r[2]["server"]["status"] == "Critical", r[2]
@@ -324,12 +332,20 @@ try:
     assert r[4]["metrics"]["CpuUtilization"]["samples"][0] == [1793520000000, 12] and r[4]["resolution"] == 300, r[4]
     assert r[5]["critical_alerts"][0]["description"] == "Drive bay 3 failed" and r[5]["enclosures_not_ok"] == [] and "servers_not_ok" in r[5], r[5]
     assert r[6]["firmware"]["components"][0]["componentName"] == "System ROM", r[6]
+    assert r[7]["alerts"][0]["description"] == "Drive bay 3 failed", r[7]                # "verify": false
     assert OV.writes({("POST", "/rest/login-sessions")}) == [], OV.writes(set())
     # the guard: a write through the SDK's own connection is refused before it is sent
     sys.path.insert(0, HERE)
     os.environ.update({k: v for k, v in ENV.items() if k.startswith("SDS_")})
     from sds_mcp import common, oneview, ilo
     common.config.cache_clear()
+    assert set(common.targets("storagegrid")) == {"grid-a"} and common.targets("storagegrid")["grid-a"]["verify"] is False
+    assert common.targets("ceph")["prod-a"].get("verify", True) is True and common.unverified(common.targets("ceph")["selfsigned"])
+    import contextlib, io
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        common.tls_context({"verify": False}, "ceph", "selfsigned")
+    assert "WARNING ceph 'selfsigned': certificate not verified" in err.getvalue(), err.getvalue()
     ov = oneview.client("ov-1")
     before = len(OV.calls)
     for attempt in (lambda: ov.connection.post("/rest/server-hardware", {"hostname": "x"}),
@@ -347,18 +363,20 @@ try:
     r, tools = mcp("ilo", [("ilo_summary", {"server_name": "osd-01"}), ("ilo_logs", {"server_name": "osd-01", "only_problems": True}),
                            ("ilo_thermal", {"server_name": "osd-pinned"}), ("ilo_summary", {"server_name": "osd-unverified"}),
                            ("ilo_get", {"server_name": "osd-01", "path": "/redfish/v1/AccountService/Accounts"}),
-                           ("ilo_fleet_health", {}), ("ilo_hardware", {"server_name": "osd-01", "only_problems": True})])
+                           ("ilo_fleet_health", {}), ("ilo_hardware", {"server_name": "osd-01", "only_problems": True}),
+                           ("ilo_summary", {"server_name": "osd-noverify"})])
     assert r[0]["system"]["Model"] == "ProLiant XL420 Gen10 Plus" and r[0]["ilo"]["Model"] == "iLO 5", r[0]
     assert len(r[1]["entries"]) == 1 and "Bay 3 failed" in r[1]["entries"][0]["Message"], r[1]
     assert r[2]["fans"][0]["Name"] == "Fan 1", r[2]                                      # certificate pinned by fingerprint
     assert "give ca_file or fingerprint" in r[3]["error"], r[3]
+    assert r[7]["system"]["Model"] == "ProLiant XL420 Gen10 Plus", r[7]                   # "verify": false
     assert "not accounts" in r[4]["error"], r[4]
     fleet = r[5]
-    assert fleet["checked"] == 3 and {p["server"] for p in fleet["problems"]} == {"osd-01", "osd-pinned", "osd-unverified"}, fleet
+    assert fleet["checked"] == 4 and {p["server"] for p in fleet["problems"]} == {"osd-01", "osd-pinned", "osd-unverified", "osd-noverify"}, fleet
     assert next(p for p in fleet["problems"] if p["server"] == "osd-01")["subsystems_not_ok"] == {"Storage": "Critical"}, fleet
     assert [m["Id"] for m in r[6]["memory"]] == ["proc1dimm2"] and r[6]["processors"] == [] and r[6]["network_adapters"] == [], r[6]
     sessions = [c for c in ILO.calls if c[0] == "POST"]
-    assert len(sessions) == len([c for c in ILO.calls if c[0] == "DELETE"]) == 6, ILO.calls      # every sign-in signed out
+    assert len(sessions) == len([c for c in ILO.calls if c[0] == "DELETE"]) == 8, ILO.calls      # every sign-in signed out
     assert ILO.writes({("POST", "/redfish/v1/SessionService/Sessions/"), ("DELETE", "/redfish/v1/SessionService/Sessions/s1/")}) == [], ILO.writes(set())
     cl = ilo.connect("osd-01")
     cl.login(auth="session")

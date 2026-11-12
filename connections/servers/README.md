@@ -22,15 +22,20 @@ vendor itself uses:
   multi-cluster tokens); Redfish under `/redfish/v1/` minus accounts, sessions, certificates and security.
 - Answers are cut to a size Claude can use, and every key that looks like a secret (`password`, `token`, `keys`,
   `secret_key`...) is replaced by `<redacted>`; RGW user keys are removed outright.
-- TLS is always verified: a `ca_file` per system or the system trust store. iLO needs a `ca_file` or the certificate's
-  SHA-256 `fingerprint` (HPE's library does not verify otherwise). There is no switch to turn verification off.
+- TLS is verified by default: a `ca_file` per system or the system trust store. iLO needs a `ca_file`, the
+  certificate's SHA-256 `fingerprint` (HPE's library does not verify otherwise), or `"verify": false`.
+- Self-signed systems: `"verify": false`, per system or once in the kind's `"defaults"`, keeps the connection encrypted
+  but does not check the certificate; the log names each system reached that way. The cost: whoever can answer on a
+  system's address (a spoofed IP or DNS name) receives the read-only account's password. A company-CA certificate on the
+  system (or its own certificate as `ca_file`) avoids that.
 - iLO: every call signs in and signs out (an iLO has few session slots).
 - Tools carry `readOnlyHint` and no destructive hint.
 - The accounts should still be read-only ones: that is the real guarantee.
 
 ## Inventory and credentials
 `targets.json` (copy `targets.example.json`): names and addresses of the grids, clusters, appliances and iLOs, and their
-CA files. No secrets: they come from the environment (a Kubernetes or Podman secret), `SDS_<KIND>_<NAME>_USERNAME` /
+CA files. `"defaults"` in a section applies to every system of that kind (`"ceph": {"defaults": {"verify": false},
+"prod-a": {...}, ...}`); a system's own setting wins. No secrets: they come from the environment (a Kubernetes or Podman secret), `SDS_<KIND>_<NAME>_USERNAME` /
 `_PASSWORD`, or one shared read-only account per kind, `SDS_<KIND>_USERNAME` / `_PASSWORD`. The tools take the name:
 `sg_health(grid_name="grid-a")`, `ceph_status(cluster_name="prod-a")`, `ilo_logs(server_name="osd-02")`.
 

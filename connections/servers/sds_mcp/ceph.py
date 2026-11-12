@@ -41,7 +41,7 @@ class Cluster:
         if not url.startswith("https://"):
             raise c.ToolFailure(f"ceph '{name}': url must be https://<active manager>:8443 (the dashboard's address)")
         self.token = None
-        self.client = c.ReadOnlyClient(url, self.settings)
+        self.client = c.ReadOnlyClient(url, self.settings, kind=KIND, name=name)
 
     def login(self):
         user, password = c.credentials(KIND, self.name)

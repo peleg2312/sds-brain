@@ -2,8 +2,9 @@
 API: a session per call (iLO has few session slots, so every call signs out again), GET only. The library's
 connection is wrapped so that nothing but GET, the session sign-in and its sign-out can be sent.
 
-Certificate verification is required: give the inventory a ca_file (a CA that signed the iLO certificates) or the
-server's certificate fingerprint (SHA-256), per server or in "defaults". The account: an iLO user with the Read Only
+The certificate: the inventory gives a ca_file (a CA that signed the iLO certificates) or the server's certificate
+fingerprint (SHA-256), per server or in "defaults", or "verify": false (encrypted, not checked; the server logs a
+warning). The account: an iLO user with the Read Only
 role (the Login privilege only), the same on every server or one per server."""
 import re
 from concurrent.futures import ThreadPoolExecutor
@@ -31,14 +32,15 @@ def connect(name):
     host = settings.get("host") or ""
     if not host or "/" in host:
         raise c.ToolFailure(f"ilo '{name}': host must be the iLO's name or address (no scheme)")
-    if settings.get("insecure") or settings.get("verify") is False:
-        raise c.ToolFailure("certificate verification cannot be switched off")
-    ca, pin = c.ca_file(settings), settings.get("fingerprint") or ""
-    if not ca and not pin:
-        raise c.ToolFailure(f"ilo '{name}': give ca_file or fingerprint (SHA-256 of the iLO certificate) in the inventory: "
-                            "the library does not verify the certificate otherwise")
+    skip = c.unverified(settings)                     # "verify": false: encrypted, certificate not checked
+    ca, pin = ("", "") if skip else (c.ca_file(settings), settings.get("fingerprint") or "")
+    if skip:
+        c.warn_unverified(KIND, name)
+    elif not ca and not pin:
+        raise c.ToolFailure(f"ilo '{name}': give ca_file or fingerprint (SHA-256 of the iLO certificate) in the inventory, "
+                            "or \"verify\": false: the library does not verify the certificate otherwise")
     user, password = c.credentials(KIND, name)
-    cert = {"ca_certs": ca} if ca else {"fingerprint": pin}
+    cert = {"ca_certs": ca} if ca else {"fingerprint": pin} if pin else None
     cl = redfish.RedfishClient(base_url=f"https://{host}", username=user, password=password, auth="session", ca_cert_data=cert,
                                timeout=urllib3.util.Timeout(connect=10, read=60), retries=urllib3.util.Retry(total=1, redirect=0))
     guard(cl)

@@ -71,13 +71,16 @@ Service and a Route. Deploy only the ones you need.
 
 **The inventory**: copy `connections/servers/targets.example.json` to `targets.json` and fill in your grids (admin node
 or its VIP, https), clusters (the active manager's dashboard, https, port 8443 by default), OneView appliances and
-iLOs. No secrets in it. Certificates are always verified: put the CA that signed each system's certificate beside it
-and name it in `ca_file`; for an iLO with a self-signed certificate give its SHA-256 `fingerprint` instead
-(`openssl s_client -connect <ilo>:443 </dev/null | openssl x509 -noout -fingerprint -sha256`). Then one ConfigMap for
-the four pods, mounted at `/config`:
+iLOs. No secrets in it. Certificates: put the CA that signed each system's certificate beside it and name it in
+`ca_file`; for an iLO with a self-signed certificate its SHA-256 `fingerprint` also works
+(`openssl s_client -connect <ilo>:443 </dev/null | openssl x509 -noout -fingerprint -sha256`). Self-signed systems
+without a CA (Ceph dashboards with their default certificate, for example): `"verify": false`, for one system or for
+all of a kind at once (`"ceph": {"defaults": {"verify": false}, "prod-a": {"url": "https://10.1.2.3:8443"}, ...}`):
+encrypted, but the certificate is not checked (`connections/servers/README.md`). Then one ConfigMap for the four pods,
+mounted at `/config`:
 ```bash
 oc create configmap sds-mcp-targets --from-file=targets.json --from-file=storagegrid.pem --from-file=ceph.pem \
-   --from-file=oneview.pem --from-file=ilo.pem
+   --from-file=oneview.pem --from-file=ilo.pem        # only the .pem files targets.json names
 ```
 
 **One secret per server**: the MCP token Claude Code sends, and the read-only account. A shared account per kind is

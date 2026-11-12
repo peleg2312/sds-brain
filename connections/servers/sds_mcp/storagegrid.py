@@ -44,7 +44,7 @@ class Grid:
             raise c.ToolFailure(f"storagegrid '{name}': url must be https://<admin node or its load balancer>")
         self.version = str(self.settings.get("api_version") or "")
         self.token = None
-        self.client = c.ReadOnlyClient(url, self.settings, headers={"Accept": "application/json"})
+        self.client = c.ReadOnlyClient(url, self.settings, headers={"Accept": "application/json"}, kind=KIND, name=name)
 
     def api(self):
         if not self.version:                                          # unauthenticated, as Harvest does
